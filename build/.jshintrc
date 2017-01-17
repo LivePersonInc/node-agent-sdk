@@ -1,0 +1,10 @@
+{
+    "undef": true,
+    "eqnull": true,
+    "noarg": true,
+    "node": true,
+    "evil": true,
+    "devel": false,
+    "laxcomma": true,
+    "esversion": 6
+}

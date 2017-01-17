@@ -1,0 +1,11 @@
+{
+    "tasks": {
+        "options": {
+            "filter": "exclude",
+            "tasks": ["availabletasks"],
+            "descriptions": {
+                "tasks": "List available Grunt tasks & targets."
+            }
+        }
+    }
+}

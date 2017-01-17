@@ -1,0 +1,38 @@
+{
+  "name": "node-agent-sdk",
+  "description": "NodeJs Liveperson Agent SDK for Messaging",
+  "version": "0.0.1",
+  "author": {
+    "name": "LivePersonInc",
+    "email": "fe-infra-lp@liveperson.com"
+  },
+  "contributors": [],
+  "devDependencies": {
+    "grunt": "~1.0.1",
+    "grunt-available-tasks": "~0.6.3",
+    "grunt-contrib-connect": "~1.0.2",
+    "grunt-contrib-jshint": "~1.1.0",
+    "grunt-node-version": "~1.0.0",
+    "load-grunt-config": "~0.19.2",
+    "time-grunt": "~1.4.0"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://lpgithub.dev.lprnd.net/LivePersonInc/node-agent-sdk.git"
+  },
+  "keywords": [],
+  "readme": "README.md",
+  "publishConfig": {
+    "registry": "http://tlvmvnrepository/artifactory/api/npm/lp-npm-local/"
+  },
+  "engines": {
+    "node": ">=6.9.1",
+    "npm": ">=3.0"
+  },
+  "dependencies": {
+    "request": "^2.79.0",
+    "uuid": "^3.0.1",
+    "ws": "^1.1.1"
+  }
+}

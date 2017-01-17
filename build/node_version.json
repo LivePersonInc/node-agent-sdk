@@ -1,0 +1,9 @@
+{
+    "options": {
+        "alwaysInstall": false,
+        "errorLevel": "fatal",
+        "globals": [],
+        "nvm": false,
+        "override": ""
+    }
+}
