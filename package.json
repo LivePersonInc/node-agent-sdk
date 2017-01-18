@@ -9,7 +9,7 @@
     "contributors": [],
     "scripts": {
         "start": "node ./examples/app",
-        "lint": "eslint lib/*.js; true"
+        "lint": "eslint lib/*; true"
     },
     "devDependencies": {
         "eslint": "^3.13.1"

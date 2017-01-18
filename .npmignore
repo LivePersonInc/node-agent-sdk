@@ -13,7 +13,7 @@ npm.bat
 *.swo
 node_modules
 test
-debug
+examples
 coverage
 *.tgz
 *.xml
