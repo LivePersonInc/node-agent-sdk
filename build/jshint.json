@@ -1,6 +1,0 @@
-{
-    "options": {
-        "jshintrc": "build/.jshintrc"
-    },
-    "uses_defaults": ["lib/*.js"]
-}
