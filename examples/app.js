@@ -1,9 +1,9 @@
 'use strict';
 
 const SDK = require('./../lib/AgentSDK');
-const accountId = 'qa55348961';
-const usename = 'reemd@liveperson.com';
-const password = 'lplp1234';
+const accountId = process.env.ACCOUNT;//'qa55348961';
+const usename = process.env.USERNAME;//'reemd@liveperson.com';
+const password = process.env.PASSWORD;//'lplp1234';
 
 const sdk = new SDK({
     // csdsDomain: 'hc1n.dev.lprnd.net',
