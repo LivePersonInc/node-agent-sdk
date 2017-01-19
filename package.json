@@ -8,7 +8,7 @@
   },
   "contributors": [],
   "scripts": {
-    "start": "node ./examples/app",
+    "start": "node ./examples/app.js",
     "lint": "eslint lib/*; true"
   },
   "devDependencies": {
