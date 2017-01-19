@@ -1,7 +1,7 @@
 'use strict';
 
-const SDK = require('./lib/AgentSDK');
+const Agent = require('./lib/AgentSDK');
 
 module.exports = {
-    SDK
+    Agent
 };
