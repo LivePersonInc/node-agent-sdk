@@ -1,37 +1,48 @@
 {
-  "name": "node-agent-sdk",
-  "description": "NodeJs Liveperson Agent SDK for Messaging",
-  "version": "0.0.1",
-  "author": {
-    "name": "LivePersonInc",
-    "email": "fe-infra-lp@liveperson.com"
-  },
-  "contributors": [],
-  "scripts": {
-    "start": "node ./examples/app.js",
-    "lint": "eslint lib/*; true"
-  },
-  "devDependencies": {
-    "eslint": "^3.13.1"
-  },
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://lpgithub.dev.lprnd.net/LivePersonInc/node-agent-sdk.git"
-  },
-  "keywords": [],
-  "readme": "README.md",
-  "publishConfig": {
-    "registry": "http://tlvmvnrepository/artifactory/api/npm/lp-npm-local/"
-  },
-  "engines": {
-    "node": ">=6.9.1",
-    "npm": ">=3.0"
-  },
-  "dependencies": {
-    "async": "^2.1.4",
-    "request": "^2.79.0",
-    "uuid": "^3.0.1",
-    "ws": "^1.1.1"
-  }
+    "name": "node-agent-sdk",
+    "description": "NodeJs Liveperson Agent SDK for Messaging",
+    "version": "0.0.1",
+    "author": {
+        "name": "LivePersonInc",
+        "email": "fe-infra-lp@liveperson.com"
+    },
+    "contributors": [{
+        "name": "Michael Dimenshtein",
+        "email": "michaeld@liveperson.com"
+    }],
+    "scripts": {
+        "start": "node ./examples/app.js",
+        "lint": "eslint lib/*; true"
+    },
+    "devDependencies": {
+        "eslint": "^3.13.1"
+    },
+    "main": "index.js",
+    "repository": {
+        "type": "git",
+        "url": "https://lpgithub.dev.lprnd.net/LivePersonInc/node-agent-sdk.git"
+    },
+    "keywords": [
+        "agent",
+        "sdk",
+        "liveperson",
+        "node",
+        "nodejs",
+        "messaging"
+    ],
+    "readme": "README.md",
+    "publishConfig": {
+        "registry": "http://tlvmvnrepository/artifactory/api/npm/lp-npm-local/"
+    },
+    "engines": {
+        "node": ">=6.9.1",
+        "npm": ">=3.0"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "async": "^2.1.4",
+        "request": "^2.79.0",
+        "uuid": "^3.0.1",
+        "ws": "^1.1.1"
+    }
 }
