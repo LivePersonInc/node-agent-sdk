@@ -6,7 +6,6 @@ const usename = process.env.USERNAME;//'reemd@liveperson.com';
 const password = process.env.PASSWORD;//'lplp1234';
 
 const agent = new Agent({
-    // csdsDomain: 'hc1n.dev.lprnd.net',
     accountId: accountId,
     username: usename,
     password: password
