@@ -6,16 +6,23 @@
         "name": "LivePersonInc",
         "email": "fe-infra-lp@liveperson.com"
     },
-    "contributors": [{
-        "name": "Michael Dimenshtein",
-        "email": "michaeld@liveperson.com"
-    }],
+    "contributors": [
+        {
+            "name": "Michael Dimenshtein",
+            "email": "michaeld@liveperson.com"
+        }
+    ],
     "scripts": {
         "start": "node ./examples/app.js",
-        "lint": "eslint lib/*; true"
+        "lint": "eslint lib/*; true",
+        "test": "mocha"
     },
     "devDependencies": {
-        "eslint": "^3.13.1"
+        "chai": "^3.5.0",
+        "eslint": "^3.13.1",
+        "mocha": "^3.2.0",
+        "mockery": "^2.0.0",
+        "sinon": "^1.17.7"
     },
     "main": "index.js",
     "repository": {
