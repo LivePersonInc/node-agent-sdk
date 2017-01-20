@@ -1,7 +1,7 @@
 node-agent-sdk
 ========
 [![npm version](https://img.shields.io/npm/v/node-agent-sdk.svg)](https://img.shields.io/npm/v/node-agent-sdk)
-[![npm downloads](https://img.shields.io/npm/dm/botly.svg)](https://img.shields.io/npm/dm/node-agent-sdk.svg)
+[![npm downloads](https://img.shields.io/npm/dm/node-agent-sdk.svg)](https://img.shields.io/npm/dm/node-agent-sdk.svg)
 [![license](https://img.shields.io/npm/l/node-agent-sdk.svg)](LICENSE)
 
 > LivePerson Agent Messaging SDK for NodeJS
