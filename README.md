@@ -4,7 +4,7 @@ node-agent-sdk
 [![npm downloads](https://img.shields.io/npm/dm/node-agent-sdk.svg)](https://img.shields.io/npm/dm/node-agent-sdk.svg)
 [![license](https://img.shields.io/npm/l/node-agent-sdk.svg)](LICENSE)
 
-> LivePerson Agent Messaging SDK for NodeJS
+> LivePerson Agent Messaging SDK for NodeJS  
 The SDK provides a simple wrapper for node js for the [LivePerson messaging API](http://ec2-54-175-164-201.compute-1.amazonaws.com:4180/v3/consumer-interation-index.html).
 
 Getting Started
