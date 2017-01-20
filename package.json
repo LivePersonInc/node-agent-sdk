@@ -27,7 +27,7 @@
     "main": "index.js",
     "repository": {
         "type": "git",
-        "url": "https://lpgithub.dev.lprnd.net/LivePersonInc/node-agent-sdk.git"
+        "url": "https://github.com/LivePersonInc/node-agent-sdk.git"
     },
     "keywords": [
         "agent",
@@ -38,9 +38,6 @@
         "messaging"
     ],
     "readme": "README.md",
-    "publishConfig": {
-        "registry": "http://tlvmvnrepository/artifactory/api/npm/lp-npm-local/"
-    },
     "engines": {
         "node": ">=6.9.1",
         "npm": ">=3.0"
