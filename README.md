@@ -18,7 +18,7 @@ Getting Started
 
 ### Example
 ```javascript
-const Agent = require('node-agent-sdk');
+const Agent = require('node-agent-sdk').Agent;
 
 const agent = new Agent({
     accountId: process.env.ACCOUNT,
