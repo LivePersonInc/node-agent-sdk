@@ -21,7 +21,7 @@ The SDK provides a simple node js wrapper for the [LivePerson messaging API][1].
 - Run the [bot example][3] (see how in [Running The Sample App][4]).
 
 
-### Example
+### Example Usage
 
 ```javascript
 const Agent = require('node-agent-sdk').Agent;
@@ -119,7 +119,7 @@ updateRoutingTaskSubscription
 setUserProfile
 getUserProfile
 setAgentState
-subscribeAgentsState`
+subscribeAgentsState
 ```
 
 
