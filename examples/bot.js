@@ -1,9 +1,9 @@
 'use strict';
 
 const Agent = require('./../lib/AgentSDK');
-const accountId = process.env.ACCOUNT;//'qa55348961';
-const usename = process.env.USERNAME;//'reemd@liveperson.com';
-const password = process.env.PASSWORD;//'lplp1234';
+const accountId = process.env.ACCOUNT;
+const usename = process.env.USERNAME;
+const password = process.env.PASSWORD;
 
 const agent = new Agent({
     accountId: accountId,
@@ -14,7 +14,7 @@ const agent = new Agent({
 let subscriptionId;
 let openConvs = {};
 
-agent.on('connected', (msg) => {
+agent.on('connected', msg => {
     console.log('connected...');
     agent.subscribeExConversations({
         'convState': ['OPEN']
@@ -24,18 +24,18 @@ agent.on('connected', (msg) => {
     });
 });
 
-agent.on('notification', (msg) => {
+agent.on('notification', msg => {
     console.log('got message', msg);
     if (msg.body.subscriptionId === subscriptionId) {
         handleConversationNotification(msg.body, openConvs)
     }
 });
 
-agent.on('error', (err) => {
+agent.on('error', err => {
     console.log('got an error', err);
 });
 
-agent.on('closed', (data) => {
+agent.on('closed', data => {
     console.log('socket closed', data);
 });
 
@@ -81,4 +81,3 @@ function handleConversationNotification(notificationBody, openConvs) {
         }
     });
 }
-
