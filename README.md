@@ -4,12 +4,12 @@ node-agent-sdk
 [![npm downloads](https://img.shields.io/npm/dm/node-agent-sdk.svg)](https://img.shields.io/npm/dm/node-agent-sdk.svg)
 [![license](https://img.shields.io/npm/l/node-agent-sdk.svg)](LICENSE)
 
-> LivePerson Agent Messaging SDK for NodeJS  
-The SDK provides a simple wrapper for node js for the [LivePerson messaging API](http://ec2-54-175-164-201.compute-1.amazonaws.com:4180/v3/consumer-interation-index.html).
+> LivePerson Agent Messaging SDK for NodeJS
+The SDK provides a simple node js wrapper for the [LivePerson messaging API](http://ec2-54-175-164-201.compute-1.amazonaws.com:4180/v3/consumer-interation-index.html).
 
 Getting Started
 ---------------
-- Install: `npm i node-agent-sdk --save`  
+- Install: `npm i node-agent-sdk --save`
 - Run the [example](/examples/bot.js): Provide the following env variables and run `npm run`:
   - `ACCOUNT` - Your LivePerson account Id
   - `USERNAME` - Your LivePerson agent username
@@ -84,7 +84,7 @@ agent.on('error', (err) => {
 ### API
 All requests types are dynamically assigned to the object on creation.
 The supported API calls are a mirror of the API, please read the documentation carefully for full examples:
-The list of api calls are:  
+The list of api calls are:
 `getClock, getBrands, getBrandProfile, setBrandProfile, agentRequestConversation, consumerRequestConversation, subscribeExConversations, unsubscribeExConversations, updateExConversationSubscription, updateConversationField, publishEvent, queryMessages, updateRingState, subscribeRoutingTasks, updateRoutingTaskSubscription, setUserProfile, getUserProfile, setAgentState, subscribeAgentsState`
 
 #### registerRequests(arr)
