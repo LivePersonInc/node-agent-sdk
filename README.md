@@ -58,7 +58,7 @@ new Agent({
     csdsDomain: String, // override the CSDS domain if needed
     requestTimeout: Number, // default to 10000 milliseconds
     errorCheckInterval: Number, // defaults to 1000 milliseconds
-    apiVersion: Number // Messaging API version - defaults to 2
+    apiVersion: Number // Messaging API version - defaults to 2 (version 1 is not supported anymore)
 });
 ```
 
