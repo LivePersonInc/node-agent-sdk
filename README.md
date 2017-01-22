@@ -12,12 +12,13 @@ The SDK provides a simple node js wrapper for the [LivePerson messaging API][1].
 
 ## Getting Started
 
-- Install: `npm i node-agent-sdk --save`
-- Run the [example](/examples/bot.js) &mdash; Provide the following `env` 
-variables and run `npm start`:
-  - `ACCOUNT` - Your LivePerson account ID
-  - `USERNAME` - Your LivePerson agent username
-  - `PASSWORD` - Your LivePerson agent password
+- Install:
+
+```sh
+npm i node-agent-sdk --save
+```
+
+- Run the [bot example](/examples/bot.js) (see how in [Running The Sample App](#running-the-sample-app)).
 
 
 ### Example
@@ -155,6 +156,32 @@ agent.request('.ams.aam.SubscribeExConversations', {
 - [LivePerson chat SDK][2]
 
 
+## Running The Sample App
+
+To run the [bot example](/examples/bot.js):
+
+- Provide the following `env` variables:
+   - `ACCOUNT` - Your LivePerson account ID
+   - `USERNAME` - Your LivePerson agent username
+   - `PASSWORD` - Your LivePerson agent password
+
+- If you're consuming the node-agent-sdk as a dependency, switch to the 
+package root:
+
+```sh
+cd ./node_modules/node-agent-sdk
+```
+
+If you're a developer, the package root is the same as the repository root, 
+so there's no need to change directories.
+
+- Run with npm:
+
+```sh
+npm start
+```
+
+
 ## Contributing
 
 In lieu of a formal styleguide, take care to maintain the existing coding 
@@ -166,6 +193,7 @@ To run the tests:
 npm test
 ```
 
+To run the [bot example](/examples/bot.js), see [Running The Sample App](#running-the-sample-app).
 
 
 
