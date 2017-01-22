@@ -18,7 +18,7 @@ The SDK provides a simple node js wrapper for the [LivePerson messaging API][1].
 npm i node-agent-sdk --save
 ```
 
-- Run the [bot example](/examples/bot.js) (see how in [Running The Sample App](#running-the-sample-app)).
+- Run the [bot example][3] (see how in [Running The Sample App](#running-the-sample-app)).
 
 
 ### Example
@@ -158,7 +158,7 @@ agent.request('.ams.aam.SubscribeExConversations', {
 
 ## Running The Sample App
 
-To run the [bot example](/examples/bot.js):
+To run the [bot example][3]:
 
 - Provide the following `env` variables:
    - `ACCOUNT` - Your LivePerson account ID
@@ -193,7 +193,7 @@ To run the tests:
 npm test
 ```
 
-To run the [bot example](/examples/bot.js), see [Running The Sample App](#running-the-sample-app).
+To run the [bot example][3], see [Running The Sample App](#running-the-sample-app).
 
 
 
@@ -201,3 +201,4 @@ To run the [bot example](/examples/bot.js), see [Running The Sample App](#runnin
 
 [1]: http://ec2-54-175-164-201.compute-1.amazonaws.com:4180/v3/consumer-interation-index.html
 [2]: https://github.com/LivePersonInc/chat-agent
+[3]: /examples/bot.js
