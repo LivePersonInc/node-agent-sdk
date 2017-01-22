@@ -14,11 +14,9 @@ npm.bat
 node_modules
 test
 examples
-coverage
 *.tgz
 *.xml
 *.pom
 *.iml
 pom.xml.releaseBackup
-gruntfile.js
 docs
