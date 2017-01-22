@@ -14,7 +14,7 @@ The SDK provides a simple node js wrapper for the [LivePerson messaging API][1].
 
 - Install: `npm i node-agent-sdk --save`
 - Run the [example](/examples/bot.js) &mdash; Provide the following `env` 
-variables and run `npm run`:
+variables and run `npm start`:
   - `ACCOUNT` - Your LivePerson account ID
   - `USERNAME` - Your LivePerson agent username
   - `PASSWORD` - Your LivePerson agent password
