@@ -75,7 +75,8 @@ function handleConversationNotification(notificationBody, openConvs) {
                     });
                 }
             }
-        } else if (change.type === 'DELETE') {
+        } 
+        else if (change.type === 'DELETE') {
             delete openConvs[change.result.convId];
             console.log(`conversation was closed.\n`);
         }
