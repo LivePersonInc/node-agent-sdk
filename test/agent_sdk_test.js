@@ -23,9 +23,9 @@ describe('Agent SDK Tests', () => {
                 super();
                 this.send = tranportSendStub;
 
-                setTimeout(() => {
+                setImmediate(() => {
                     this.emit('open', conf);
-                }, 10);
+                });
             }
         }
 
@@ -139,14 +139,14 @@ describe('Agent SDK Tests', () => {
                 done();
             });
 
-            setTimeout(() => {
+            setImmediate(() => {
                 agent.transport.emit('message', {
                     kind: 'resp',
                     reqId: tranportSendStub.getCall(0).args[0].id,
                     type: 'myRespType',
                     body: {x: 'x'}
                 });
-            }, 10);
+            });
         });
 
     });
@@ -163,14 +163,14 @@ describe('Agent SDK Tests', () => {
         agent.on('connected', msg => {
             agent.getClock({some: 'data'}, response => {});
 
-            setTimeout(() => {
+            setImmediate(() => {
                 agent.transport.emit('message', {
                     kind: 'resp',
                     reqId: tranportSendStub.getCall(1).args[0].id,
                     type: 'myRespType',
                     body: {x: 'x'}
                 });
-            }, 10);
+            });
         });
 
         agent.on('myRespType', body => {
