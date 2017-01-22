@@ -51,3 +51,8 @@ crashlytics-build.properties
 node_modules
 npm-debug.log
 dist
+
+# logs
+logs
+
+*.sublime-*
