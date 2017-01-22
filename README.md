@@ -55,15 +55,15 @@ new Agent({
 ```
 ###Events
 ```javascript
-agent.on('connected', (msg) => {
+agent.on('connected', msg => {
     //once socket connected to the server
 });
 
-agent.on('notification', (message) => {
+agent.on('notification', message => {
     //listen on all notifications
 });
 
-agent.on('.MessagingEvent', (body) => { //specific notification type
+agent.on('.MessagingEvent', body => { //specific notification type
     //listen on all notifications
 });
 
@@ -71,11 +71,11 @@ agent.on('.ams.ms.QueryMessages', (body, requestId) => { //specific response typ
     //listen on all notifications
 });
 
-agent.on('closed', (reason) => {
+agent.on('closed', reason => {
     //socket closed
 });
 
-agent.on('error', (err) => {
+agent.on('error', err => {
     //Some error happened
 });
 
