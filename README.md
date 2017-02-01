@@ -102,21 +102,15 @@ The available API calls are:
 
 ```
 getClock
-getBrands
-getBrandProfile
-setBrandProfile
 agentRequestConversation
-consumerRequestConversation
 subscribeExConversations
 unsubscribeExConversations
-updateExConversationSubscription
 updateConversationField
 publishEvent
 queryMessages
 updateRingState
 subscribeRoutingTasks
 updateRoutingTaskSubscription
-setUserProfile
 getUserProfile
 setAgentState
 subscribeAgentsState
