@@ -29,7 +29,7 @@ describe('Agent SDK Tests', () => {
             }
         }
 
-        externalServices = {getDomains: sinon.stub(), login: sinon.stub()};
+        externalServices = {getDomains: sinon.stub(), login: sinon.stub(), getAgentId: sinon.stub()};
         mockery.registerMock('./Transport', Transport);
         mockery.registerMock('./ExternalServices', externalServices);
         Agent = require('./../lib/AgentSDK');
@@ -42,6 +42,7 @@ describe('Agent SDK Tests', () => {
     it('should create an instance and publish connected event', done => {
         externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
         const agent = new Agent({
             accountId: 'account',
             username: 'me',
@@ -57,6 +58,7 @@ describe('Agent SDK Tests', () => {
 
     it('should fail to create an instance when csds is not available', done => {
         externalServices.getDomains.yieldsAsync(new Error('cannot connect to csds'));
+
         const agent = new Agent({
             accountId: 'account',
             username: 'me',
@@ -69,9 +71,26 @@ describe('Agent SDK Tests', () => {
         });
     });
 
+    it('should fail to create an instance when cannot get agent id', done => {
+        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        externalServices.getAgentId.yieldsAsync(new Error('cannot get agent id'));
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+        agent.on('error', err => {
+            expect(err).to.be.instanceof(Error);
+            expect(err.message).to.contain('agent');
+            done();
+        });
+    });
+
     it('should fail to create an instance when login service is not available', done => {
         externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
         externalServices.login.yieldsAsync(new Error('cannot login'));
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
         const agent = new Agent({
             accountId: 'account',
             username: 'me',
@@ -87,6 +106,8 @@ describe('Agent SDK Tests', () => {
     it('should receive all notifications', done => {
         externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+
         const agent = new Agent({
             accountId: 'account',
             username: 'me',
@@ -106,6 +127,8 @@ describe('Agent SDK Tests', () => {
     it('should receive specific notifications', done => {
         externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+
         const agent = new Agent({
             accountId: 'account',
             username: 'me',
@@ -125,6 +148,8 @@ describe('Agent SDK Tests', () => {
     it('should call the request callback on response', done => {
         externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+
         const agent = new Agent({
             accountId: 'account',
             username: 'me',
@@ -154,6 +179,8 @@ describe('Agent SDK Tests', () => {
     it('should emit specific response event', done => {
         externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+
         const agent = new Agent({
             accountId: 'account',
             username: 'me',
@@ -183,6 +210,8 @@ describe('Agent SDK Tests', () => {
     it('should call the request callback with error on timeout', done => {
         externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+
         const agent = new Agent({
             accountId: 'account',
             username: 'me',

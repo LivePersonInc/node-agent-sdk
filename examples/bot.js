@@ -8,7 +8,8 @@ const password = process.env.PASSWORD;
 const agent = new Agent({
     accountId: accountId,
     username: usename,
-    password: password
+    password: password,
+    csdsDomain: 'hc1n.dev.lprnd.net'
 });
 
 let subscriptionId;
@@ -75,7 +76,7 @@ function handleConversationNotification(notificationBody, openConvs) {
                     });
                 }
             }
-        } 
+        }
         else if (change.type === 'DELETE') {
             delete openConvs[change.result.convId];
             console.log(`conversation was closed.\n`);
