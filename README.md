@@ -146,7 +146,6 @@ agent.request('.ams.aam.SubscribeExConversations', {
 
 ### Further documentation
 
-- [LivePerson messaging API][1]
 - [LivePerson chat SDK][2]
 
 
