@@ -9,6 +9,11 @@
 
 The SDK provides a simple node js wrapper for the [LivePerson messaging API][1].
 
+## Disclaimer
+A new major version of the SDK will be released soon with a breaking change:
+Current SDK will start sending notifications once connected.
+Next version will require explicit registration.
+Specifically, the function `queryMessages` will be removed and be replaced with a new function.
 
 ## Getting Started
 
