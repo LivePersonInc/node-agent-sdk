@@ -153,6 +153,7 @@ agent.request('.ams.aam.SubscribeExConversations', {
 
 - [LivePerson chat SDK][2]
 
+<!-- When creating a request through the request builder you should provide only the `body` to the sdk request method -->
 
 ## Running The Sample App
 
