@@ -56,3 +56,5 @@ dist
 logs
 
 *.sublime-*
+
+agent.js
