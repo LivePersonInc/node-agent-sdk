@@ -17,6 +17,7 @@ let openConvs = {};
 
 agent.on('connected', msg => {
     console.log('connected...');
+    agent.setAgentState({ availability: "OFFLINE"});
     agent.subscribeExConversations({
         'convState': ['OPEN']
     }, (err, resp) => {
