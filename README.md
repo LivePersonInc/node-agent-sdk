@@ -32,13 +32,13 @@ Specifically, the function `queryMessages` will be removed and replaced with a n
 const Agent = require('node-agent-sdk').Agent;
 
 const agent = new Agent({
-    accountId: process.env.ACCOUNT,
-    username: process.env.USERNAME,
-    password: process.env.PASSWORD
+    accountId: process.env.LP_ACCOUNT,
+    username: process.env.LP_USER,
+    password: process.env.LP_PASS
 });
 
 agent.on('connected', () => {
-    console.log(`connected... ${agent.agentId}`);
+    console.log(`connected...`);
 
     agent.subscribeExConversations({
         'convState': ['OPEN']
@@ -160,9 +160,9 @@ agent.request('.ams.aam.SubscribeExConversations', {
 To run the [bot example][3]:
 
 - Provide the following `env` variables:
-   - `ACCOUNT` - Your LivePerson account ID
-   - `USERNAME` - Your LivePerson agent username
-   - `PASSWORD` - Your LivePerson agent password
+   - `LP_ACCOUNT` - Your LivePerson account ID
+   - `LP_USER` - Your LivePerson agent username
+   - `LP_PASS` - Your LivePerson agent password
 
 - If you are consuming the Agent Messaging SDK as a dependency, switch to the 
 package root:
