@@ -7,13 +7,13 @@
 
 > LivePerson Agent Messaging SDK for NodeJS
 
-The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
+The SDK provides a simple node js wrapper for the [LivePerson messaging API][1].
 
 ## Disclaimer
 A new major version of the SDK will be released soon with a breaking change:
-The current SDK will start sending notifications once connected.
-The next version will require explicit registration.
-Specifically, the function `queryMessages` will be removed and replaced with a new function.
+Current SDK will start sending notifications once connected.
+Next version will require explicit registration.
+Specifically, the function `queryMessages` will be removed and be replaced with a new function.
 
 ## Getting Started
 
@@ -97,10 +97,10 @@ agent.on('error', err => {
 ```
 
 
-### Messaging Agent API (backend)
+### Messaging API
 
-All request types are dynamically assigned to the object on creation.
-The supported API calls are a mirror of the LiveEngage Messaging Agent API - please read 
+All requests types are dynamically assigned to the object on creation.
+The supported API calls are a mirror of the LE Messaging API, please read 
 the documentation carefully for full examples.
 
 The available API calls are:
@@ -151,7 +151,7 @@ agent.request('.ams.aam.SubscribeExConversations', {
 
 ### Further documentation
 
-- [LivePerson Chat SDK][2]
+- [LivePerson chat SDK][2]
 
 <!-- When creating a request through the request builder you should provide only the `body` to the sdk request method -->
 
@@ -164,15 +164,15 @@ To run the [bot example][3]:
    - `LP_USER` - Your LivePerson agent username
    - `LP_PASS` - Your LivePerson agent password
 
-- If you are consuming the Agent Messaging SDK as a dependency, switch to the 
+- If you're consuming the node-agent-sdk as a dependency, switch to the 
 package root:
    
    ```sh
    cd ./node_modules/node-agent-sdk
    ```
 
-If you are a developer, the package root is the same as the repository root. 
-There is therefore no need to change directories.
+If you're a developer, the package root is the same as the repository root, 
+so there's no need to change directories.
 
 - Run with npm:
    
