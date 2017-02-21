@@ -56,21 +56,12 @@ function handleConversationNotification(notificationBody, openConvs) {
                             'role': 'MANAGER'
                         }]
                     }, (err, joinResp) => {
-                        console.log('added');
-                        agent.queryMessages({
-                            'dialogId': change.result.convId,
-                            'newerThanSequence': '0'
-                        }, (err, queryResp) => {
-                            if (queryResp.filter(e => e.originatorPId !== change.result.conversationDetails.participantsPId.CONSUMER[0]).length == 0) {
-                                console.log(`sending welcome to conv ${change.result.convId}\n`);
-                                agent.publishEvent({
-                                    dialogId: change.result.convId,
-                                    event: {
-                                        type: 'ContentEvent',
-                                        contentType: 'text/plain',
-                                        message: 'welcome from bot'
-                                    }
-                                });
+                        agent.publishEvent({
+                            dialogId: change.result.convId,
+                            event: {
+                                type: 'ContentEvent',
+                                contentType: 'text/plain',
+                                message: 'welcome from bot'
                             }
                         });
                     });
