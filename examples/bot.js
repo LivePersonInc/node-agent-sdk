@@ -46,14 +46,13 @@ function handleConversationNotification(notificationBody, openConvs) {
         if (change.type === 'UPSERT') {
             if (!openConvs[change.result.convId]) {
                 openConvs[change.result.convId] = change.result;
-                // console.log(change.result);
-                if (!change.result.conversationDetails.participants.MANAGER || !change.result.conversationDetails.participants.MANAGER.includes(agent.agentId)) {
+                const participants = change.result.conversationDetails.participants;
+                if (!change.result.conversationDetails.getMyRole()) {
                     agent.updateConversationField({
                         'conversationId': change.result.convId,
                         'conversationField': [{
                             'field': 'ParticipantsChange',
                             'type': 'ADD',
-                            'userId': agent.agentId,
                             'role': 'MANAGER'
                         }]
                     }, (err, joinResp) => {
