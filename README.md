@@ -9,11 +9,26 @@
 
 The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 
+- [Disclaimer](#disclaimer)
+- [Getting Started](#getting-started)
+- [Example Usage](#example-usage)
+- [API Overview](#api-overview)
+  - [Agent class](#agent-class)
+  - [Events](#events)
+  - [Specific notifications additions](#specific-notifications-additions)
+    - [MessagingEventNotification isMe()](#messagingeventnotification-isme)
+    - [ExConversationChangeNotification getMyRole()](#exconversationchangenotification-getmyrole)
+  - [Messaging Agent API (backend)](#messaging-agent-api-backend)
+    - [registerRequests(arr)](#registerrequestsarr)
+    - [request(type, body[, headers], callback)](#requesttype-body-headers-callback)
+- [Further documentation](#further-documentation)
+- [Running The Sample App](#running-the-sample-app)
+- [Contributing](#contributing)
+
 ## Disclaimer
-A new major version of the SDK will be released soon with a breaking change:
-The current SDK will start sending notifications once connected.
-The next version will require explicit registration.
-Specifically, the function `queryMessages` will be removed and replaced with a new function.
+A new major version of the SDK will be released soon with a breaking change:  
+The current SDK will start sending notifications once connected.  
+The next version will require explicit registration.  
 
 ## Getting Started
 
@@ -79,11 +94,11 @@ agent.on('notification', message => {
     // listen on all notifications
 });
 
-agent.on('.MessagingEvent', body => { // specific notification type
+agent.on('ms.MessagingEventNotification', body => { // specific notification type
     // listen on notifications of the MessagingEvent type
 });
 
-agent.on('.ams.ms.QueryMessages', (body, requestId) => { // specific response type
+agent.on('GenericSubscribeResponse', (body, requestId) => { // specific response type
     // listen on notifications of the specified type, do something with the requestId
 });
 
@@ -96,6 +111,28 @@ agent.on('error', err => {
 });
 ```
 
+### Specific notifications additions
+Some notifications support helper methods to obtain the role and to identify if the message event is from "me".
+
+#### MessagingEventNotification isMe()
+A method to understand on each change on the messaging event if it is from the agent connected right now or not. 
+```javascript
+agent.on('ms.MessagingEventNotification', body => { 
+    body.changes.forEach(change => {
+        change.isMe(); 
+    });
+});
+```
+
+#### ExConversationChangeNotification getMyRole()
+A method to understand on each change on the conversation change notification conversation details the current agent role in the conversation or undefined if he is not participant.
+```javascript
+agent.on('cqm.ExConversationChangeNotification', body => {
+    body.changes.forEach(change => {
+        change.result.conversationDetails.getMyRole();  
+    });
+});
+```
 
 ### Messaging Agent API (backend)
 
