@@ -67,15 +67,6 @@ agent.on('cqm.ExConversationChangeNotification', notificationBody => {
     });
 });
 
-
-// for tracing
-//agent.on('notification', msg => console.log('got message', msg));
-//agent.on('error', err => console.log('got an error', err));
-//agent.on('closed', data => console.log('socket closed', data));
-
-function handleConversationNotification(notificationBody, openConvs) {
-}
-
 // Echo every unread consumer message and mark it as read
 agent.on('ms.MessagingEventNotification', body => {
     const respond = {};
@@ -114,3 +105,7 @@ agent.on('ms.MessagingEventNotification', body => {
     });
 });
 
+// Tracing
+//agent.on('notification', msg => console.log('got message', msg));
+//agent.on('error', err => console.log('got an error', err));
+//agent.on('closed', data => console.log('socket closed', data));
