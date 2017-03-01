@@ -1,15 +1,12 @@
 'use strict';
 
 const Agent = require('./../lib/AgentSDK');
-const accountId = process.env.LP_ACCOUNT;
-const username = process.env.LP_USER;
-const password = process.env.LP_PASS;
 
 const agent = new Agent({
-    accountId: accountId,
-    username: username,
-    password: password,
-    csdsDomain: 'hc1n.dev.lprnd.net'
+    accountId: process.env.LP_ACCOUNT,
+    username: process.env.LP_USER,
+    password: process.env.LP_PASS,
+    csdsDomain: process.env.LP_CSDS // 'hc1n.dev.lprnd.net'
 });
 
 let subscriptionId;
