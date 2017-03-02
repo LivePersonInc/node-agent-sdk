@@ -76,16 +76,26 @@ agent.on('ms.MessagingEventNotification', body => {
         if (openConvs[c.dialogId]) {
             // add to respond list all content event not by me
             if (c.event.type === 'ContentEvent' && !c.isMe()) {
-                respond[`${c.dialogId}-${c.sequence}`] = {
-                    dialogId: c.dialogId,
+                respond[`${body.dialogId}-${c.sequence}`] = {
+                    dialogId: body.dialogId,
                     sequence: c.sequence,
                     message: c.event.message
                 };
+                // Close the conversation upon #close message from the consumer
+                if (c.event.message.startsWith('#close')) {
+                    agent.updateConversationField({
+                        conversationId: body.dialogId,
+                        conversationField: {
+                            field: "ConversationStateField",
+                            conversationState: "CLOSE"
+                        }
+                    });
+                }
             }
             // remove from respond list all the messages that were already read
             if (c.event.type === 'AcceptStatusEvent' && c.isMe()) {
                 c.event.sequenceList.forEach(seq => {
-                    delete respond[`${c.dialogId}-${seq}`];
+                    delete respond[`${body.dialogId}-${seq}`];
                 });
             }
         }
