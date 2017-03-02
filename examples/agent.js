@@ -1,5 +1,18 @@
 'use strict';
 
+/*
+ * This demo try to use most of the API calls of the mssaging agent api. It:
+ * 
+ * 1) Registers the agent as online
+ * 2) Accepts any routing task
+ * 3) Publishes to the conversation the consumer info when it gets new conversation
+ * 4) Gets the content of the conversation
+ * 5) Echo any new message from the consumer
+ * 6) Mark as "read" the echoed message
+ * 7) Close the conversation if the consumer message starts with '#close'
+ * 
+ */
+
 const Agent = require('./../lib/AgentSDK');
 
 const agent = new Agent({
