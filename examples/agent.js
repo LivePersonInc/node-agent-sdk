@@ -98,10 +98,10 @@ agent.on('ms.MessagingEventNotification', body => {
                 if (c.event.message.startsWith('#close')) {
                     agent.updateConversationField({
                         conversationId: body.dialogId,
-                        conversationField: {
+                        conversationField: [{
                             field: "ConversationStateField",
                             conversationState: "CLOSE"
-                        }
+                        }]
                     });
                 }
             }
