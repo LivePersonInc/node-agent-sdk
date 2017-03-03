@@ -1,5 +1,18 @@
 'use strict';
 
+/*
+ * This demo try to use most of the API calls of the mssaging agent api. It:
+ * 
+ * 1) Registers the agent as online
+ * 2) Accepts any routing task
+ * 3) Publishes to the conversation the consumer info when it gets new conversation
+ * 4) Gets the content of the conversation
+ * 5) Echo any new message from the consumer
+ * 6) Mark as "read" the echoed message
+ * 7) Close the conversation if the consumer message starts with '#close'
+ * 
+ */
+
 const Agent = require('./../lib/AgentSDK');
 
 const agent = new Agent({
@@ -76,16 +89,26 @@ agent.on('ms.MessagingEventNotification', body => {
         if (openConvs[c.dialogId]) {
             // add to respond list all content event not by me
             if (c.event.type === 'ContentEvent' && !c.isMe()) {
-                respond[`${c.dialogId}-${c.sequence}`] = {
-                    dialogId: c.dialogId,
+                respond[`${body.dialogId}-${c.sequence}`] = {
+                    dialogId: body.dialogId,
                     sequence: c.sequence,
                     message: c.event.message
                 };
+                // Close the conversation upon #close message from the consumer
+                if (c.event.message.startsWith('#close')) {
+                    agent.updateConversationField({
+                        conversationId: body.dialogId,
+                        conversationField: [{
+                            field: "ConversationStateField",
+                            conversationState: "CLOSE"
+                        }]
+                    });
+                }
             }
             // remove from respond list all the messages that were already read
             if (c.event.type === 'AcceptStatusEvent' && c.isMe()) {
                 c.event.sequenceList.forEach(seq => {
-                    delete respond[`${c.dialogId}-${seq}`];
+                    delete respond[`${body.dialogId}-${seq}`];
                 });
             }
         }
