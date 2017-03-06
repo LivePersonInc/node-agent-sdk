@@ -4,24 +4,22 @@
  * This demo try to use most of the API calls of the mssaging agent api. It:
  * 
  * 1) Registers the agent as online
- * 2) Accepts any routing task
+ * 2) Accepts any routing task (== ring)
  * 3) Publishes to the conversation the consumer info when it gets new conversation
  * 4) Gets the content of the conversation
- * 5) Echo any new message from the consumer
- * 6) Mark as "read" the echoed message
- * 7) Close the conversation if the consumer message starts with '#close'
+ * 5) Emit 'MyCoolAgent.ContentEvnet' to let the developer handle contentEvent responses
+ * 6) Mark as "read" the handled messages
  * 
  */
 
-const Agent = require('./../lib/AgentSDK');
+const Agent = require('./../../lib/AgentSDK');
 
 
 class MyCoolAgent extends Agent {
-    constructor(conf, replyFunction) {
-        console.log("hello ", conf);
+    constructor(conf) {
         super(conf);
         this.init();
-        this.replyFunction = replyFunction;
+        this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvnet';
     }
 
     init() {
@@ -33,10 +31,10 @@ class MyCoolAgent extends Agent {
             this.subscribeExConversations({
                 'convState': ['OPEN']
             }, (e, resp) => console.log('subscribed successfully'));
-            this.subscribeRoutingTasks({}, (e, resp) => console.log(resp));
+            this.subscribeRoutingTasks({});
         });
 
-// Accept any ring
+        // Accept any ring
         this.on('routing.RoutingTaskNotification', body => {
             body.changes.forEach(c => {
                 if (c.type === "UPSERT") {
@@ -52,7 +50,7 @@ class MyCoolAgent extends Agent {
             });
         });
 
-// Subscribe to the content of my conversations
+        // Subscribe to the content of my conversations
         this.on('cqm.ExConversationChangeNotification', notificationBody => {
             notificationBody.changes.forEach(change => {
                 if (change.type === 'UPSERT') {
@@ -83,7 +81,7 @@ class MyCoolAgent extends Agent {
             });
         });
 
-// Echo every unread consumer message and mark it as read
+        // Echo every unread consumer message and mark it as read
         this.on('ms.MessagingEventNotification', body => {
             const respond = {};
             body.changes.forEach(c => {
@@ -114,37 +112,16 @@ class MyCoolAgent extends Agent {
                     dialogId: contentEvent.dialogId,
                     event: {type: "AcceptStatusEvent", status: "READ", sequenceList: [contentEvent.sequence]}
                 });
-                this.replyFunction(contentEvent, this);
+                this.emit(this.CONTENT_NOTIFICATION,contentEvent);
             });
         });
 
-// Tracing
-//this.on('notification', msg => console.log('got message', msg));
-//this.on('error', err => console.log('got an error', err));
-//this.on('closed', data => console.log('socket closed', data));
+        // Tracing
+        //this.on('notification', msg => console.log('got message', msg));
+        this.on('error', err => console.log('got an error', err));
+        this.on('closed', data => console.log('socket closed', data));
 
     }
 }
 
-const agent = new MyCoolAgent({
-    accountId: process.env.LP_ACCOUNT,
-    username: process.env.LP_USER,
-    password: process.env.LP_PASS,
-    csdsDomain: process.env.LP_CSDS // 'hc1n.dev.lprnd.net'
-}, (contentEvent, agent) => {
-    // Close the conversation upon #close message from the consumer
-    if (contentEvent.message.startsWith('#close')) {
-        agent.updateConversationField({
-            conversationId: contentEvent.dialogId,
-            conversationField: [{
-                    field: "ConversationStateField",
-                    conversationState: "CLOSE"
-                }]
-        });
-    } else {
-        agent.publishEvent({
-            dialogId: contentEvent.dialogId,
-            event: {type: 'ContentEvent', contentType: 'text/plain', message: `echo : ${contentEvent.message}`}
-        });
-    }
-});
+module.exports = MyCoolAgent;
