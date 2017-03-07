@@ -34,7 +34,7 @@ class MyCoolAgent extends Agent {
             this.subscribeRoutingTasks({});
         });
 
-        // Accept any ring
+        // Accept any routingTask (==ring)
         this.on('routing.RoutingTaskNotification', body => {
             body.changes.forEach(c => {
                 if (c.type === "UPSERT") {
@@ -50,7 +50,7 @@ class MyCoolAgent extends Agent {
             });
         });
 
-        // Subscribe to the content of my conversations
+        // Notification on changes in the open consversation list
         this.on('cqm.ExConversationChangeNotification', notificationBody => {
             notificationBody.changes.forEach(change => {
                 if (change.type === 'UPSERT') {
@@ -120,7 +120,6 @@ class MyCoolAgent extends Agent {
         //this.on('notification', msg => console.log('got message', msg));
         this.on('error', err => console.log('got an error', err));
         this.on('closed', data => console.log('socket closed', data));
-
     }
 }
 
