@@ -3,21 +3,25 @@ const TaskSharding = require('./task-sharding.js');
 const MyCoolAgent = require('./../echo/MyCoolAgent');
 
 const zkConnStr = `${process.env.ZK_PORT_2181_TCP_ADDR}:${process.env.ZK_PORT_2181_TCP_PORT}`;
-const taskSharding = new TaskSharding(zkConnStr);
 
-const handledAgents = {};
-const allAgents = JSON.parse(fs.readFileSync(process.env.BOT_CONFIG_FILE, 'utf8'));
+const allAgents = 
+        JSON.parse(fs.readFileSync(process.env.BOT_CONFIG_FILE, 'utf8')) // read file
+        .map(agentInfo => { // add id
+            agentInfo.id = `${agentInfo.accountId}-${agentInfo.username}`;
+            return agentInfo;
+        });
 
-function handleRemoveAgent(confId) {
-    console.log("remove", confId);
-    handledAgents[confId].dispose();
-    delete handledAgents[confId];
-}
+const taskSharding = new TaskSharding(zkConnStr,allAgents);
 
-function handleAddAgent(newAgentConfId, newAgentConf) {
-    console.log("add", newAgentConfId);
-    handledAgents[newAgentConfId] = createNewAgent(newAgentConf);
-}
+taskSharding.on('taskAdded',(newAgentConf, taskInfoAdder)=>{
+    console.log("add", newAgentConf);
+    taskInfoAdder(createNewAgent(newAgentConf));    
+});
+
+taskSharding.on('taskRemoved',(oldTaskInfo)=>{
+    console.log("remove", oldTaskInfo);
+    oldTaskInfo.dispose();
+});
 
 function createNewAgent(newAgentConf) {
     const newAgent = new MyCoolAgent(newAgentConf);
@@ -47,25 +51,3 @@ function createNewAgent(newAgentConf) {
     });
     return newAgent;
 }
-
-const objId = agent => `${agent.accountId}-${agent.username}`;
-
-taskSharding.on('clusterChange',(myServiceInstance, updatedHashRing) => {
-    const isOwnedByMe = agent => updatedHashRing.get(objId(agent)) === myServiceInstance.data.id;
-    const myAgents = allAgents.filter(isOwnedByMe).reduce((acc, agent) => {
-        acc[objId(agent)] = agent;
-        return acc;
-    }, {});
-
-    Object.keys(handledAgents)
-            .filter(agentConfId => !myAgents[agentConfId])
-            .forEach(oldAgentConfId => {
-                handleRemoveAgent(oldAgentConfId, myAgents[oldAgentConfId]);
-            });
-
-    Object.keys(myAgents)
-            .filter(agentConfId => !handledAgents[agentConfId])
-            .forEach(newAgentConfId => {
-                handleAddAgent(newAgentConfId, myAgents[newAgentConfId]);
-            });
-});
