@@ -14,18 +14,17 @@ const allAgents =
 const taskSharding = new TaskSharding(zkConnStr,allAgents);
 
 taskSharding.on('taskAdded',(newAgentConf, taskInfoAdder)=>{
-    console.log("add", newAgentConf.id);
+    console.log(`add ${newAgentConf.id}`);
     taskInfoAdder(createNewAgent(newAgentConf));    
 });
 
 taskSharding.on('taskRemoved',(oldTaskInfo)=>{
-    console.log("remove", oldTaskInfo.id);
+    console.log(`remove ${oldTaskInfo.conf.id}`);
     oldTaskInfo.dispose();
 });
 
 function createNewAgent(newAgentConf) {
     const newAgent = new MyCoolAgent(newAgentConf);
-    newAgent.conf = newAgentConf;
     newAgent.on('MyCoolAgent.ContentEvnet', function(contentEvent) {
         if (contentEvent.message.startsWith('#close')) {
             newAgent.updateConversationField({
@@ -41,13 +40,13 @@ function createNewAgent(newAgentConf) {
                 event: {
                     type: 'ContentEvent',
                     contentType: 'text/plain',
-                    message: `response from ${this.conf.username}`
+                    message: `response from ${this.conf.id}`
                 }
             });
         }
     });
     newAgent.on('close', function() {
-        console.log(`closed connection for ${this.conf.username}`);
+        console.log(`closed connection for ${this.conf.id}`);
     });
     return newAgent;
 }

@@ -28,8 +28,8 @@ class TaskSharding extends Events {
             Object.keys(this.handledTasks)
                     .filter(taskId => !myTasks[taskId])
                     .forEach(oldTaskId => {
-                        this.emit('taskRemoved',myTasks[oldTaskId]);
-                        delete handledTasks[oldTaskId];
+                        this.emit('taskRemoved',this.handledTasks[oldTaskId]);
+                        delete this.handledTasks[oldTaskId];
                     });
 
             Object.keys(myTasks)

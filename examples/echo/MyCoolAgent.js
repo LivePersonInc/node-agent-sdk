@@ -18,6 +18,7 @@ const Agent = require('./../../lib/AgentSDK');
 class MyCoolAgent extends Agent {
     constructor(conf) {
         super(conf);
+        this.conf = conf;
         this.init();
         this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvnet';
     }
@@ -26,11 +27,11 @@ class MyCoolAgent extends Agent {
         let openConvs = {};
 
         this.on('connected', msg => {
-            console.log('connected...');
+            console.log('connected...', this.conf.id || '');
             this.setAgentState({availability: "ONLINE"});
             this.subscribeExConversations({
                 'convState': ['OPEN']
-            }, (e, resp) => console.log('subscribed successfully'));
+            }, (e, resp) => console.log('subscribed successfully', this.conf.id || ''));
             this.subscribeRoutingTasks({});
         });
 
