@@ -1,0 +1,16 @@
+zookeeper:
+  image: wurstmeister/zookeeper
+  ports: 
+    - "2181"
+
+app:
+  image: node:slim
+  links: 
+    - zookeeper:zk
+  volumes:
+    - ../../:/code
+  working_dir: /code
+  environment:
+    - LP_ACCOUNT=${LP_ACCOUNT}
+    - LP_PASS=${LP_PASS}
+  command: node examples/cluster/index.js
