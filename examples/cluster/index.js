@@ -15,6 +15,8 @@ const taskSharding = new TaskSharding(zkConnStr,allAgents);
 
 taskSharding.on('taskAdded',(newAgentConf, taskInfoAdder)=>{
     console.log(`add ${newAgentConf.id}`);
+    
+    // create a new Agent Connection and store it in the taskSharging store
     taskInfoAdder(createNewAgent(newAgentConf));    
 });
 
