@@ -58,4 +58,3 @@ logs
 *.sublime-*
 
 /nbproject/
-.env
