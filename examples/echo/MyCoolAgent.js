@@ -18,6 +18,7 @@ const Agent = require('./../../lib/AgentSDK');
 class MyCoolAgent extends Agent {
     constructor(conf) {
         super(conf);
+        this.conf = conf;
         this.init();
         this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvnet';
     }
@@ -26,15 +27,15 @@ class MyCoolAgent extends Agent {
         let openConvs = {};
 
         this.on('connected', msg => {
-            console.log('connected...');
+            console.log('connected...', this.conf.id || '');
             this.setAgentState({availability: "ONLINE"});
             this.subscribeExConversations({
                 'convState': ['OPEN']
-            }, (e, resp) => console.log('subscribed successfully'));
+            }, (e, resp) => console.log('subscribed successfully', this.conf.id || ''));
             this.subscribeRoutingTasks({});
         });
 
-        // Accept any ring
+        // Accept any routingTask (==ring)
         this.on('routing.RoutingTaskNotification', body => {
             body.changes.forEach(c => {
                 if (c.type === "UPSERT") {
@@ -50,7 +51,7 @@ class MyCoolAgent extends Agent {
             });
         });
 
-        // Subscribe to the content of my conversations
+        // Notification on changes in the open consversation list
         this.on('cqm.ExConversationChangeNotification', notificationBody => {
             notificationBody.changes.forEach(change => {
                 if (change.type === 'UPSERT') {
@@ -120,7 +121,6 @@ class MyCoolAgent extends Agent {
         //this.on('notification', msg => console.log('got message', msg));
         this.on('error', err => console.log('got an error', err));
         this.on('closed', data => console.log('socket closed', data));
-
     }
 }
 

@@ -1,0 +1,15 @@
+zookeeper:
+  image: wurstmeister/zookeeper
+  ports: 
+    - "2181"
+
+app:
+  image: node:slim
+  links: 
+    - zookeeper:zk
+  volumes:
+    - ../../:/code
+  working_dir: /code
+  environment:
+    - BOT_CONFIG_FILE=${BOT_CONFIG_FILE}
+  command: node examples/cluster/index.js
