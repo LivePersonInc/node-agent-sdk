@@ -1,67 +1,58 @@
-# task-sharding-demo
+# Bot Cluster Example
 
-This project demonstrates sharding responsiblity between nodes in a cluster.
+This examples demonstrates running bot on horizontally scalable cluster.
+It might be used for a few use cases:
+1. Bot Resiliency - If one node crashes, on of the others will reconnect the bot.
+2. Multiple Bots - The bots will be spread on the nodes of the cluster. If one node fails the others will share its bots.
+    If a new node is added to the cluster it will take some of the bots of every other node.
 
-Open the following video in a new tab to see it in action.
+## Prerequisites
 
-[![Demo CountPages alpha](https://www.zpesystems.com/wp-content/uploads/2015/03/watch-demo-graphic-300x248.png)](https://drive.google.com/a/liveperson.com/file/d/0ByjMYuOIDToKTS1Lc3JGYnFhZ0E/view?usp=sharing)
+1. You should have an account with a few agent users.
+2. Install docker and docker-compose on your machine to run this example.
 
+## Usage
 
-## Running the example
+First you will have to create you configuration file. Put you json config content in the ``examples/cluster/local/agents.json`` file.
+The file should contain an array of objects with the account/user/password information. For example:
 
-### Prerequisites
-
-* docker-compose
-* npm
-
-### Example Description 
-
-We have simple service with known set of `ConversationIDs`, we want that each node will handle separate subset of those `ConversationIDs`.
-
-In order to do that we have to require the ``task-sharding`` and register callback that will notify us every time the division of work has been changed. 
-
-The callback will be given two parameters, the serviceInstance, and consistent-hashing ring. The ring returns the owner for any conversationID. Here is the code:
-
-```js
-const zkConnStr = `${process.env.ZK_PORT_2181_TCP_ADDR}:${process.env.ZK_PORT_2181_TCP_PORT}`;
-
-var TaskSharding = require('./task-sharding.js');
-var taskSharding = new TaskSharding(zkConnStr);
-
-var allTasks = ['aa','bb','cc','dd','ee','ff','gg','hh','ii','jj'];
-
-
-taskSharding.onClusterChange((myServiceInstance,updatedHashRing)=> {
-    const isOwnedByMe = task => updatedHashRing.get(task)===myServiceInstance.data.id;
-    const myTasks = allTasks.filter(isOwnedByMe);
-    console.log(myTasks);
-});
+```json
+[{
+    "accountId": "61326154",
+    "username": "myagent1",
+    "password": "secret"
+},
+{
+    "accountId": "61326154",
+    "username": "myagent2",
+    "password": "secret"
+}] 
 ```
 
-### Running
-
-In order to run it, download and unzip the repository. Then run:
+Now change directory to ``examples/cluster`` and run:
 
 ```sh
-cd task-sharding-demo
-npm install
-docker-compose up -d && docker-compose logs -f app
+npm i
+docker-compose up -d
 ```
-In the logs you can see the nodes' statements regarding their task responsablity.
+This will initialize the zookeeper dependency and launch one node to handle all of your bots.
 
-You can addd nodes to the cluster by opening another shell window and:
+You can view the logs of the cluster:
 
 ```sh
-cd task-sharding-demo
-docker-compose scale app=5
+ docker-compose logs -f app
 ```
 
-In the logs you will see new nodes coming in and new work division. Then you can kill some of the nodes by cahnging the scale again:
+You can add nodes to the cluster by changing its scale, for example:
+
 ```sh
-docker-compose scale app=2
+ docker-compose scale app=3
 ```
 
+You will be able to see in the logs the new task distribution.
 
+You can shutdown the cluster by:
 
-
-
+```sh
+docker-compose kill && docker-compose rm -f
+```
