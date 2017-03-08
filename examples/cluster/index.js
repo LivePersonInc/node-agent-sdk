@@ -10,7 +10,7 @@ const allAgents = JSON.parse(fs.readFileSync(process.env.BOT_CONFIG_FILE, 'utf8'
 
 function handleRemoveAgent(confId) {
     console.log("remove", confId);
-    handledAgents[confId].transport.ws.close(1000, 'byebye');
+    handledAgents[confId].dispose();
     delete handledAgents[confId];
 }
 
