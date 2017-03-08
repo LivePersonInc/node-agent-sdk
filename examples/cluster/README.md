@@ -2,6 +2,7 @@
 
 This examples demonstrates running bot on horizontally scalable cluster.
 It might be used for a few use cases:
+
 1. Bot Resiliency - If one node crashes, on of the others will reconnect the bot.
 2. Multiple Bots - The bots will be spread on the nodes of the cluster. If one node fails the others will share its bots.
     If a new node is added to the cluster it will take some of the bots of every other node.
