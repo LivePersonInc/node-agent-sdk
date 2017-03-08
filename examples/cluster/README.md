@@ -1,1 +1,1 @@
-See [example documentation](https://livepersoninc.github.io/node-agent-sdk-fork/cluster)
+See [example documentation](https://livepersoninc.github.io/node-agent-sdk/cluster.html)

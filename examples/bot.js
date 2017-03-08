@@ -36,6 +36,7 @@ agent.on('error', err => {
 
 agent.on('closed', data => {
     console.log('socket closed', data);
+    agent.reconnect();
 });
 
 function handleConversationNotification(notificationBody, openConvs) {
@@ -43,7 +44,6 @@ function handleConversationNotification(notificationBody, openConvs) {
         if (change.type === 'UPSERT') {
             if (!openConvs[change.result.convId]) {
                 openConvs[change.result.convId] = change.result;
-                const participants = change.result.conversationDetails.participants;
                 if (!change.result.conversationDetails.getMyRole()) {
                     agent.updateConversationField({
                         'conversationId': change.result.convId,
