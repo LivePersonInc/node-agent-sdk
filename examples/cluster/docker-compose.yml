@@ -11,6 +11,5 @@ app:
     - ../../:/code
   working_dir: /code
   environment:
-    - LP_ACCOUNT=${LP_ACCOUNT}
-    - LP_PASS=${LP_PASS}
+    - BOT_CONFIG_FILE=${BOT_CONFIG_FILE}
   command: node examples/cluster/index.js

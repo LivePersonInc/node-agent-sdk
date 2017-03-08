@@ -1,40 +1,12 @@
-/*
- * Bot Cluster
- * 
- * Prerequisites:
- * 1. Account with 3 agents with login names of: myagent1, myagent2, myagent3. 
- *    Same password for all of them.
- * 2. Put .env file in the current dir with:
- *    LP_ACCOUNT=__YOUR_ACCOUNT__
- *    LP_PASS=__AGENTS_PASS__
- * 
- * Then run:
- *   docker-compose up -d && docker-compose logs -f app
- *   
- * To shut down:
- *   docker-compose kill && docker-compose rm -f
- */
-
-const zkConnStr = `${process.env.ZK_PORT_2181_TCP_ADDR}:${process.env.ZK_PORT_2181_TCP_PORT}`;
-
-var TaskSharding = require('./task-sharding.js');
-var taskSharding = new TaskSharding(zkConnStr);
+const fs = require('fs');
+const TaskSharding = require('./task-sharding.js');
 const MyCoolAgent = require('./../echo/MyCoolAgent');
 
+const zkConnStr = `${process.env.ZK_PORT_2181_TCP_ADDR}:${process.env.ZK_PORT_2181_TCP_PORT}`;
+const taskSharding = new TaskSharding(zkConnStr);
+
 const handledAgents = {};
-const allAgents = [{
-        accountId: process.env.LP_ACCOUNT,
-        username: 'myagent1',
-        password: process.env.LP_PASS
-    }, {
-        accountId: process.env.LP_ACCOUNT,
-        username: 'myagent2',
-        password: process.env.LP_PASS
-    }, {
-        accountId: process.env.LP_ACCOUNT,
-        username: 'myagent3',
-        password: process.env.LP_PASS
-    }];
+const allAgents = JSON.parse(fs.readFileSync(process.env.BOT_CONFIG_FILE, 'utf8'));
 
 function handleRemoveAgent(confId) {
     console.log("remove", confId);
@@ -44,8 +16,11 @@ function handleRemoveAgent(confId) {
 
 function handleAddAgent(newAgentConfId, newAgentConf) {
     console.log("add", newAgentConfId);
-    const newAgent = new MyCoolAgent(newAgentConf);
+    handledAgents[newAgentConfId] = createNewAgent(newAgentConf);
+}
 
+function createNewAgent(newAgentConf) {
+    const newAgent = new MyCoolAgent(newAgentConf);
     newAgent.conf = newAgentConf;
     newAgent.on('MyCoolAgent.ContentEvnet', function(contentEvent) {
         if (contentEvent.message.startsWith('#close')) {
@@ -70,8 +45,7 @@ function handleAddAgent(newAgentConfId, newAgentConf) {
     newAgent.on('close', function() {
         console.log(`closed connection for ${this.conf.username}`);
     });
-
-    handledAgents[newAgentConfId] = newAgent;
+    return newAgent;
 }
 
 const objId = agent => `${agent.accountId}-${agent.username}`;
