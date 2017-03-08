@@ -27,6 +27,9 @@ describe('Agent SDK Tests', () => {
                     this.emit('open', conf);
                 });
             }
+            close() {
+
+            }
         }
 
         externalServices = {getDomains: sinon.stub(), login: sinon.stub(), getAgentId: sinon.stub()};
@@ -227,6 +230,27 @@ describe('Agent SDK Tests', () => {
                 expect(err.message).to.contain('timed');
                 done();
             });
+        });
+
+    });
+
+    it('should dispose correctly', done => {
+        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password',
+            requestTimeout: 10,
+            errorCheckInterval: 10,
+        });
+
+        agent.on('connected', msg => {
+            agent.dispose();
+            expect(agent.transport).to.be.null;
+            done();
         });
 
     });
