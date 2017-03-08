@@ -14,12 +14,12 @@ const allAgents =
 const taskSharding = new TaskSharding(zkConnStr,allAgents);
 
 taskSharding.on('taskAdded',(newAgentConf, taskInfoAdder)=>{
-    console.log("add", newAgentConf);
+    console.log("add", newAgentConf.id);
     taskInfoAdder(createNewAgent(newAgentConf));    
 });
 
 taskSharding.on('taskRemoved',(oldTaskInfo)=>{
-    console.log("remove", oldTaskInfo);
+    console.log("remove", oldTaskInfo.id);
     oldTaskInfo.dispose();
 });
 
