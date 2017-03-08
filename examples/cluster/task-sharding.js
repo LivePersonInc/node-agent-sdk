@@ -1,10 +1,12 @@
-var HashRing = require('hashring');
-var Zoologist = require('zoologist').Zoologist;
-var ServiceInstanceBuilder = require('zoologist').ServiceInstanceBuilder;
-var ServiceDiscoveryBuilder = require('zoologist').ServiceDiscoveryBuilder;
+const Events = require('events');
+const HashRing = require('hashring');
+const Zoologist = require('zoologist').Zoologist;
+const ServiceInstanceBuilder = require('zoologist').ServiceInstanceBuilder;
+const ServiceDiscoveryBuilder = require('zoologist').ServiceDiscoveryBuilder;
 
-class TaskSharding {
+class TaskSharding extends Events {
     constructor(zkConnectionString, serviceName) {
+        super();
         this.serviceName = serviceName || 'my/service/name/v1';
         var zoologistClient = Zoologist.newClient(zkConnectionString);
         zoologistClient.start();
@@ -12,9 +14,10 @@ class TaskSharding {
         this.serviceDiscovery = ServiceDiscoveryBuilder.builder()
                 .client(zoologistClient).basePath('services')
                 .thisInstance(this.serviceInstance).build();
+        this._onClusterChange((si, hr) => this.emit('clusterChange', si, hr));
     }
 
-    onClusterChange(cb) {
+    _onClusterChange(cb) {
         const that = this;
         that.serviceDiscovery.registerService((err, data) => {
             get();

@@ -50,7 +50,7 @@ function createNewAgent(newAgentConf) {
 
 const objId = agent => `${agent.accountId}-${agent.username}`;
 
-taskSharding.onClusterChange((myServiceInstance, updatedHashRing) => {
+taskSharding.on('clusterChange',(myServiceInstance, updatedHashRing) => {
     const isOwnedByMe = agent => updatedHashRing.get(objId(agent)) === myServiceInstance.data.id;
     const myAgents = allAgents.filter(isOwnedByMe).reduce((acc, agent) => {
         acc[objId(agent)] = agent;
