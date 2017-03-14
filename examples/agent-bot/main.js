@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * This demo extendds MyCoolAgent with the specific reply logig: 
+ * This demo extends MyCoolAgent with the specific reply logic: 
  * 
  * 1) Echo any new message from the consumer
  * 2) Close the conversation if the consumer message starts with '#close' 
