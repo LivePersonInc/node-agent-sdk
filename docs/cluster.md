@@ -6,8 +6,11 @@ It might be used for a few use cases:
 1. **Bot Resiliency** - If one node crashes, on of the others will reconnect the bot.
 2. **Multiple Bots** - The bots will be spread on the nodes of the cluster. If one node fails the others will share its bots. If a new node is added to the cluster it will take some of the bots of every other node.
 
-## Video
+## Demo
 <iframe width="560" height="315" src="https://www.youtube.com/embed/4FgZa87sDho" frameborder="0" allowfullscreen></iframe>
+
+## Code Review
+<iframe width="560" height="315" src="https://www.youtube.com/embed/QZiNzkWgPWk" frameborder="0" allowfullscreen></iframe>
 
 ## Prerequisites
 
