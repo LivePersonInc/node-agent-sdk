@@ -194,6 +194,9 @@ agent.request('.ams.aam.SubscribeExConversations', {
     });
 ```
 
+#### agentId
+
+You can get your agentId from the SDK using ``agent.agentId``.
 
 ### Further documentation
 
