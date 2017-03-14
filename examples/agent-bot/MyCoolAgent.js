@@ -87,7 +87,7 @@ class MyCoolAgent extends Agent {
                 // Will be fixed in the next api version. So we have to check if this notification is handled by us.
                 if (openConvs[c.dialogId]) {
                     // add to respond list all content event not by me
-                    if (c.event.type === 'ContentEvent' && !c.isMe()) {
+                    if (c.event.type === 'ContentEvent' && c.originatorId !== this.agentId) {
                         respond[`${body.dialogId}-${c.sequence}`] = {
                             dialogId: body.dialogId,
                             sequence: c.sequence,
@@ -95,7 +95,7 @@ class MyCoolAgent extends Agent {
                         };
                     }
                     // remove from respond list all the messages that were already read
-                    if (c.event.type === 'AcceptStatusEvent' && c.isMe()) {
+                    if (c.event.type === 'AcceptStatusEvent' && c.originatorId === this.agentId) {
                         c.event.sequenceList.forEach(seq => {
                             delete respond[`${body.dialogId}-${seq}`];
                         });
