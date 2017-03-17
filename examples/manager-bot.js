@@ -9,42 +9,22 @@ const agent = new Agent({
     csdsDomain: process.env.LP_CSDS // 'hc1n.dev.lprnd.net'
 });
 
-let subscriptionId;
 let openConvs = {};
 
 agent.on('connected', msg => {
     console.log('connected...');
-    agent.setAgentState({ availability: "OFFLINE"});
+    agent.setAgentState({ availability: "OFFLINE"}); // Do not route me conversations, I'll join by myself.
     agent.subscribeExConversations({
-        'convState': ['OPEN']
-    }, (err, resp) => {
-        subscriptionId = resp.subscriptionId;
-        console.log('subscribed successfully', err, resp);
+        'convState': ['OPEN'] // subscribes to all open conversation in the account.
     });
 });
 
-agent.on('notification', msg => {
-    console.log('got message', msg);
-    if (msg.body.subscriptionId === subscriptionId) {
-        handleConversationNotification(msg.body, openConvs)
-    }
-});
-
-agent.on('error', err => {
-    console.log('got an error', err);
-});
-
-agent.on('closed', data => {
-    console.log('socket closed', data);
-    agent.reconnect();
-});
-
-function handleConversationNotification(notificationBody, openConvs) {
+agent.on('cqm.ExConversationChangeNotification', notificationBody => {
     notificationBody.changes.forEach(change => {
         if (change.type === 'UPSERT') {
             if (!openConvs[change.result.convId]) {
-                openConvs[change.result.convId] = change.result;
-                if (!change.result.conversationDetails.getMyRole()) {
+                openConvs[change.result.convId] = change.result;                
+                if (!getParticipantInfo(change.result.conversationDetails,agent.agentId)) {
                     agent.updateConversationField({
                         'conversationId': change.result.convId,
                         'conversationField': [{
@@ -70,4 +50,17 @@ function handleConversationNotification(notificationBody, openConvs) {
             console.log(`conversation was closed.\n`);
         }
     });
+});
+
+agent.on('error', err => {
+    console.log('got an error', err);
+});
+
+agent.on('closed', data => {
+    console.log('socket closed', data);
+    agent.reconnect();
+});
+
+function getParticipantInfo(convDetails,participantId) {
+    convDetails.participants.filter(p=>p.id === participantId)[0];    
 }
