@@ -30,6 +30,7 @@ class MyCoolAgent extends Agent {
             console.log('connected...', this.conf.id || '');
             this.setAgentState({availability: "ONLINE"});
             this.subscribeExConversations({
+                'agentIds': [this.agentId],
                 'convState': ['OPEN']
             }, (e, resp) => console.log('subscribed successfully', this.conf.id || ''));
             this.subscribeRoutingTasks({});
@@ -54,29 +55,25 @@ class MyCoolAgent extends Agent {
         // Notification on changes in the open consversation list
         this.on('cqm.ExConversationChangeNotification', notificationBody => {
             notificationBody.changes.forEach(change => {
-                if (change.type === 'UPSERT') {
-                    if (openConvs[change.result.convId] && change.result.conversationDetails.getMyRole() !== "ASSIGNED_AGENT") {
-                        // conversation was transfered
-                        delete openConvs[change.result.convId];
-                    }
-                    if (!openConvs[change.result.convId] && change.result.conversationDetails.getMyRole() === "ASSIGNED_AGENT") {
-                        // new conversation for me
-                        openConvs[change.result.convId] = {};
-                        const consumerId = change.result.conversationDetails.participants.filter(p => p.role === "CONSUMER")[0].id;
-                        this.getUserProfile(consumerId, (e, profileResp) => {
-                            this.publishEvent({
-                                dialogId: change.result.convId,
-                                event: {
-                                    type: 'ContentEvent',
-                                    contentType: 'text/plain',
-                                    message: `Just joined to conversation with ${JSON.stringify(profileResp)}`
-                                }
-                            });
+                if (change.type === 'UPSERT' && !openConvs[change.result.convId]) {
+                    // new conversation for me
+                    openConvs[change.result.convId] = {};
+                    
+                    // demonstraiton of using the consumer profile calls
+                    const consumerId = change.result.conversationDetails.participants.filter(p => p.role === "CONSUMER")[0].id;
+                    this.getUserProfile(consumerId, (e, profileResp) => {
+                        this.publishEvent({
+                            dialogId: change.result.convId,
+                            event: {
+                                type: 'ContentEvent',
+                                contentType: 'text/plain',
+                                message: `Just joined to conversation with ${JSON.stringify(profileResp)}`
+                            }
                         });
-                        this.subscribeMessagingEvents({dialogId: change.result.convId});
-                    }
+                    });
+                    this.subscribeMessagingEvents({dialogId: change.result.convId});
                 } else if (change.type === 'DELETE') {
-                    // conversation was closed
+                    // conversation was closed or transferred
                     delete openConvs[change.result.convId];
                 }
             });
@@ -90,7 +87,7 @@ class MyCoolAgent extends Agent {
                 // Will be fixed in the next api version. So we have to check if this notification is handled by us.
                 if (openConvs[c.dialogId]) {
                     // add to respond list all content event not by me
-                    if (c.event.type === 'ContentEvent' && !c.isMe()) {
+                    if (c.event.type === 'ContentEvent' && c.originatorId !== this.agentId) {
                         respond[`${body.dialogId}-${c.sequence}`] = {
                             dialogId: body.dialogId,
                             sequence: c.sequence,
@@ -98,7 +95,7 @@ class MyCoolAgent extends Agent {
                         };
                     }
                     // remove from respond list all the messages that were already read
-                    if (c.event.type === 'AcceptStatusEvent' && c.isMe()) {
+                    if (c.event.type === 'AcceptStatusEvent' && c.originatorId === this.agentId) {
                         c.event.sequenceList.forEach(seq => {
                             delete respond[`${body.dialogId}-${seq}`];
                         });
@@ -113,7 +110,7 @@ class MyCoolAgent extends Agent {
                     dialogId: contentEvent.dialogId,
                     event: {type: "AcceptStatusEvent", status: "READ", sequenceList: [contentEvent.sequence]}
                 });
-                this.emit(this.CONTENT_NOTIFICATION,contentEvent);
+                this.emit(this.CONTENT_NOTIFICATION, contentEvent);
             });
         });
 

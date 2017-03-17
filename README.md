@@ -194,6 +194,9 @@ agent.request('.ams.aam.SubscribeExConversations', {
     });
 ```
 
+#### agentId
+
+You can get your agentId from the SDK using ``agent.agentId``.
 
 ### Further documentation
 
@@ -239,7 +242,7 @@ style. Add unit tests for any new or changed functionality, lint and test your c
    npm test
    ```
 
-- To run the [bot example][3], see [Running The Sample App][4].
+- To run the [manager-bot example][3], see [Running The Sample App][4].
 
 
 
@@ -247,5 +250,5 @@ style. Add unit tests for any new or changed functionality, lint and test your c
 
 [1]: https://livepersoninc.github.io/dev-hub/current/agent-int-api-reference.html
 [2]: https://github.com/LivePersonInc/agent-sample-app
-[3]: /examples/bot.js
+[3]: /examples/manager-bot.js
 [4]: #running-the-sample-app
