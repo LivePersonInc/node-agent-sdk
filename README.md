@@ -16,8 +16,8 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
   - [Agent class](#agent-class)
   - [Events](#events)
   - [Specific notifications additions](#specific-notifications-additions)
-    - [MessagingEventNotification isMe()](#messagingeventnotification-isme)
-    - [ExConversationChangeNotification getMyRole()](#exconversationchangenotification-getmyrole)
+    - [MessagingEventNotification isMe() - deprecated](#messagingeventnotification-isme-deprecated)
+    - [ExConversationChangeNotification getMyRole() - deprecated](#exconversationchangenotification-getmyrole-deprecated)
   - [Messaging Agent API (backend)](#messaging-agent-api-backend)
     - [reconnect()](#reconnect)
     - [dispose()](#dispose)
@@ -116,7 +116,8 @@ agent.on('error', err => {
 ### Specific notifications additions
 Some notifications support helper methods to obtain the role and to identify if the message event is from "me".
 
-#### MessagingEventNotification isMe()
+#### MessagingEventNotification isMe() - deprecated
+This method is deprecated. please use `agent.agentId` instead  
 A method to understand on each change on the messaging event if it is from the agent connected right now or not. 
 ```javascript
 agent.on('ms.MessagingEventNotification', body => { 
@@ -126,7 +127,8 @@ agent.on('ms.MessagingEventNotification', body => {
 });
 ```
 
-#### ExConversationChangeNotification getMyRole()
+#### ExConversationChangeNotification getMyRole() - deprecated
+This method is deprecated. please use `agent.agentId` instead  
 A method to understand on each change on the conversation change notification conversation details the current agent role in the conversation or undefined if he is not participant.
 ```javascript
 agent.on('cqm.ExConversationChangeNotification', body => {
