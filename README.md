@@ -40,7 +40,7 @@ The next version will require explicit registration.
    npm i node-agent-sdk --save
    ```
 
-- Run the [bot example][3] (see how in [Running The Sample App][4]).
+- Run the [greeting bot example][3] (see how in [Running The Sample App][4]).
 
 
 ### Example Usage
@@ -209,7 +209,7 @@ When creating a request through the request builder you should provide only the 
 
 ## Running The Sample App
 
-To run the [bot example][3]:
+To run the [greeting bot example][3]:
 
 - Provide the following `env` variables:
    - `LP_ACCOUNT` - Your LivePerson account ID
@@ -244,7 +244,7 @@ style. Add unit tests for any new or changed functionality, lint and test your c
    npm test
    ```
 
-- To run the [manager-bot example][3], see [Running The Sample App][4].
+- To run the [greeting bot example][3], see [Running The Sample App][4].
 
 
 
