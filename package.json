@@ -13,7 +13,7 @@
         }
     ],
     "scripts": {
-        "start": "node ./examples/manager-bot.js",
+        "start": "node ./examples/greeting-bot.js",
         "lint": "eslint lib/*; true",
         "test": "mocha"
     },
