@@ -1,3 +1,4 @@
+'use strict';
 const expect = require('chai').expect;
 const mockery = require('mockery');
 const sinon = require('sinon');
@@ -115,6 +116,46 @@ describe('Agent SDK Tests', () => {
             accountId: 'account',
             username: 'me',
             password: 'password'
+        });
+        agent.on('connected', msg => {
+            agent.transport.emit('message', {kind: 'notification', type: 'myType', body: {x: 'x'}});
+        });
+
+        agent.on('notification', msg => {
+            expect(msg).to.be.defined;
+            expect(msg.body.x).to.equal('x');
+            done();
+        });
+    });
+
+    it('should receive all notifications using assertion', done => {
+        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+
+        const agent = new Agent({
+            accountId: 'account',
+            assertion: 'some SAML assertion',
+        });
+        agent.on('connected', msg => {
+            agent.transport.emit('message', {kind: 'notification', type: 'myType', body: {x: 'x'}});
+        });
+
+        agent.on('notification', msg => {
+            expect(msg).to.be.defined;
+            expect(msg.body.x).to.equal('x');
+            done();
+        });
+    });
+
+    it('should receive all notifications using token', done => {
+        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+
+        const agent = new Agent({
+            accountId: 'account',
+            token: 'my token',
         });
         agent.on('connected', msg => {
             agent.transport.emit('message', {kind: 'notification', type: 'myType', body: {x: 'x'}});

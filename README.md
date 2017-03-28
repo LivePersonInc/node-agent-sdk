@@ -77,6 +77,7 @@ new Agent({
     username: String,
     password: String,
     token: String, // a bearer token instead of username and password
+    assertion: String, // a SAML assertion to be used instead of token or username and password
     csdsDomain: String, // override the CSDS domain if needed
     requestTimeout: Number, // default to 10000 milliseconds
     errorCheckInterval: Number, // defaults to 1000 milliseconds
