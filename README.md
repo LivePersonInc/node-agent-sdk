@@ -77,6 +77,7 @@ new Agent({
     username: String,
     password: String,
     token: String, // a bearer token instead of username and password
+    userId: String, // the user id - mandatory when using token as authentication method 
     assertion: String, // a SAML assertion to be used instead of token or username and password
     csdsDomain: String, // override the CSDS domain if needed
     requestTimeout: Number, // default to 10000 milliseconds
@@ -84,7 +85,11 @@ new Agent({
     apiVersion: Number // Messaging API version - defaults to 2 (version 1 is not supported anymore)
 });
 ```
-
+### Authentication
+The Agent Messaging SDK support the following authentication methods:
+- username and password
+- Barear token as `token` with user id as `userId`
+- SAML assertion as `assertion`
 
 ### Events
 
