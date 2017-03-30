@@ -156,6 +156,7 @@ describe('Agent SDK Tests', () => {
         const agent = new Agent({
             accountId: 'account',
             token: 'my token',
+            userId: 'myId'
         });
         agent.on('connected', msg => {
             agent.transport.emit('message', {kind: 'notification', type: 'myType', body: {x: 'x'}});
