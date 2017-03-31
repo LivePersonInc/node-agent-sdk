@@ -16,8 +16,8 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
   - [Agent class](#agent-class)
   - [Events](#events)
   - [Specific notifications additions](#specific-notifications-additions)
-    - [MessagingEventNotification isMe()](#messagingeventnotification-isme)
-    - [ExConversationChangeNotification getMyRole()](#exconversationchangenotification-getmyrole)
+    - [MessagingEventNotification isMe() - deprecated](#messagingeventnotification-isme-deprecated)
+    - [ExConversationChangeNotification getMyRole() - deprecated](#exconversationchangenotification-getmyrole-deprecated)
   - [Messaging Agent API (backend)](#messaging-agent-api-backend)
     - [reconnect()](#reconnect)
     - [dispose()](#dispose)
@@ -40,7 +40,7 @@ The next version will require explicit registration.
    npm i node-agent-sdk --save
    ```
 
-- Run the [bot example][3] (see how in [Running The Sample App][4]).
+- Run the [greeting bot example][3] (see how in [Running The Sample App][4]).
 
 
 ### Example Usage
@@ -77,13 +77,19 @@ new Agent({
     username: String,
     password: String,
     token: String, // a bearer token instead of username and password
+    userId: String, // the user id - mandatory when using token as authentication method 
+    assertion: String, // a SAML assertion to be used instead of token or username and password
     csdsDomain: String, // override the CSDS domain if needed
     requestTimeout: Number, // default to 10000 milliseconds
     errorCheckInterval: Number, // defaults to 1000 milliseconds
     apiVersion: Number // Messaging API version - defaults to 2 (version 1 is not supported anymore)
 });
 ```
-
+### Authentication
+The Agent Messaging SDK support the following authentication methods:
+- username and password
+- Barear token as `token` with user id as `userId`
+- SAML assertion as `assertion`
 
 ### Events
 
@@ -116,7 +122,8 @@ agent.on('error', err => {
 ### Specific notifications additions
 Some notifications support helper methods to obtain the role and to identify if the message event is from "me".
 
-#### MessagingEventNotification isMe()
+#### MessagingEventNotification isMe() - deprecated
+This method is deprecated. please use `agent.agentId` instead  
 A method to understand on each change on the messaging event if it is from the agent connected right now or not. 
 ```javascript
 agent.on('ms.MessagingEventNotification', body => { 
@@ -126,7 +133,8 @@ agent.on('ms.MessagingEventNotification', body => {
 });
 ```
 
-#### ExConversationChangeNotification getMyRole()
+#### ExConversationChangeNotification getMyRole() - deprecated
+This method is deprecated. please use `agent.agentId` instead  
 A method to understand on each change on the conversation change notification conversation details the current agent role in the conversation or undefined if he is not participant.
 ```javascript
 agent.on('cqm.ExConversationChangeNotification', body => {
@@ -207,7 +215,7 @@ When creating a request through the request builder you should provide only the 
 
 ## Running The Sample App
 
-To run the [bot example][3]:
+To run the [greeting bot example][3]:
 
 - Provide the following `env` variables:
    - `LP_ACCOUNT` - Your LivePerson account ID
@@ -242,7 +250,7 @@ style. Add unit tests for any new or changed functionality, lint and test your c
    npm test
    ```
 
-- To run the [manager-bot example][3], see [Running The Sample App][4].
+- To run the [greeting bot example][3], see [Running The Sample App][4].
 
 
 
@@ -250,5 +258,5 @@ style. Add unit tests for any new or changed functionality, lint and test your c
 
 [1]: https://livepersoninc.github.io/dev-hub/current/agent-int-api-reference.html
 [2]: https://github.com/LivePersonInc/agent-sample-app
-[3]: /examples/manager-bot.js
+[3]: /examples/greeting-bot.js
 [4]: #running-the-sample-app
