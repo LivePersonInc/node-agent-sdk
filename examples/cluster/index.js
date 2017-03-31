@@ -1,5 +1,5 @@
 const fs = require('fs');
-const TaskSharding = require('./task-sharding.js');
+const TaskSharding = require('task-sharding').TaskSharding;
 const MyCoolAgent = require('./../agent-bot/MyCoolAgent');
 
 const zkConnStr = `${process.env.ZK_PORT_2181_TCP_ADDR}:${process.env.ZK_PORT_2181_TCP_PORT}`;
