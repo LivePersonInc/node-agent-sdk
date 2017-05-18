@@ -207,6 +207,29 @@ agent.request('.ams.aam.SubscribeExConversations', {
 
 You can get your agentId from the SDK using ``agent.agentId``.
 
+### Transfer sample script 
+
+The following code snippet will allow you to transfer an ongoing conversation to a different skill of agents 
+
+```javascript
+agent.updateConversationField({
+conversationId: "THE CONVERSATION ID",
+conversationField: [
+                        {
+                            field: “ParticipantsChange”,
+                            type: “REMOVE”,
+                            role: “ASSIGNED_AGENT”
+                        },
+                        {
+                            field: “Skill”,
+                            type: “UPDATE”,
+                            skill: “TARGET SKILL ID”
+                        }]
+}, function(err) {
+if(err)....
+})
+```
+
 ### Further documentation
 
 - [LivePerson messaging API][1]
