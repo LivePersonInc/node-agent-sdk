@@ -202,7 +202,7 @@ You can get your agentId from the SDK using ``agent.agentId``.
 
 ### Transfer sample script 
 
-The following snippet will allow you to transfer an ongoing conversation to a different skill of agents 
+The following code snippet will allow you to transfer an ongoing conversation to a different skill of agents 
 
 ```javascript
 agent.updateConversationField({
