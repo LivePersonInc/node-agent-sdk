@@ -23,7 +23,7 @@ agent.on('cqm.ExConversationChangeNotification', notificationBody => {
     notificationBody.changes.forEach(change => {
         if (change.type === 'UPSERT') {
             if (!openConvs[change.result.convId]) {
-                openConvs[change.result.convId] = change.result;                
+                openConvs[change.result.convId] = change.result;
                 if (!getParticipantInfo(change.result.conversationDetails,agent.agentId)) {
                     agent.updateConversationField({
                         'conversationId': change.result.convId,
@@ -58,9 +58,9 @@ agent.on('error', err => {
 
 agent.on('closed', data => {
     console.log('socket closed', data);
-    agent.reconnect();
+    agent.reconnect();//regenerate token for reasons of authorization (data === 4401 || data === 4407)
 });
 
 function getParticipantInfo(convDetails,participantId) {
-    convDetails.participants.filter(p=>p.id === participantId)[0];    
+    convDetails.participants.filter(p=>p.id === participantId)[0];
 }

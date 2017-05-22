@@ -169,9 +169,10 @@ setAgentState
 subscribeAgentsState
 ```
 
-#### reconnect() 
-Will reconnect the socket with the same configurations.  
-Use if when socket closed unexpectedly.
+#### reconnect(skipTokenGeneration) 
+Will reconnect the socket with the same configurations - will also regenerate token by default.  
+Use if when socket closed unexpectedly or on token revocation.
+use `skipTokenGeneration = true` if you want to skip the token generation
 
 #### dispose() 
 Will dispose of the connection and unregister internal events.  
