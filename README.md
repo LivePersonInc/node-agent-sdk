@@ -20,7 +20,7 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
     - [MessagingEventNotification isMe() - deprecated](#messagingeventnotification-isme-deprecated)
     - [ExConversationChangeNotification getMyRole() - deprecated](#exconversationchangenotification-getmyrole-deprecated)
   - [Messaging Agent API (backend)](#messaging-agent-api-backend)
-    - [reconnect()](#reconnect)
+    - [reconnect()](#reconnectskiptokengeneration)
     - [dispose()](#dispose)
     - [registerRequests(arr)](#registerrequestsarr)
     - [request(type, body[, headers], callback)](#requesttype-body-headers-callback)
