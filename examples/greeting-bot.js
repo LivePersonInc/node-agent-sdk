@@ -8,6 +8,11 @@ const agent = new Agent({
     password: process.env.LP_PASS,
     csdsDomain: process.env.LP_CSDS // 'hc1n.dev.lprnd.net'
 });
+//     "username": "reem1",
+// "appKey": "ad377dbbb8204f1c8dbd57a3409a1b14",
+//     "secret": "19e5dbabfd09a5ac",
+//     "accessToken": "00f49175a1eb4f9088e3c4ea822d9dbd",
+//     "accessTokenSecret": "4dac3a709ff23e7b",
 
 let openConvs = {};
 
