@@ -221,17 +221,17 @@ agent.updateConversationField({
 conversationId: "THE CONVERSATION ID",
 conversationField: [
                         {
-                            field: “ParticipantsChange”,
-                            type: “REMOVE”,
-                            role: “ASSIGNED_AGENT”
+                            field: "ParticipantsChange",
+                            type: "REMOVE",
+                            role: "ASSIGNED_AGENT"
                         },
                         {
-                            field: “Skill”,
-                            type: “UPDATE”,
-                            skill: “TARGET SKILL ID”
+                            field: "Skill",
+                            type: "UPDATE",
+                            skill: "TARGET SKILL ID"
                         }]
 }, function(err) {
-if(err)....
+    if(err)....
 })
 ```
 
