@@ -80,6 +80,10 @@ new Agent({
     token: String, // a bearer token instead of username and password
     userId: String, // the user id - mandatory when using token as authentication method 
     assertion: String, // a SAML assertion to be used instead of token or username and password
+    appKey: String,// oauth1 keys needed (with username) to be used instead of assertion or token or username and password
+    secret: String,
+    accessToken: String,
+    accessTokenSecret: String,
     csdsDomain: String, // override the CSDS domain if needed
     requestTimeout: Number, // default to 10000 milliseconds
     errorCheckInterval: Number, // defaults to 1000 milliseconds
@@ -217,17 +221,17 @@ agent.updateConversationField({
 conversationId: "THE CONVERSATION ID",
 conversationField: [
                         {
-                            field: “ParticipantsChange”,
-                            type: “REMOVE”,
-                            role: “ASSIGNED_AGENT”
+                            field: "ParticipantsChange",
+                            type: "REMOVE",
+                            role: "ASSIGNED_AGENT"
                         },
                         {
-                            field: “Skill”,
-                            type: “UPDATE”,
-                            skill: “TARGET SKILL ID”
+                            field: "Skill",
+                            type: "UPDATE",
+                            skill: "TARGET SKILL ID"
                         }]
 }, function(err) {
-if(err)....
+    if(err)....
 })
 ```
 

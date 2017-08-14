@@ -1,7 +1,7 @@
 {
     "name": "node-agent-sdk",
     "description": "Liveperson Agent Messaging SDK for NodeJS",
-    "version": "0.2.9",
+    "version": "0.2.14",
     "author": {
         "name": "LivePersonInc",
         "email": "fe-infra-lp@liveperson.com"
@@ -46,6 +46,7 @@
     "license": "MIT",
     "dependencies": {
         "async": "^2.1.4",
+        "limiter": "^1.1.2",
         "request": "^2.79.0",
         "uuid": "^3.0.1",
         "ws": "^1.1.1"

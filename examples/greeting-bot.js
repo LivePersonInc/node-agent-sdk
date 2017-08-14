@@ -11,9 +11,9 @@ const agent = new Agent({
 
 let openConvs = {};
 
-agent.on('connected', msg => {
+agent.on('connected', () => {
     console.log('connected...');
-    agent.setAgentState({ availability: "OFFLINE"}); // Do not route me conversations, I'll join by myself.
+    agent.setAgentState({ availability: 'OFFLINE' }); // Do not route me conversations, I'll join by myself.
     agent.subscribeExConversations({
         'convState': ['OPEN'] // subscribes to all open conversation in the account.
     });
@@ -24,7 +24,7 @@ agent.on('cqm.ExConversationChangeNotification', notificationBody => {
         if (change.type === 'UPSERT') {
             if (!openConvs[change.result.convId]) {
                 openConvs[change.result.convId] = change.result;
-                if (!getParticipantInfo(change.result.conversationDetails,agent.agentId)) {
+                if (!getParticipantInfo(change.result.conversationDetails, agent.agentId)) {
                     agent.updateConversationField({
                         'conversationId': change.result.convId,
                         'conversationField': [{
@@ -32,7 +32,7 @@ agent.on('cqm.ExConversationChangeNotification', notificationBody => {
                             'type': 'ADD',
                             'role': 'MANAGER'
                         }]
-                    }, (err, joinResp) => {
+                    }, () => {
                         agent.publishEvent({
                             dialogId: change.result.convId,
                             event: {
@@ -47,7 +47,7 @@ agent.on('cqm.ExConversationChangeNotification', notificationBody => {
         }
         else if (change.type === 'DELETE') {
             delete openConvs[change.result.convId];
-            console.log(`conversation was closed.\n`);
+            console.log('conversation was closed.\n');
         }
     });
 });
@@ -61,6 +61,6 @@ agent.on('closed', data => {
     agent.reconnect();//regenerate token for reasons of authorization (data === 4401 || data === 4407)
 });
 
-function getParticipantInfo(convDetails,participantId) {
-    convDetails.participants.filter(p=>p.id === participantId)[0];
+function getParticipantInfo(convDetails, participantId) {
+    return convDetails.participants.filter(p => p.id === participantId)[0];
 }
