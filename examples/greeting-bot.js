@@ -13,7 +13,7 @@ let openConvs = {};
 
 agent.on('connected', () => {
     console.log('connected...');
-    agent.setAgentState({ availability: 'OFFLINE' }); // Do not route me conversations, I'll join by myself.
+    agent.setAgentState({ availability: 'AWAY' }); // Do not route me conversations, I'll join by myself.
     agent.subscribeExConversations({
         'convState': ['OPEN'] // subscribes to all open conversation in the account.
     });
