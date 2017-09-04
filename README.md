@@ -149,6 +149,9 @@ agent.on('cqm.ExConversationChangeNotification', body => {
 });
 ```
 
+### Deprecation notice
+in the `cqm.ExConversationChangeNotification` the field `firstConversation` is deprecated
+
 ### Messaging Agent API (backend)
 
 All request types are dynamically assigned to the object on creation.
