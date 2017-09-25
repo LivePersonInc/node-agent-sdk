@@ -66,6 +66,135 @@ agent.on('connected', () => {
 });
 ```
 
+### Example sending rich content
+```javascript
+agent.publishEvent({
+    dialogId: 'MY_DIALOG_ID',
+    event: {
+        type: 'RichContentEvent',
+        content: {
+            "type": "vertical",
+            "elements": [
+                {
+                    "type": "image",
+                    "url": "http://cdn.mos.cms.futurecdn.net/vkrEdZXgwP2vFa6AEQLF7f-480-80.jpg?quality=98&strip=all",
+                    "tooltip": "image tooltip",
+                    "click": {
+                        "actions": [
+                            {
+                                "type": "navigate",
+                                "name": "Navigate to store via image",
+                                "lo": 23423423,
+                                "la": 2423423423
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "product name (Title)",
+                    "tooltip": "text tooltip",
+                    "style": {
+                        "bold": true,
+                        "size": "large"
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "product name (Title)",
+                    "tooltip": "text tooltip"
+                },
+                {
+                    "type": "button",
+                    "tooltip": "button tooltip",
+                    "title": "Add to cart",
+                    "click": {
+                        "actions": [
+                            {
+                                "type": "link",
+                                "name": "Add to cart",
+                                "uri": "http://www.google.com"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "horizontal",
+                    "elements": [
+                        {
+                            "type": "button",
+                            "title": "Buy",
+                            "tooltip": "Buy this broduct",
+                            "click": {
+                                "actions": [
+                                    {
+                                        "type": "link",
+                                        "name": "Buy",
+                                        "uri": "http://www.google.com"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "button",
+                            "title": "Find similar",
+                            "tooltip": "store is the thing",
+                            "click": {
+                                "actions": [
+                                    {
+                                        "type": "link",
+                                        "name": "Buy",
+                                        "uri": "http://www.google.com"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "button",
+                    "tooltip": "button tooltip",
+                    "title": "Publish text",
+                    "click": {
+                        "metadata": [
+                            {
+                                "type": "ExternalId",
+                                "id": "MY_ACTION_ID"
+                            }
+                        ],
+                        "actions": [
+                            {
+                                "type": "publishText",
+                                "text": "my text"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "button",
+                    "tooltip": "button tooltip",
+                    "title": "Navigate",
+                    "click": {
+                        "actions": [
+                            {
+                                "type": "publishText",
+                                "text": "my text"
+                            },
+                            {
+                                "type": "navigate",
+                                "name": "Navigate to store via image",
+                                "lo": 23423423,
+                                "la": 2423423423
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}]);
+```
+
 
 ## API Overview
 
