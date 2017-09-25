@@ -13,6 +13,7 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 - [Disclaimer](#disclaimer)
 - [Getting Started](#getting-started)
 - [Example Usage](#example-usage)
+- [Example Sending Rich Content (Structured Content)](#example-sending-rich-content-structured-content)
 - [API Overview](#api-overview)
   - [Agent class](#agent-class)
   - [Events](#events)
@@ -66,7 +67,7 @@ agent.on('connected', () => {
 });
 ```
 
-### Example sending rich content
+### Example Sending Rich Content (Structured Content)
 ```javascript
 agent.publishEvent({
     dialogId: 'MY_DIALOG_ID',
