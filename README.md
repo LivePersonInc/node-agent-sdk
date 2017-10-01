@@ -125,7 +125,7 @@ agent.publishEvent({
                         {
                             "type": "button",
                             "title": "Buy",
-                            "tooltip": "Buy this broduct",
+                            "tooltip": "Buy this product",
                             "click": {
                                 "actions": [
                                     {
