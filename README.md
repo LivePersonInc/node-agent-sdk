@@ -418,7 +418,7 @@ style. Add unit tests for any new or changed functionality, lint and test your c
 
 
 
-[1]: https://livepersoninc.github.io/dev-hub/current/agent-int-api-reference.html
+[1]: https://developers.liveperson.com/agent-int-api-reference.html
 [2]: https://github.com/LivePersonInc/agent-sample-app
 [3]: /examples/greeting-bot.js
 [4]: #running-the-sample-app
