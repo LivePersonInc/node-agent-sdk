@@ -195,7 +195,7 @@ agent.publishEvent({
     }
 }, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}]);
 ```
-
+For more information on how this example was built, please refer to the [Structured Content Templates document on the Developers' Community](https://developers.liveperson.com/structured-content-templates.html).
 
 ## API Overview
 
