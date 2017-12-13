@@ -251,6 +251,8 @@ agent.on('closed', reason => {
 
 agent.on('error', err => {
     // some error happened
+    //might get error.code
+    //if code === 401 should call reconnect
 });
 ```
 
@@ -310,6 +312,7 @@ subscribeAgentsState
 Will reconnect the socket with the same configurations - will also regenerate token by default.  
 Use if when socket closed unexpectedly or on token revocation.
 use `skipTokenGeneration = true` if you want to skip the token generation
+Call `reconnect` on `error` with code `401`
 
 #### dispose() 
 Will dispose of the connection and unregister internal events.  
