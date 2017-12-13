@@ -195,7 +195,7 @@ agent.publishEvent({
     }
 }, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}]);
 ```
-
+For more information on how this example was built, please refer to the [Structured Content Templates document on the Developers' Community](https://developers.liveperson.com/structured-content-templates.html).
 
 ## API Overview
 
@@ -421,7 +421,7 @@ style. Add unit tests for any new or changed functionality, lint and test your c
 
 
 
-[1]: https://livepersoninc.github.io/dev-hub/current/agent-int-api-reference.html
+[1]: https://developers.liveperson.com/agent-int-api-reference.html
 [2]: https://github.com/LivePersonInc/agent-sample-app
 [3]: /examples/greeting-bot.js
 [4]: #running-the-sample-app
