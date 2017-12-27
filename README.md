@@ -197,6 +197,8 @@ agent.publishEvent({
 ```
 For more information on how this example was built, please refer to the [Structured Content Templates document on the Developers' Community](https://developers.liveperson.com/structured-content-templates.html).
 
+_Note_: It is also possible to add a 'metadata' field to your JSON. Using the conversation metadata will enable you to enjoy the advanced analytics and reporting provided by LP - report on your intents, MCS per intent, containment rate, escalation reasons per intent and more. To learn more on how to deploy conversation metadata [please review the full Metadata guide](https://developers.liveperson.com/guides-conversation-metadata-guide.html).
+
 ## API Overview
 
 
