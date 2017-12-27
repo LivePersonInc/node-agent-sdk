@@ -24,7 +24,7 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
     - [reconnect()](#reconnectskiptokengeneration)
     - [dispose()](#dispose)
     - [registerRequests(arr)](#registerrequestsarr)
-    - [request(type, body[, headers], callback)](#requesttype-body-headers-callback)
+    - [request(type, body[, headers][, metadata], callback)](#requesttype-body-headers-metadata-callback)
 - [Further documentation](#further-documentation)
 - [Running The Sample App](#running-the-sample-app)
 - [Contributing](#contributing)
@@ -332,14 +332,14 @@ agent.anotherTypeOfRequest({/*some data*/}, (err, response) => {
 ```
 
 
-#### request(type, body[, headers], callback)
+#### request(type, body[, headers][, metadata], callback)
 
 You can call any request API functionality as follows:
 
 ```javascript
 agent.request('.ams.aam.SubscribeExConversations', {
         'convState': ['OPEN']
-    }, (err, resp) => {
+    }, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}], (err, resp) => {
         console.log('subscribed successfully', err, resp);
     });
 ```
