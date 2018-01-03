@@ -384,25 +384,48 @@ agent.publishEvent({
 }, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}]);  // ExternalId is how this card will be referred to in reports
 ```
 
-#### reconnect
+#### reconnect(skipTokenGeneration)
 Will reconnect the socket with the same configurations - will also regenerate token by default.  
 Use if socket closes unexpectedly or on token revocation.
 use `skipTokenGeneration = true` if you want to skip the token generation
 Call `reconnect` on `error` with code `401`
 
-
-```javascript
-// TODO: example code etc
-```
-
-#### dispose
+#### dispose()
 Will dispose of the connection and unregister internal events.  
 Use it in order to clean the agent from memory.
 
+#### registerRequests(arr)
+
+You can dynamically add functionality to the SDK by registering more requests.
+For example:
+
+// TODO: Come up with an example of a function that actually doesn't exist in the SDK
 
 ```javascript
-// TODO: example code
+registerRequests(['.ams.AnotherTypeOfRequest']);
+// ... will register the following API:
+agent.anotherTypeOfRequest({/*some data*/}, (err, response) => {
+    // do something
+});
 ```
+
+#### request(type, body[, headers], callback)
+
+You can call any request API functionality as follows:
+
+// TODO: Come up with an example of a function that actually doesn't exist in the SDK
+
+```javascript
+agent.request('.ams.aam.SubscribeExConversations', {
+        'convState': ['OPEN']
+    }, (err, resp) => {
+        console.log('subscribed successfully', err, resp);
+    });
+```
+
+#### agentId
+
+You can get your agentId from the SDK using ``agent.agentId``.
 
 
 ### Events
@@ -417,58 +440,27 @@ Use it in order to clean the agent from memory.
 - [error](#error)
 
 These are events emitted by the SDK which you can listen to and react to.
-
-#### connected
 ```javascript
 agent.on('connected', message => {
-    // TODO: socket is now connected to the server
+    // socket is now connected to the server
 });
-```
 
-#### notification
-```javascript
 agent.on('notification', body => {
-    // TODO: listen on all notifications
+    // listen on all notifications
 });
-```
 
-#### routing.RoutingTaskNotification
-```javascript
-agent.on('routing.RoutingTaskNotification', body => {
-    // TODO: stuff here
-})
-```
-
-#### routing.AgentStateNotification
-```javascript
-agent.on('routing.AgentStateNotification', body => {
-    // TODO: stuff here
-})
-```
-
-#### cqm.ExConversationChangeNotification
-```javascript
-agent.on('cqm.ExConversationChangeNotification', body => {
-    // TODO: stuff here
-})
-```
-
-#### ms.MessagingEventNotification
-```javascript
 agent.on('ms.MessagingEventNotification', body => { // specific notification type
-    // TODO: stuff here
+    // listen on notifications of the MessagingEvent type
 });
-```
 
-#### closed
-```javascript
+agent.on('GenericSubscribeResponse', (body, requestId) => { // specific response type
+    // listen on notifications of the specified type, do something with the requestId
+});
+
 agent.on('closed', reason => {
     // socket is now closed
 });
-```
 
-#### error
-```javascript
 agent.on('error', err => {
     // some error happened
     // might get error.code
@@ -500,9 +492,7 @@ subscribeAgentsState
 ```
 
 ### Deprecation notices
-```javascript
 // TODO: Examples of new approaches to deprecated methods
-```
 
 ##### MessagingEventNotification isMe() - *deprecated*
 This method is deprecated. please use `agent.agentId` instead  
@@ -547,11 +537,9 @@ style. Add unit tests for any new or changed functionality, lint and test your c
    npm test
    ```
    
-```javascript
 // TODO: fix greeting bot link
-```
 
-- To run the [greeting bot](/examples/greeting-bot/greeting-bot.js) example, see [Running The Sample Apps][3].
+- To run the [greeting bot][5] example, see [Running The Sample App][3].
 
 
 [1]: https://developers.liveperson.com/agent-int-api-reference.html
