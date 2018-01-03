@@ -17,19 +17,15 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 
 - [Disclaimer](#disclaimer)
 - [Getting Started](#getting-started)
-- [Quick Start Example](#quick-start-example)
-- [Example Sending Rich Content (Structured Content)](#example-sending-rich-content-structured-content)
+  - [Install](#install)
+  - [Quick Start Example](#quick-start-example)
+  - [Running the Sample Apps][3]
 - [API Overview](#api-overview)
   - [Agent class](#agent-class)
+  - [Methods](#methods)
   - [Events](#events)
-  - [Specific notifications additions](#specific-notifications-additions)
-    - [MessagingEventNotification isMe() - deprecated](#messagingeventnotification-isme-deprecated)
-    - [ExConversationChangeNotification getMyRole() - deprecated](#exconversationchangenotification-getmyrole-deprecated)
-  - [Messaging Agent API (backend)](#messaging-agent-api-backend)
-    - [reconnect()](#reconnectskiptokengeneration)
-    - [dispose()](#dispose)
-    - [registerRequests(arr)](#registerrequestsarr)
-    - [request(type, body[, headers], callback)](#requesttype-body-headers-callback)
+- [Messaging Agent API (backend)](#messaging-agent-api-(backend))
+- [Deprecation Notices](#deprecation-notices)
 - [Further documentation](#further-documentation)
 - [Running The Sample App](#running-the-sample-app)
 - [Contributing](#contributing)
@@ -37,26 +33,28 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 ## Disclaimer
 The current SDK version starts sending *MessagingEventNotification*s immediately upon connection, but this subscription will exclude some notifications.
 
-A new major version of the SDK will be released soon in which there is no automatic subscription, and you must explicitly subscribe to these events for each conversation in order to reveive them.
+A new major version of the SDK will be released soon in which there is no automatic subscription, and you must explicitly subscribe to these events for each conversation in order to receive them.
 
-In order to guarantee compatibility with future versions of the SDK, and to ensure that no notifications are missed even with the current SDK version, it is highly recommended that your bot explicitly subscribe to *MessagingEventNotification*s for all relevant conversations, as demonstrated in the [Agent-Bot](https://github.com/LivePersonInc/node-agent-sdk/tree/master/examples/agent-bot) example's [MyCoolAgent.js](https://github.com/LivePersonInc/node-agent-sdk/blob/master/examples/agent-bot/MyCoolAgent.js).
+In order to guarantee compatibility with future versions of the SDK, and to ensure that no notifications are missed even with the current SDK version, it is highly recommended that your bot explicitly subscribe to *MessagingEventNotification*s for all relevant conversations, as demonstrated in the [Agent-Bot](/examples/agent-bot) example's [MyCoolAgent.js](/examples/agent-bot/MyCoolAgent.js).
 
 ## Getting Started
 
 ### Install
 
-- **Option 1 - npm install (does not include examples)**
+- **Option 1 - npm install (does not include sample apps)**
 
    ```sh
    npm i node-agent-sdk --save
    ```
 
-- **Option 2 - Clone this repository (includes examples)**
+- **Option 2 - Clone this repository (includes sample apps)**
 
     ```sh
     git clone https://github.com/LivePersonInc/node-agent-sdk.git
     ```
-    Run the [greeting bot example][3] (see how in [Running The Sample Apps][4]).
+    
+   // TODO: Fix greeting bot link
+    Run the [greeting bot][5] example (see how in [Running The Sample Apps][3]).
 
 
 ### Quick Start Example
@@ -115,7 +113,7 @@ new Agent({
 #### Authentication
 The Agent Messaging SDK support the following authentication methods:
 - Username and password as `username` and `password`
-- Barear token as `token` with user id as `userId`
+- Bearer token as `token` with user id as `userId`
 - SAML assertion as `assertion`
 - OAuth1 with `username`, `appkey`, `secret`, `accessToken`, and `accessTokenSecret`
 
@@ -127,7 +125,7 @@ This method is used to create a subscription for conversation updates. You can s
 ```javascript
 agent.subscribeExConversations({
     'convState': ['OPEN']
-    'agentIds': [agent.agentId] // remove this line to subscribe to all conversations instead of just the bot's conversations
+    ,'agentIds': [agent.agentId] // remove this line to subscribe to all conversations instead of just the bot's conversations
 }, (e, resp) => {
     if (e) { console.error(e) }
     console.log(resp)
@@ -190,7 +188,7 @@ Callback data on success:
 `"Agent state updated successfully"`
 
 #### getClock
-This method is used to synchronize your client clock with the messaging server's clock. It can also be used as a periodic keepalive request, to ensure that your bot's connection is maintained even in periods of low activity.
+This method is used to synchronize your client clock with the messaging server's clock. It can also be used as a periodic keep-alive request, to ensure that your bot's connection is maintained even in periods of low activity.
 
 ```javascript
 agent.getClock({}, (e, resp) => {
@@ -266,7 +264,7 @@ agent.updateConversationField({
 ```javascript
 agent.updateConversationField({
 'conversationId': 'conversationId/dialogId',
-    'conversationField': [{
+    'conversationField': [
         {
             'field': 'ParticipantsChange',
             'type': 'REMOVE',
@@ -364,6 +362,50 @@ agent.publishEvent({
 }, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}]);  // ExternalId is how this card will be referred to in reports
 ```
 
+#### reconnect(skipTokenGeneration)
+Will reconnect the socket with the same configurations - will also regenerate token by default.  
+Use if socket closes unexpectedly or on token revocation.
+use `skipTokenGeneration = true` if you want to skip the token generation
+Call `reconnect` on `error` with code `401`
+
+#### dispose()
+Will dispose of the connection and unregister internal events.  
+Use it in order to clean the agent from memory.
+
+#### registerRequests(arr)
+
+You can dynamically add functionality to the SDK by registering more requests.
+For example:
+
+// TODO: Come up with an example of a function that actually doesn't exist in the SDK
+
+```javascript
+registerRequests(['.ams.AnotherTypeOfRequest']);
+// ... will register the following API:
+agent.anotherTypeOfRequest({/*some data*/}, (err, response) => {
+    // do something
+});
+```
+
+#### request(type, body[, headers], callback)
+
+You can call any request API functionality as follows:
+
+// TODO: Come up with an example of a function that actually doesn't exist in the SDK
+
+```javascript
+agent.request('.ams.aam.SubscribeExConversations', {
+        'convState': ['OPEN']
+    }, (err, resp) => {
+        console.log('subscribed successfully', err, resp);
+    });
+```
+
+#### agentId
+
+You can get your agentId from the SDK using ``agent.agentId``.
+
+
 ### Events
 These are events emitted by the SDK which you can listen to and react to.
 ```javascript
@@ -397,7 +439,7 @@ agent.on('error', err => {
 ### Messaging Agent API (backend)
 
 All request types are dynamically assigned to the object on creation.
-The supported API calls are a mirror of the LiveEngage Messaging Agent API - please read the documentation carefully for full examples.
+The supported API calls are a mirror of the [LiveEngage Messaging Agent API][1] - please read the documentation carefully for full examples.
 
 The available API calls are:
 
@@ -417,87 +459,8 @@ setAgentState
 subscribeAgentsState
 ```
 
-#### reconnect(skipTokenGeneration)
-Will reconnect the socket with the same configurations - will also regenerate token by default.  
-Use if socket closes unexpectedly or on token revocation.
-use `skipTokenGeneration = true` if you want to skip the token generation
-Call `reconnect` on `error` with code `401`
-
-#### dispose()
-Will dispose of the connection and unregister internal events.  
-Use it in order to clean the agent from memory.
-
-#### registerRequests(arr)
-
-You can dynamically add functionality to the SDK by registering more requests.
-For example:
-
-// TODO: Come up with an example of a function that actually doesn't exist in the SDK
-
-```javascript
-registerRequests(['.ams.AnotherTypeOfRequest']);
-// ... will register the following API:
-agent.anotherTypeOfRequest({/*some data*/}, (err, response) => {
-    // do something
-});
-```
-
-
-#### request(type, body[, headers], callback)
-
-You can call any request API functionality as follows:
-
-// TODO: Come up with an example of a function that actually doesn't exist in the SDK
-
-```javascript
-agent.request('.ams.aam.SubscribeExConversations', {
-        'convState': ['OPEN']
-    }, (err, resp) => {
-        console.log('subscribed successfully', err, resp);
-    });
-```
-
-#### agentId
-
-You can get your agentId from the SDK using ``agent.agentId``.
-
-### Further documentation
-
-- [LivePerson messaging API][1]
-- [LivePerson Chat SDK][2]
-
-When creating a request through the request builder you should provide only the `body` to the sdk request method
-
-## Running The Sample App
-
-To run the [greeting bot example][3]:
-
-- Provide the following `env` variables:
-   - `LP_ACCOUNT` - Your LivePerson account ID
-   - `LP_USER` - Your LivePerson agent username
-   - `LP_PASS` - Your LivePerson agent password
-
-- If you are consuming the Agent Messaging SDK as a dependency, switch to the
-package root:
-
-   ```sh
-   cd ./node_modules/node-agent-sdk
-   ```
-
-If you are a developer, the package root is the same as the repository root.
-There is therefore no need to change directories.
-
-- Run with npm:
-
-   ```sh
-   npm start
-   ```
-   
 ### Deprecation notices
-in the `cqm.ExConversationChangeNotification` the field `firstConversation` is deprecated
-
-#### Specific notifications additions
-Some notifications support helper methods to obtain the role and to identify if the message event is from "me".
+// TODO: Examples of new approaches to deprecated methods
 
 ##### MessagingEventNotification isMe() - *deprecated*
 This method is deprecated. please use `agent.agentId` instead  
@@ -521,10 +484,19 @@ agent.on('cqm.ExConversationChangeNotification', body => {
 });
 ```
 
+##### ExConversationChangeNotification firstConversation - *deprecated*
+In the `cqm.ExConversationChangeNotification` the field `firstConversation` is deprecated
 
-## Contributing
+### Further documentation
 
-In lieu of a formal styleguide, take care to maintain the existing coding
+- [LivePerson messaging API][1]
+- [LivePerson Chat SDK][2]
+
+When creating a request through the request builder you should provide only the `body` to the sdk request method
+
+### Contributing
+
+In lieu of a formal style guide, take care to maintain the existing coding
 style. Add unit tests for any new or changed functionality, lint and test your code.
 
 - To run the tests:
@@ -532,14 +504,14 @@ style. Add unit tests for any new or changed functionality, lint and test your c
    ```sh
    npm test
    ```
+   
+// TODO: fix greeting bot link
 
-- To run the [greeting bot example][3], see [Running The Sample App][4].
-
-
-
+- To run the [greeting bot][5] example, see [Running The Sample App][3].
 
 
 [1]: https://developers.liveperson.com/agent-int-api-reference.html
 [2]: https://github.com/LivePersonInc/agent-sample-app
-[3]: /examples/greeting-bot.js
-[4]: #running-the-sample-app
+[3]: /examples
+
+
