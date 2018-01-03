@@ -11,10 +11,6 @@
 
 The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 
-// TODO: Rebuild Index
-
-// TODO: Links within each area that refers to other methods or events
-
 - [Disclaimer](#disclaimer)
 - [Getting Started](#getting-started)
   - [Install](#install)
@@ -27,7 +23,6 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 - [Messaging Agent API (backend)](#messaging-agent-api-(backend))
 - [Deprecation Notices](#deprecation-notices)
 - [Further documentation](#further-documentation)
-- [Running The Sample App](#running-the-sample-app)
 - [Contributing](#contributing)
 
 ## Disclaimer
@@ -52,9 +47,7 @@ In order to guarantee compatibility with future versions of the SDK, and to ensu
     ```sh
     git clone https://github.com/LivePersonInc/node-agent-sdk.git
     ```
-    
-   // TODO: Fix greeting bot link
-    Run the [greeting bot][5] example (see how in [Running The Sample Apps][3]).
+    Run the [greeting bot](/examples/greeting-bot/greeting-bot.js) example (see how in [Running The Sample Apps][3]).
 
 
 ### Quick Start Example
@@ -117,7 +110,26 @@ The Agent Messaging SDK support the following authentication methods:
 - SAML assertion as `assertion`
 - OAuth1 with `username`, `appkey`, `secret`, `accessToken`, and `accessTokenSecret`
 
+#### agentId
+
+You can get your agentId from the SDK using ``agent.agentId``.
+
 ### Methods
+
+- [subscribeExConversations](#subscribeexconversations)
+- [subscribeAgentsState](#subscribeagentsstate)
+- [subscribeRoutingTasks](#subscriberoutingtasks)
+- [updateRoutingTaskSubscription](#updateroutingtasksubscription)
+- [ubsubscribeExConversations](#unsubscribeexconversations)
+- [setAgentState](#setagentstate)
+- [getClock](#getclock)
+- [getUserProfile](#getuserprofile)
+- [updateRingState](#updateringstate)
+- [agentRequestConversation](#agentrequestconversation)
+- [updateConversationField](#updateConversationField)
+- [publishEvent](#publishevent)
+- [reconnect](#reconnect)
+- [dispose](#dispose)
 
 #### subscribeExConversations
 This method is used to create a subscription for conversation updates. You can subscribe to all events, or to only those events pertaining to a specific agent or agents.
@@ -166,11 +178,15 @@ Callback data on success:
 
 #### updateRoutingTaskSubscription
 
-// TODO
+```javascript
+// TODO: all of this
+```
 
 #### unsubscribeExConversations
 
-// TODO
+```javascript
+// TODO: all of this
+```
 
 #### setAgentState
 This method is used to set your agent's state to one of: `'ONLINE'` (can receive routing tasks for incoming conversations), `'OCCUPIED'` (can receive routing tasks for incoming transfers only), or `'AWAY'` (cannot receive routing tasks)
@@ -210,7 +226,10 @@ agent.getUserProfile(consumerId, (e, profile) => {
     console.log(profile)
 });
 ```
+
+```javascript
 // TODO: example response
+```
 
 #### updateRingState
 This method is used to update the ring state of an incoming conversation--In other words, to accept the conversation
@@ -226,7 +245,10 @@ agent.updateRingState({
 ```
 #### agentRequestConversation
 
-// TODO
+
+```javascript
+// TODO: all of this
+```
 
 #### updateConversationField
 This method is used to update some field of a conversation object, such as when joining a conversation as a 'MANAGER' or during a transfer when the `SKILL` is changed and the `ASSIGNED_AGENT` is removed
@@ -362,73 +384,91 @@ agent.publishEvent({
 }, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}]);  // ExternalId is how this card will be referred to in reports
 ```
 
-#### reconnect(skipTokenGeneration)
+#### reconnect
 Will reconnect the socket with the same configurations - will also regenerate token by default.  
 Use if socket closes unexpectedly or on token revocation.
 use `skipTokenGeneration = true` if you want to skip the token generation
 Call `reconnect` on `error` with code `401`
 
-#### dispose()
+
+```javascript
+// TODO: example code etc
+```
+
+#### dispose
 Will dispose of the connection and unregister internal events.  
 Use it in order to clean the agent from memory.
 
-#### registerRequests(arr)
-
-You can dynamically add functionality to the SDK by registering more requests.
-For example:
-
-// TODO: Come up with an example of a function that actually doesn't exist in the SDK
 
 ```javascript
-registerRequests(['.ams.AnotherTypeOfRequest']);
-// ... will register the following API:
-agent.anotherTypeOfRequest({/*some data*/}, (err, response) => {
-    // do something
-});
+// TODO: example code
 ```
-
-#### request(type, body[, headers], callback)
-
-You can call any request API functionality as follows:
-
-// TODO: Come up with an example of a function that actually doesn't exist in the SDK
-
-```javascript
-agent.request('.ams.aam.SubscribeExConversations', {
-        'convState': ['OPEN']
-    }, (err, resp) => {
-        console.log('subscribed successfully', err, resp);
-    });
-```
-
-#### agentId
-
-You can get your agentId from the SDK using ``agent.agentId``.
 
 
 ### Events
+
+- [connected](#connected)
+- [notification](#notification)
+- [routing.RoutingTaskNotification](#routing.RoutingTaskNotification)
+- [routing.AgentStateNotification](#routing.AgentStateNotification)
+- [cqm.ExConversationChangeNotification](#cqm.ExConversationChangeNotification)
+- [ms.MessagingEventNotification](#ms.MessagingEventNotification)
+- [closed](#closed)
+- [error](#error)
+
 These are events emitted by the SDK which you can listen to and react to.
+
+#### connected
 ```javascript
 agent.on('connected', message => {
-    // socket is now connected to the server
+    // TODO: socket is now connected to the server
 });
+```
 
+#### notification
+```javascript
 agent.on('notification', body => {
-    // listen on all notifications
+    // TODO: listen on all notifications
 });
+```
 
+#### routing.RoutingTaskNotification
+```javascript
+agent.on('routing.RoutingTaskNotification', body => {
+    // TODO: stuff here
+})
+```
+
+#### routing.AgentStateNotification
+```javascript
+agent.on('routing.AgentStateNotification', body => {
+    // TODO: stuff here
+})
+```
+
+#### cqm.ExConversationChangeNotification
+```javascript
+agent.on('cqm.ExConversationChangeNotification', body => {
+    // TODO: stuff here
+})
+```
+
+#### ms.MessagingEventNotification
+```javascript
 agent.on('ms.MessagingEventNotification', body => { // specific notification type
-    // listen on notifications of the MessagingEvent type
+    // TODO: stuff here
 });
+```
 
-agent.on('GenericSubscribeResponse', (body, requestId) => { // specific response type
-    // listen on notifications of the specified type, do something with the requestId
-});
-
+#### closed
+```javascript
 agent.on('closed', reason => {
     // socket is now closed
 });
+```
 
+#### error
+```javascript
 agent.on('error', err => {
     // some error happened
     // might get error.code
@@ -460,7 +500,9 @@ subscribeAgentsState
 ```
 
 ### Deprecation notices
+```javascript
 // TODO: Examples of new approaches to deprecated methods
+```
 
 ##### MessagingEventNotification isMe() - *deprecated*
 This method is deprecated. please use `agent.agentId` instead  
@@ -505,9 +547,11 @@ style. Add unit tests for any new or changed functionality, lint and test your c
    npm test
    ```
    
+```javascript
 // TODO: fix greeting bot link
+```
 
-- To run the [greeting bot][5] example, see [Running The Sample App][3].
+- To run the [greeting bot](/examples/greeting-bot/greeting-bot.js) example, see [Running The Sample Apps][3].
 
 
 [1]: https://developers.liveperson.com/agent-int-api-reference.html

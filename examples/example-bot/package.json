@@ -1,0 +1,23 @@
+{
+  "name": "example_bot",
+  "version": "1.0.0",
+  "description": "Example implementation of the LivePerson Node Agent SDK",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "mmanguno@liveperson.com",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.6.0",
+    "bluebird": "^3.5.1",
+    "node-agent-sdk": "^0.2.22",
+    "oauth": "^0.9.15",
+    "ramda": "^0.25.0",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
+    "uuid": "^3.1.0",
+    "winston": "^2.4.0",
+    "ws": "^3.3.2"
+  }
+}
