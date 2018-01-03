@@ -432,10 +432,10 @@ You can get your agentId from the SDK using ``agent.agentId``.
 
 - [connected](#connected)
 - [notification](#notification)
-- [routing.RoutingTaskNotification](#routing.routingtasknotification)
-- [routing.AgentStateNotification](#routing.agentstatenotification)
-- [cqm.ExConversationChangeNotification](#cqm.exconversationchangenotification)
-- [ms.MessagingEventNotification](#ms.messagingeventnotification)
+- [routing.RoutingTaskNotification](#routingroutingtasknotification)
+- [routing.AgentStateNotification](#routingagentstatenotification)
+- [cqm.ExConversationChangeNotification](#cqmexconversationchangenotification)
+- [ms.MessagingEventNotification](#msmessagingeventnotification)
 - [closed](#closed)
 - [error](#error)
 
