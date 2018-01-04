@@ -394,39 +394,6 @@ Call `reconnect` on `error` with code `401`
 Will dispose of the connection and unregister internal events.  
 Use it in order to clean the agent from memory.
 
-#### registerRequests(arr)
-
-You can dynamically add functionality to the SDK by registering more requests.
-For example:
-
-// TODO: Come up with an example of a function that actually doesn't exist in the SDK
-
-```javascript
-registerRequests(['.ams.AnotherTypeOfRequest']);
-// ... will register the following API:
-agent.anotherTypeOfRequest({/*some data*/}, (err, response) => {
-    // do something
-});
-```
-
-#### request(type, body[, headers], callback)
-
-You can call any request API functionality as follows:
-
-// TODO: Come up with an example of a function that actually doesn't exist in the SDK
-
-```javascript
-agent.request('.ams.aam.SubscribeExConversations', {
-        'convState': ['OPEN']
-    }, (err, resp) => {
-        console.log('subscribed successfully', err, resp);
-    });
-```
-
-#### agentId
-
-You can get your agentId from the SDK using ``agent.agentId``.
-
 
 ### Events
 
@@ -567,11 +534,6 @@ style. Add unit tests for any new or changed functionality, lint and test your c
    ```sh
    npm test
    ```
-   
-// TODO: fix greeting bot link
-
-- To run the [greeting bot][5] example, see [Running The Sample App][3].
-
 
 [1]: https://developers.liveperson.com/agent-int-api-reference.html
 [2]: https://github.com/LivePersonInc/agent-sample-app
