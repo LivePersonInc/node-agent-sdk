@@ -1,6 +1,6 @@
 'use strict';
 
-const Agent = require('./../lib/AgentSDK');
+const Agent = require('./../../lib/AgentSDK');
 
 const agent = new Agent({
     accountId: process.env.LP_ACCOUNT,

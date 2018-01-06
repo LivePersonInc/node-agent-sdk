@@ -120,7 +120,7 @@ You can get your agentId from the SDK using ``agent.agentId``.
 - [subscribeAgentsState](#subscribeagentsstate)
 - [subscribeRoutingTasks](#subscriberoutingtasks)
 - [updateRoutingTaskSubscription](#updateroutingtasksubscription)
-- [ubsubscribeExConversations](#unsubscribeexconversations)
+- [unsubscribeExConversations](#unsubscribeexconversations)
 - [setAgentState](#setagentstate)
 - [getClock](#getclock)
 - [getUserProfile](#getuserprofile)
@@ -326,7 +326,10 @@ agent.publishEvent({
 ```
 
 ##### Example: Sending Rich Content (Structured Content)
-(for more examples see [Structured Content Templates](https://developers.liveperson.com/structured-content-templates.html))
+
+*Note that if your structured content card contains images (like the one below) the image must be on an https domain and that domain must be whitelisted on your account. Ask your LivePerson representative to help you with that.*
+
+For more examples see [Structured Content Templates](https://developers.liveperson.com/structured-content-templates.html)
 ```javascript
 agent.publishEvent({
 	dialogId: 'MY_DIALOG_ID',

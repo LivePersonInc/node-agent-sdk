@@ -1,5 +1,5 @@
 {
-  "name": "example_bot",
+  "name": "example_bots",
   "version": "1.0.0",
   "description": "Example implementation of the LivePerson Node Agent SDK",
   "main": "index.js",
