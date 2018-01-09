@@ -449,7 +449,7 @@ class Bot extends Agent {
         };
 
         /**
-         * Is a specific PID a participant in a specific conversation, and if so with what role?
+         * Is a specific PID (the bot user by default) a participant in a specific conversation, and if so with what role?
          *
          * @param {Object} conversationDetails - A conversationDetails object from an ExConversationChangeNotification
          * @param {String} [pid=(bot_user_pid)]

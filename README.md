@@ -26,11 +26,11 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 - [Contributing](#contributing)
 
 ## Disclaimer
-The current SDK version starts sending *MessagingEventNotification*s immediately upon connection, but this subscription will exclude some notifications.
+Currently the API bhind this SDK starts sending *MessagingEventNotification*s immediately upon connection, but this subscription will exclude some notifications.
 
-A new major version of the SDK will be released soon in which there is no automatic subscription, and you must explicitly subscribe to these events for each conversation in order to receive them.
+A new version of the API will be released soon in which there is no automatic subscription, and you must explicitly subscribe to these events for each conversation in order to receive them.
 
-In order to guarantee compatibility with future versions of the SDK, and to ensure that no notifications are missed even with the current SDK version, it is highly recommended that your bot explicitly subscribe to *MessagingEventNotification*s for all relevant conversations, as demonstrated in the [Agent-Bot](/examples/agent-bot) example's [MyCoolAgent.js](/examples/agent-bot/MyCoolAgent.js).
+In order to guarantee compatibility with future versions of the API, and to ensure that no notifications are missed even with the current API version, it is highly recommended that your bot explicitly subscribe to *MessagingEventNotification*s for all relevant conversations, as demonstrated in the [Agent-Bot](/examples/agent-bot) example's [MyCoolAgent.js](/examples/agent-bot/MyCoolAgent.js).
 
 ## Getting Started
 
