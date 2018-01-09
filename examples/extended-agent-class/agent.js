@@ -26,6 +26,7 @@ const Bot = require('./bot/bot.js');
  */
 
 const agent = new Bot(Bot.config);
+const transferSkill = '277498214';
 
 agent.on(Bot.const.CONNECTED, data => {
     log.info(`[agent.js] CONNECTED ${JSON.stringify(data)}`);
@@ -56,7 +57,7 @@ agent.on(Bot.const.CONTENT_NOTIFICATION, event => {
         switch (event.message.toLowerCase()) {
             case 'transfer':
                 agent.sendText(event.dialogId, 'transferring you to a new skill');
-                agent.transferConversation(event.dialogId, '277498214');
+                agent.transferConversation(event.dialogId, transferSkill);
                 break;
 
             case 'close':

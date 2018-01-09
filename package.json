@@ -14,6 +14,11 @@
     ],
     "scripts": {
         "start": "node ./examples/greeting-bot/greeting-bot.js",
+        "example_greeting-bot": "node ./examples/greeting-bot/greeting-bot.js",
+        "example_agent-bot": "node ./examples/agent-bot/main.js",
+        "example_agent": "node ./examples/example-bots/agent.js",
+        "example_reader": "node ./examples/example-bots/reader.js",
+        "example_manager": "node ./examples/example-bots/manager.js",
         "lint": "eslint lib/*; true",
         "test": "mocha"
     },

@@ -11,6 +11,8 @@ const log = new Winston.Logger({
 });
 const Bot = require('./bot/bot.js');
 
+// TODO: Add logic that a reader bot would use, such as logging consumer profile and agent info
+
 /**
  * The reader bot starts in the Away state and subscribes to all conversations
  *
