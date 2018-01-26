@@ -118,7 +118,12 @@ class MyCoolAgent extends Agent {
         // Tracing
         //this.on('notification', msg => console.log('got message', msg));
         this.on('error', err => console.log('got an error', err));
-        this.on('closed', data => {console.log('socket closed', data); clearImmediate(this._pingClock)});
+        this.on('closed', data => {
+            // For production environments ensure that you implement reconnect logic according to
+            // liveperson's retry policy guidelines: https://developers.liveperson.com/guides-retry-policy.html
+            console.log('socket closed', data);
+            clearInterval(this._pingClock);
+        });
     }
 }
 

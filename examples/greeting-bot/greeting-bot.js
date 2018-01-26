@@ -60,6 +60,8 @@ agent.on('error', err => {
 
 
 agent.on('closed', data => {
+    // For production environments ensure that you implement reconnect logic according to
+    // liveperson's retry policy guidelines: https://developers.liveperson.com/guides-retry-policy.html
     console.log('socket closed', data);
     clearInterval(agent._pingClock);
     agent.reconnect(); //regenerate token for reasons of authorization (data === 4401 || data === 4407)

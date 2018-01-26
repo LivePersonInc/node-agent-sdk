@@ -443,12 +443,12 @@ Success response:
 `{"sequence":29}`
 
 #### reconnect(skipTokenGeneration)
-Will reconnect the socket with the same configurations - will also regenerate token by default. 
- 
-Use if socket closes unexpectedly or on token revocation.
+**Make sure that you implement reconnect logic according to [liveperson's retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html)**
 
+Will reconnect the socket with the same configurations - will also regenerate token by default.  Use if socket closes unexpectedly or on token revocation.
 
-use `skipTokenGeneration = true` if you want to skip the generation of a new token.
+Use `skipTokenGeneration = true` if you want to skip the generation of a new token.
+
 Call `reconnect` on `error` with code `401`
 
 #### dispose()
@@ -537,7 +537,7 @@ Example payload:
 ```
 
 #### routing.AgentStateNotification
-This event occurs when your agent's state changes (usually as a result of using `[setAgentState](#setagentstate)`)
+This event occurs when your agent's state changes (usually as a result of using [setAgentState()](#setagentstate))
 
 Sample code:
 ```javascript
@@ -566,9 +566,9 @@ Example payload:
 ```
 
 #### cqm.ExConversationChangeNotification
-This event occurs when a conversation that your subscription qualifies for* is updated in any way. If you passed no agentIds array when calling [subscribExConversations](#subscribeexconversations), and you have the necessary permissions to see all agents' conversations, you will receive these events for all conversations. If you passed in your own agentId with `subscribeExConversations` you will only receive updates for conversations that you are a participant in (such as conversations that you have just accepted via a [routingTaskNotification](#routingroutingtasknotification)).
+This event occurs when a conversation that your subscription qualifies for* is updated in any way. If you passed no agentIds array when calling [subscribExConversations()](#subscribeexconversations), and you have the necessary permissions to see all agents' conversations, you will receive these events for all conversations. If you passed in your own agentId with `subscribeExConversations` you will only receive updates for conversations that you are a participant in (such as conversations that you have just accepted via a [routing.routingTaskNotification](#routingroutingtasknotification)).
 
-**Important** Due to a race condition in the service that serves these notifications they may not always contain the lastContentEventNotification attribute. For this reason you cannot rely on them to consume all of the messages in the conversation, and you should use this event to call [subscribeMessagingEvents](#subscribemessagingevents) for conversations you want to follow.  You should keep a list of conversations you are handling in order to prevent attempting to subscribe to the same conversation repeatedly.
+**Important** Due to a race condition in the service that serves these notifications they may not always contain the lastContentEventNotification attribute. For this reason you cannot rely on them to consume all of the messages in the conversation, and you should use this event to call [subscribeMessagingEvents()](#subscribemessagingevents) for conversations you want to follow.  You should keep a list of conversations you are handling in order to prevent attempting to subscribe to the same conversation repeatedly.
 
 Sample code:
 ```javascript
@@ -951,12 +951,13 @@ agent.on('notification', body => {});
 #### closed
 This event fires when the socket is closed.  If the reason is code 4401 or 4407 this indicates an authentication issue, so when you call [reconnect()](#reconnect(skiptokengeneration)) you should make sure not to pass the `skipTokenGeneration` argument.
 
-This event will only occur once, so if you want to attempt to reconnect repeatedly you should initiate a periodic reconnect attempt here. **LivePerson recommends that you make periodic reconnect attempts at increasing intervals up to a finite number of attempts in order to prevent flooding our service and being blocked as a potentially abusive client**. See [here](https://developers.liveperson.com/guides-retry-policy.html) for more information.
+This event will only occur once, so if you want to attempt to reconnect repeatedly you should initiate a periodic reconnect attempt here. **LivePerson recommends that you make periodic reconnect attempts at increasing intervals up to a finite number of attempts in order to prevent flooding our service and being blocked as a potentially abusive client**. See [LivePerson's retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) for more information.
 
 Sample code:
 ```javascript
 agent.on('closed', reason => {
     // TODO: Example coming soon
+    // Make sure that you implement reconnect logic according to liveperson's retry policy guidelines: https://developers.liveperson.com/guides-retry-policy.html
 });
 ```
 
