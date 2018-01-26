@@ -118,7 +118,7 @@ class MyCoolAgent extends Agent {
         // Tracing
         //this.on('notification', msg => console.log('got message', msg));
         this.on('error', err => console.log('got an error', err));
-        this.on('closed', data => console.log('socket closed', data));
+        this.on('closed', data => {console.log('socket closed', data); clearImmediate(this._pingClock)});
     }
 }
 

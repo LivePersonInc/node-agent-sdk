@@ -17,6 +17,7 @@ agent.on('connected', () => {
     agent.subscribeExConversations({
         'convState': ['OPEN'] // subscribes to all open conversation in the account.
     });
+    agent._pingClock = setInterval(agent.getClock, 30000);
 });
 
 agent.on('cqm.ExConversationChangeNotification', notificationBody => {
@@ -56,9 +57,12 @@ agent.on('error', err => {
     console.log('got an error', err);
 });
 
+
+
 agent.on('closed', data => {
     console.log('socket closed', data);
-    agent.reconnect();//regenerate token for reasons of authorization (data === 4401 || data === 4407)
+    clearInterval(agent._pingClock);
+    agent.reconnect(); //regenerate token for reasons of authorization (data === 4401 || data === 4407)
 });
 
 function getParticipantInfo(convDetails, participantId) {
