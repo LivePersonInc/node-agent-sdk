@@ -211,18 +211,6 @@ Success response:
 
 `{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
 
-#### updateRoutingTaskSubscription
-
-```javascript
-// TODO: all of this
-```
-
-#### unsubscribeExConversations
-
-```javascript
-// TODO: all of this
-```
-
 #### subscribeMessagingEvents
 This method is used to create a subscription for all of the Messaging Events in a particular conversation. This includes messages sent by any participant in the conversation, as well as "agent is typing" or "visitor is typing" notifications and notifications when a message has been read by a participant.
 
@@ -302,12 +290,6 @@ agent.updateRingState({
 Success response:
 
 `"Ring state updated successfully"`
-
-#### agentRequestConversation
-
-```javascript
-// TODO: all of this
-```
 
 #### updateConversationField
 This method is used to update some field of a conversation object, such as when joining a conversation as a 'MANAGER' or during a transfer when the `SKILL` is changed and the `ASSIGNED_AGENT` is removed
