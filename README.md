@@ -537,7 +537,7 @@ Example payload:
 ```
 
 #### routing.AgentStateNotification
-This event occurs when your agent's state changes (usually as a result of using [setAgentState](#setagentstate))
+This event occurs when your agent's state changes (usually as a result of using `[setAgentState](#setagentstate)`)
 
 Sample code:
 ```javascript
