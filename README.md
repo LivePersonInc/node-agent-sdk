@@ -13,6 +13,7 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 
 - [Disclaimer](#disclaimer)
 - [Getting Started](#getting-started)
+  - [Pre-Requisites](#pre-requisites)
   - [Install](#install)
   - [Quick Start Example](#quick-start-example)
   - [Running the Sample Apps][3]
@@ -20,7 +21,6 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
   - [Agent class](#agent-class)
   - [Methods](#methods)
   - [Events](#events)
-- [Messaging Agent API (backend)](#messaging-agent-api-(backend))
 - [Deprecation Notices](#deprecation-notices)
 - [Further documentation](#further-documentation)
 - [Contributing](#contributing)
@@ -33,6 +33,10 @@ A new version of the API will be released soon in which there is no automatic su
 In order to guarantee compatibility with future versions of the API, and to ensure that no notifications are missed even with the current API version, it is highly recommended that your bot explicitly subscribe to *MessagingEventNotification*s for all relevant conversations, as demonstrated in the [Agent-Bot](/examples/agent-bot) example's [MyCoolAgent.js](/examples/agent-bot/MyCoolAgent.js).
 
 ## Getting Started
+
+### Pre-requisites
+
+In order to use this SDK you need a LivePerson account with the Messaging feature enabled.  You can tell whether you have Messaging by logging into LiveEngage and looking at the available sections for the main view. All accounts should have "Web Visitors", "Web History", and "All Agents". **Messaging accounts will also have "Open Connections", "All Connections", and "Messaging Agents".**
 
 ### Install
 
@@ -81,6 +85,36 @@ agent.on('cqm.ExConversationChangeNotification', notificationBody => {
 LP_ACCOUNT=(YourAccountNumber) LP_USER=(YourBotUsername) LP_PASS=(YourBotPassword) node index.js
 ```
 
+### Running the Sample Apps
+
+#### Greeting Bot
+The greeting bot is a very simple implementation of the SDK in which the bot joins every conversation as a manager and sends the line "welcome from bot".
+
+Pre-requisites:
+- A LivePerson Account with Messaging
+- A user with Agent Manager permissions
+
+To run the [greeting bot example](/examples/greeting-bot/greeting-bot.js):
+
+- Provide the following `env` variables:
+   - `LP_ACCOUNT` - Your LivePerson account ID
+   - `LP_USER` - Your LivePerson agent username
+   - `LP_PASS` - Your LivePerson agent password
+
+- Run with npm:
+
+   ```sh
+   npm run-script example_greeting-bot
+   ```
+   
+   
+#### Extending the Agent Class
+
+The best way to use the SDK is to extend the Agent class with your own logic and then instantiate this object in your projects. This is demonstrated in a very basic way in the [agent bot](/examples/agent-bot/) example.
+
+For more extensive bot examples, all of which extend the Agent class, check out the [extended messaging bot samples](https://github.com/LivePersonInc/messaging_bot_samples) repository.
+
+
 ## API Overview
 
 ### Agent class
@@ -112,7 +146,7 @@ The Agent Messaging SDK support the following authentication methods:
 
 #### agentId
 
-You can get your agentId from the SDK using ``agent.agentId``.
+You can get your agentId from the SDK using `agent.agentId`.
 
 ### Methods
 
@@ -121,6 +155,7 @@ You can get your agentId from the SDK using ``agent.agentId``.
 - [subscribeRoutingTasks](#subscriberoutingtasks)
 - [updateRoutingTaskSubscription](#updateroutingtasksubscription)
 - [unsubscribeExConversations](#unsubscribeexconversations)
+- [subscribeMessagingEvents](#subscribemessagingevents)
 - [setAgentState](#setagentstate)
 - [getClock](#getclock)
 - [getUserProfile](#getuserprofile)
@@ -144,7 +179,7 @@ agent.subscribeExConversations({
 });
 ```
 
-Callback data on success:
+Success response:
 
 `{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
 
@@ -158,7 +193,7 @@ agent.subscribeAgentsState({}, (e, resp) => {
 });
 ```
 
-Callback data on success:
+Success response:
 
 `{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
 
@@ -172,7 +207,7 @@ agent.subscribeRoutingTasks({}, (e, resp) => {
 });
 ```
 
-Callback data on success:
+Success response:
 
 `{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
 
@@ -188,6 +223,15 @@ Callback data on success:
 // TODO: all of this
 ```
 
+#### subscribeMessagingEvents
+This method is used to create a subscription for all of the Messaging Events in a particular conversation. This includes messages sent by any participant in the conversation, as well as "agent is typing" or "visitor is typing" notifications and notifications when a message has been read by a participant.
+
+```javascript
+agent.subscribeMessagingEvents({dialogId: 'some conversation id'}, (e) => {if (e) console.error(e)});
+```
+
+This method returns no data when the subscription is successful.
+
 #### setAgentState
 This method is used to set your agent's state to one of: `'ONLINE'` (can receive routing tasks for incoming conversations), `'OCCUPIED'` (can receive routing tasks for incoming transfers only), or `'AWAY'` (cannot receive routing tasks)
 
@@ -199,7 +243,8 @@ agent.setAgentState({
     console.log(resp)
 });
 ```
-Callback data on success:
+
+Success response:
 
 `"Agent state updated successfully"`
 
@@ -213,7 +258,7 @@ agent.getClock({}, (e, resp) => {
 });
 ```
 
-Callback data on success:
+Success response:
 
 `{"currentTime":1513813587308}`
 
@@ -227,24 +272,38 @@ agent.getUserProfile(consumerId, (e, profile) => {
 });
 ```
 
+The consumerId parameter can be retrieved from the array of participants that accompanies a cqm.ExConversationChangeNotification event as follows:
+
 ```javascript
-// TODO: example response
+agent.on('cqm.ExConversationChangeNotification', body => {
+    body.changes.forEach(change => {
+        agent.getuserProfile(change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER'[0].id), callback)
+    })
+})
 ```
+
+Success response:
+
+`[{"type":"personal","personal":{"firstname":"Michael","lastname":"Bolton"}}]`
 
 #### updateRingState
 This method is used to update the ring state of an incoming conversation--In other words, to accept the conversation
 
 ```javascript
 agent.updateRingState({
-    "ringId": "someRingId",  // Ring ID received from the routing.routingTaskNotification
+    "ringId": "someRingId",  // Ring ID received from the routing.routingTaskNotification event
     "ringState": "ACCEPTED"
 }, (e, resp) => {
     if (e) { console.error(e) }
     console.log(resp)
 });
 ```
-#### agentRequestConversation
 
+Success response:
+
+`"Ring state updated successfully"`
+
+#### agentRequestConversation
 
 ```javascript
 // TODO: all of this
@@ -282,6 +341,10 @@ agent.updateConversationField({
 });
 ```
 
+Success response:
+
+`"OK Agent added successfully"`
+
 ##### Example: Transfer conversation to a new skill
 ```javascript
 agent.updateConversationField({
@@ -304,6 +367,10 @@ agent.updateConversationField({
 });
 ```
 
+Success response:
+
+`"OK Agent removed successfully"`
+
 #### publishEvent
 This method is used to publish an event to a conversation.
 ```javascript
@@ -324,6 +391,9 @@ agent.publishEvent({
 	}
 });
 ```
+
+Success response:
+`{"sequence":17}`
 
 ##### Example: Sending Rich Content (Structured Content)
 
@@ -387,16 +457,22 @@ agent.publishEvent({
 }, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}]);  // ExternalId is how this card will be referred to in reports
 ```
 
+Success response:
+`{"sequence":29}`
+
 #### reconnect(skipTokenGeneration)
-Will reconnect the socket with the same configurations - will also regenerate token by default.  
+Will reconnect the socket with the same configurations - will also regenerate token by default. 
+ 
 Use if socket closes unexpectedly or on token revocation.
-use `skipTokenGeneration = true` if you want to skip the token generation
+
+
+use `skipTokenGeneration = true` if you want to skip the generation of a new token.
 Call `reconnect` on `error` with code `401`
 
 #### dispose()
-Will dispose of the connection and unregister internal events.  
-Use it in order to clean the agent from memory.
+Will dispose of the connection and unregister internal events.
 
+Use it in order to clean the agent from memory.
 
 ### Events
 
@@ -412,107 +488,563 @@ Use it in order to clean the agent from memory.
 These are events emitted by the SDK which you can listen to and react to.
 
 #### connected
+This event occurs when you establish a websocket connection to the server. This is where you should [set your agent's initial state](#setagentstate), [subscribe to conversation changes](#subscribeexconversations), [subscribe to routing notifications](#subscriberoutingtasks), and perform general initialization tasks.
+
+Sample code:
 ```javascript
 agent.on('connected', message => {
-    // TODO: socket is now connected to the server
+    // socket connected
 });
 ```
 
-#### notification
-```javascript
-agent.on('notification', body => {
-    // TODO: listen on all notifications
-});
+Example payload:
+
+```json
+{"connected":true,"ts":1516999337528}
 ```
 
 #### routing.RoutingTaskNotification
+This event occurs when new conversations are presented to the bot by LivePerson's routing mechanism. This is equivalent to a new conversation "ringing" in a human agent's workspace. In response to this event you should have your bot [updateRingState](#updateringstate) for each ring.
+
+Sample code:
 ```javascript
 agent.on('routing.RoutingTaskNotification', body => {
-    // TODO: stuff here
-})
+    data.changes.forEach(change => {
+        if (change.type === 'UPSERT') {
+            change.result.ringsDetails.forEach(ring => {
+                if (ring.ringState === 'WAITING') {
+                    this.updateRingState({
+                        'ringId': ring.ringId,
+                        'ringState': 'ACCEPTED'
+                    }, (e, resp) => {
+                        if (e) { log.error(`[bot.js] acceptWaitingConversations ${JSON.stringify(e)}`) }
+                        else { log.info(`[bot.js] acceptWaitingConversations: Joined conversation ${JSON.stringify(change.result.conversationId)}, ${JSON.stringify(resp)}`) }
+                    });
+                }
+            });
+        }
+    });
+});
+```
+
+Example payload:
+```json
+{
+  "subscriptionId": "be13bab4-ec92-472f-b840-798b4cb476a4",
+  "changes": [
+    {
+      "type": "UPSERT",
+      "result": {
+        "taskCompleted": true,
+        "conversationId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+        "consumerId": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+        "skillId": "-1",
+        "ringsDetails": [
+          {
+            "ringId": "41d33e78-9701-4edd-a569-01dfb6c0f40a_89476943_1517000827442",
+            "ringExpirationTs": 1517000899442,
+            "ringState": "ACCEPTED",
+            "weight": 1517004427244,
+            "ringExpiration": 72000
+          }
+        ]
+      }
+    }
+  ]
+}
 ```
 
 #### routing.AgentStateNotification
+This event occurs when your agent's state changes (usually as a result of using [setAgentState](#setagentstate))
+
+Sample code:
 ```javascript
 agent.on('routing.AgentStateNotification', body => {
     // TODO: stuff here
 })
 ```
 
+Example payload:
+```json
+{
+  "subscriptionId": "5ebe7fcd-c59e-4fd2-a622-ec412a01a549",
+  "changes": [
+    {
+      "type": "UPSERT",
+      "result": {
+        "channels": [
+          "MESSAGING"
+        ],
+        "availability": "ONLINE",
+        "description": ""
+      }
+    }
+  ]
+}
+```
+
 #### cqm.ExConversationChangeNotification
+This event occurs when a conversation that your subscription qualifies for* is updated in any way. If you passed no agentIds array when calling [subscribExConversations](#subscribeexconversations), and you have the necessary permissions to see all agents' conversations, you will receive these events for all conversations. If you passed in your own agentId with `subscribeExConversations` you will only receive updates for conversations that you are a participant in (such as conversations that you have just accepted via a [routingTaskNotification](#routingroutingtasknotification)).
+
+**Important** Due to a race condition in the service that serves these notifications they may not always contain the lastContentEventNotification attribute. For this reason you cannot rely on them to consume all of the messages in the conversation, and you should use this event to call [subscribeMessagingEvents](#subscribemessagingevents) for conversations you want to follow.  You should keep a list of conversations you are handling in order to prevent attempting to subscribe to the same conversation repeatedly.
+
+Sample code:
 ```javascript
 agent.on('cqm.ExConversationChangeNotification', body => {
-    // TODO: stuff here
+    body.changes.forEach(change => {
+        if (change.type === 'UPSERT' && !inMyConversationList(change.result.convId)) {
+            addToMyConversationList(change.result.convId);
+            agent.subscribeMessagingEvents({dialogId: change.result.convId}, e => {if (e) console.error(e)})
+        } else if (change.type === 'DELETE') {
+            removeFromMyConversationList(change.result.convId);
+        }
+    })
 })
 ```
 
+Example payload:
+```json
+{
+  "subscriptionId": "e7f5ee81-4556-406c-8c72-94c69dd68fad",
+  "changes": [
+    {
+      "type": "UPSERT",
+      "result": {
+        "convId": "220d3639-ae23-4c90-83e8-455e3bb2cf13",
+        "conversationDetails": {
+          "skillId": "-1",
+          "participants": [
+            {
+              "id": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+              "role": "CONSUMER"
+            },
+            {
+              "id": "1a41233d-1d2c-5158-bacc-ee0f2d384888",
+              "role": "MANAGER"
+            },
+            {
+              "id": "393c6873-756d-54af-86e1-8795d57eba14",
+              "role": "ASSIGNED_AGENT"
+            }
+          ],
+          "state": "OPEN",
+          "startTs": 1516999063585,
+          "metaDataLastUpdateTs": 1516999196220,
+          "firstConversation": false,
+          "ttr": {
+            "ttrType": "NORMAL",
+            "value": 3600
+          },
+          "context": {
+            "type": "MobileAppContext",
+            "lang": "en-US",
+            "clientProperties": {
+              "type": ".ClientProperties",
+              "appId": "com.liveperson.mmanguno.upgradetest23_30",
+              "ipAddress": "172.26.138.125",
+              "deviceFamily": "MOBILE",
+              "os": "ANDROID",
+              "osVersion": "27",
+              "integration": "MOBILE_SDK",
+              "integrationVersion": "3.0.0.0",
+              "timeZone": "America/New_York",
+              "features": [
+                "PHOTO_SHARING",
+                "CO_APP",
+                "AUTO_MESSAGES",
+                "RICH_CONTENT",
+                "SECURE_FORMS"
+              ]
+            }
+          },
+          "__myRole": "ASSIGNED_AGENT"
+        },
+        "lastContentEventNotification": {
+          "sequence": 29,
+          "originatorClientProperties": {
+            "type": ".ClientProperties",
+            "ipAddress": "172.26.138.214"
+          },
+          "originatorId": "89476943.282467514",
+          "originatorPId": "393c6873-756d-54af-86e1-8795d57eba14",
+          "originatorMetadata": {
+            "id": "393c6873-756d-54af-86e1-8795d57eba14",
+            "role": "ASSIGNED_AGENT",
+            "clientProperties": {
+              "type": ".ClientProperties",
+              "ipAddress": "172.26.138.214"
+            }
+          },
+          "serverTimestamp": 1516999340978,
+          "event": {
+            "type": "RichContentEvent",
+            "content": {
+              "type": "vertical",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "Product Name",
+                  "tooltip": "text tooltip",
+                  "style": {
+                    "bold": true,
+                    "size": "large"
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "Product description",
+                  "tooltip": "text tooltip"
+                },
+                {
+                  "type": "button",
+                  "tooltip": "button tooltip",
+                  "title": "Add to cart",
+                  "click": {
+                    "actions": [
+                      {
+                        "type": "link",
+                        "name": "Add to cart",
+                        "uri": "http://www.google.com"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "dialogId": "220d3639-ae23-4c90-83e8-455e3bb2cf13"
+        }
+      }
+    }
+  ]
+}
+```
+
 #### ms.MessagingEventNotification
+This event occurs whenever there is a new message in a conversation, a message is marked as read, a participant starts typing or stops typing, or the consumer opens/closes their websocket connection (such as when they enter or leave the messaging window in a LivePerson Mobile SDK implementation).  Use this to consume messages, mark them as read, and react to them as you see fit.
+
+Sample code:
 ```javascript
 agent.on('ms.MessagingEventNotification', body => { // specific notification type
     // TODO: stuff here
 });
 ```
 
+###### Example payloads
+New message (sent by the agent in this case)
+```json
+{
+  "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+  "changes": [
+    {
+      "sequence": 10,
+      "originatorClientProperties": {
+        "type": ".ClientProperties",
+        "ipAddress": "172.26.138.213"
+      },
+      "originatorId": "393c6873-756d-54af-86e1-8795d57eba14",
+      "originatorMetadata": {
+        "id": "393c6873-756d-54af-86e1-8795d57eba14",
+        "role": "ASSIGNED_AGENT",
+        "clientProperties": {
+          "type": ".ClientProperties",
+          "ipAddress": "172.26.138.213"
+        }
+      },
+      "serverTimestamp": 1517002351775,
+      "event": {
+        "type": "ContentEvent",
+        "message": "16:32:31 GMT-0500 (EST)",
+        "contentType": "text/plain"
+      },
+      "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+      "__isMe": true
+    }
+  ]
+}
+```
+
+Message(s) read
+```json
+{
+  "sequence": 9,
+  "originatorClientProperties": {
+    "type": ".ClientProperties",
+    "ipAddress": "172.26.138.213"
+  },
+  "originatorId": "393c6873-756d-54af-86e1-8795d57eba14",
+  "originatorMetadata": {
+    "id": "393c6873-756d-54af-86e1-8795d57eba14",
+    "role": "ASSIGNED_AGENT",
+    "clientProperties": {
+      "type": ".ClientProperties",
+      "ipAddress": "172.26.138.213"
+    }
+  },
+  "serverTimestamp": 1517002351770,
+  "event": {
+    "type": "AcceptStatusEvent",
+    "status": "READ",
+    "sequenceList": [
+      8
+    ]
+  },
+  "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+  "__isMe": true
+}
+```
+
+Consumer is typing
+```json
+{
+  "originatorClientProperties": {
+    "type": ".ClientProperties",
+    "appId": "com.liveperson.mmanguno.upgradetest23_30",
+    "ipAddress": "172.26.138.214",
+    "deviceFamily": "MOBILE",
+    "os": "ANDROID",
+    "osVersion": "27",
+    "integration": "MOBILE_SDK",
+    "integrationVersion": "3.0.0.0",
+    "timeZone": "America/New_York",
+    "features": [
+      "PHOTO_SHARING",
+      "CO_APP",
+      "AUTO_MESSAGES",
+      "RICH_CONTENT",
+      "SECURE_FORMS"
+    ]
+  },
+  "originatorId": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+  "originatorMetadata": {
+    "id": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+    "role": "CONSUMER",
+    "clientProperties": {
+      "type": ".ClientProperties",
+      "appId": "com.liveperson.mmanguno.upgradetest23_30",
+      "ipAddress": "172.26.138.214",
+      "deviceFamily": "MOBILE",
+      "os": "ANDROID",
+      "osVersion": "27",
+      "integration": "MOBILE_SDK",
+      "integrationVersion": "3.0.0.0",
+      "timeZone": "America/New_York",
+      "features": [
+        "PHOTO_SHARING",
+        "CO_APP",
+        "AUTO_MESSAGES",
+        "RICH_CONTENT",
+        "SECURE_FORMS"
+      ]
+    }
+  },
+  "event": {
+    "type": "ChatStateEvent",
+    "chatState": "COMPOSING"
+  },
+  "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+  "__isMe": false
+}
+```
+
+Consumer websocket closed
+```json
+{
+  "originatorClientProperties": {
+    "type": ".ClientProperties",
+    "appId": "com.liveperson.mmanguno.upgradetest23_30",
+    "ipAddress": "172.26.138.214",
+    "deviceFamily": "MOBILE",
+    "os": "ANDROID",
+    "osVersion": "27",
+    "integration": "MOBILE_SDK",
+    "integrationVersion": "3.0.0.0",
+    "timeZone": "America/New_York",
+    "features": [
+      "PHOTO_SHARING",
+      "CO_APP",
+      "AUTO_MESSAGES",
+      "RICH_CONTENT",
+      "SECURE_FORMS"
+    ]
+  },
+  "originatorId": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+  "originatorMetadata": {
+    "id": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+    "role": "CONSUMER",
+    "clientProperties": {
+      "type": ".ClientProperties",
+      "appId": "com.liveperson.mmanguno.upgradetest23_30",
+      "ipAddress": "172.26.138.214",
+      "deviceFamily": "MOBILE",
+      "os": "ANDROID",
+      "osVersion": "27",
+      "integration": "MOBILE_SDK",
+      "integrationVersion": "3.0.0.0",
+      "timeZone": "America/New_York",
+      "features": [
+        "PHOTO_SHARING",
+        "CO_APP",
+        "AUTO_MESSAGES",
+        "RICH_CONTENT",
+        "SECURE_FORMS"
+      ]
+    }
+  },
+  "event": {
+    "type": "ChatStateEvent",
+    "chatState": "BACKGROUND"
+  },
+  "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+  "__isMe": false
+}
+```
+
+Consumer websocket resumed
+```json
+{
+  "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+  "changes": [
+    {
+      "originatorClientProperties": {
+        "type": ".ClientProperties",
+        "appId": "com.liveperson.mmanguno.upgradetest23_30",
+        "ipAddress": "172.26.138.214",
+        "deviceFamily": "MOBILE",
+        "os": "ANDROID",
+        "osVersion": "27",
+        "integration": "MOBILE_SDK",
+        "integrationVersion": "3.0.0.0",
+        "timeZone": "America/New_York",
+        "features": [
+          "PHOTO_SHARING",
+          "CO_APP",
+          "AUTO_MESSAGES",
+          "RICH_CONTENT",
+          "SECURE_FORMS"
+        ]
+      },
+      "originatorId": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+      "originatorMetadata": {
+        "id": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+        "role": "CONSUMER",
+        "clientProperties": {
+          "type": ".ClientProperties",
+          "appId": "com.liveperson.mmanguno.upgradetest23_30",
+          "ipAddress": "172.26.138.214",
+          "deviceFamily": "MOBILE",
+          "os": "ANDROID",
+          "osVersion": "27",
+          "integration": "MOBILE_SDK",
+          "integrationVersion": "3.0.0.0",
+          "timeZone": "America/New_York",
+          "features": [
+            "PHOTO_SHARING",
+            "CO_APP",
+            "AUTO_MESSAGES",
+            "RICH_CONTENT",
+            "SECURE_FORMS"
+          ]
+        }
+      },
+      "event": {
+        "type": "ChatStateEvent",
+        "chatState": "ACTIVE"
+      },
+      "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+      "__isMe": false
+    }
+  ]
+}
+```
+
+#### notification
+This event fires on all notifications. We recommend that instead of using this listener you instead listen to the specific notification categories detailed above.
+
+Sample code:
+```javascript
+agent.on('notification', body => {});
+```
+
 #### closed
+This event fires when the socket is closed.  If the reason is code 4401 or 4407 this indicates an authentication issue, so when you call [reconnect()](#reconnect(skiptokengeneration)) you should make sure not to pass the `skipTokenGeneration` argument.
+
+This event will only occur once, so if you want to attempt to reconnect repeatedly you should initiate a periodic reconnect attempt here. **LivePerson recommends that you make periodic reconnect attempts at increasing intervals up to a finite number of attempts in order to prevent flooding our service and being blocked as a potentially abusive client**. See [here](https://developers.liveperson.com/guides-retry-policy.html) for more information.
+
+Sample code:
 ```javascript
 agent.on('closed', reason => {
-    // socket is now closed
+    // TODO: Example coming soon
 });
+```
+
+Example payload:
+```json
+1006
 ```
 
 #### error
+This event fires when the SDK receives an error from the messaging service. If you receive a `401` error you should call [reconnect()](#reconnect)
+
+Sample code:
 ```javascript
 agent.on('error', err => {
-    // some error happened
-    // might get error.code
-    // if code === 401 should call reconnect
+    if (err && err.code === 401) {
+        agent.reconnect();
+    }
 });
 ```
 
-### Messaging Agent API (backend)
-
-All request types are dynamically assigned to the object on creation.
-The supported API calls are a mirror of the [LiveEngage Messaging Agent API][1] - please read the documentation carefully for full examples.
-
-The available API calls are:
-
-```
-getClock
-agentRequestConversation
-subscribeExConversations
-unsubscribeExConversations
-updateConversationField
-publishEvent
-queryMessages
-updateRingState
-subscribeRoutingTasks
-updateRoutingTaskSubscription
-getUserProfile
-setAgentState
-subscribeAgentsState
+Example payload:
+```json
+{"code":"ENOTFOUND","errno":"ENOTFOUND","syscall":"getaddrinfo","hostname":"va.agentvep.liveperson.net","host":"va.agentvep.liveperson.net","port":443}
 ```
 
 ### Deprecation notices
-// TODO: Examples of new approaches to deprecated methods
 
 ##### MessagingEventNotification isMe() - *deprecated*
-This method is deprecated. please use `agent.agentId` instead  
+**This method is deprecated. Please use [agent.agentId](#agentid) instead.**
+
 A method to understand on each change on the messaging event if it is from the agent connected right now or not.
+
+Old way:
 ```javascript
 agent.on('ms.MessagingEventNotification', body => {
     body.changes.forEach(change => {
-        change.isMe();
+        let isMe = change.isMe();
+    });
+});
+```
+
+New way:
+```javascript
+agent.on('ms.MessagingEventNotification', body => {
+    body.changes.forEach(change => {
+        let isMe = change.originatorMetadata.id === agent.agentId;
     });
 });
 ```
 
 ##### ExConversationChangeNotification getMyRole() - *deprecated*
-This method is deprecated. please use `agent.agentId` instead  
+**This method is deprecated. Please use `agent.agentId` instead.**
+
 A method to understand on each change on the conversation change notification conversation details the current agent role in the conversation or undefined if he is not participant.
+
+Old way:
 ```javascript
 agent.on('cqm.ExConversationChangeNotification', body => {
     body.changes.forEach(change => {
         change.result.conversationDetails.getMyRole();  
+    });
+});
+```
+
+New way:
+```javascript
+agent.on('cqm.ExConversationChangeNotification', body => {
+    body.changes.forEach(change => {
+        let participant = change.result.conversationDetails.participants.filter(p => p.id === agent.agentId)[0];
+        let myRole = participant && participant.role;
     });
 });
 ```
@@ -541,5 +1073,3 @@ style. Add unit tests for any new or changed functionality, lint and test your c
 [1]: https://developers.liveperson.com/agent-int-api-reference.html
 [2]: https://github.com/LivePersonInc/agent-sample-app
 [3]: /examples
-
-
