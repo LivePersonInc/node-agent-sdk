@@ -26,7 +26,7 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 - [Contributing](#contributing)
 
 ## Disclaimer
-Currently the API bhind this SDK starts sending *MessagingEventNotification*s immediately upon connection, but this subscription will exclude some notifications.
+Currently the API behind this SDK starts sending *MessagingEventNotification*s immediately upon connection, but this subscription will exclude some notifications.
 
 A new version of the API will be released soon in which there is no automatic subscription, and you must explicitly subscribe to these events for each conversation in order to receive them.
 
@@ -55,6 +55,8 @@ In order to use this SDK you need a LivePerson account with the Messaging featur
 
 
 ### Quick Start Example
+
+#### Create `index.js`
 ```javascript
 const Agent = require('node-agent-sdk').Agent;
 
@@ -81,39 +83,13 @@ agent.on('cqm.ExConversationChangeNotification', notificationBody => {
 })
 ```
 
+#### Run it:
+
 ```sh
 LP_ACCOUNT=(YourAccountNumber) LP_USER=(YourBotUsername) LP_PASS=(YourBotPassword) node index.js
 ```
 
-### Running the Sample Apps
-
-#### Greeting Bot
-The greeting bot is a very simple implementation of the SDK in which the bot joins every conversation as a manager and sends the line "welcome from bot".
-
-Pre-requisites:
-- A LivePerson Account with Messaging
-- A user with Agent Manager permissions
-
-To run the [greeting bot example](/examples/greeting-bot/greeting-bot.js):
-
-- Provide the following `env` variables:
-   - `LP_ACCOUNT` - Your LivePerson account ID
-   - `LP_USER` - Your LivePerson agent username
-   - `LP_PASS` - Your LivePerson agent password
-
-- Run with npm:
-
-   ```sh
-   npm run-script example_greeting-bot
-   ```
-   
-   
-#### Extending the Agent Class
-
-The best way to use the SDK is to extend the Agent class with your own logic and then instantiate this object in your projects. This is demonstrated in a very basic way in the [agent bot](/examples/agent-bot/) example.
-
-For more extensive bot examples, all of which extend the Agent class, check out the [extended messaging bot samples](https://github.com/LivePersonInc/messaging_bot_samples) repository.
-
+### [Running the Sample Apps][3]
 
 ## API Overview
 
@@ -950,12 +926,30 @@ This event fires when the socket is closed.  If the reason is code 4401 or 4407 
 
 This event will only occur once, so if you want to attempt to reconnect repeatedly you should initiate a periodic reconnect attempt here. **LivePerson recommends that you make periodic reconnect attempts at increasing intervals up to a finite number of attempts in order to prevent flooding our service and being blocked as a potentially abusive client**. See [LivePerson's retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) for more information.
 
+In the sample below we attempt to reconnect 35 times, waiting 5 seconds the first time and increasing the interval by a factor of 1.25 between each attempt.
+
 Sample code:
 ```javascript
-agent.on('closed', reason => {
-    // TODO: Example coming soon
-    // Make sure that you implement reconnect logic according to liveperson's retry policy guidelines: https://developers.liveperson.com/guides-retry-policy.html
+const reconnectInterval = 5;        // in seconds
+const reconnectAttempts = 35;
+const reconnectRatio    = 1.25;     // ratio in the geometric series used to determine reconnect exponential back-off
+
+// on connected cancel any retry interval remaining from reconnect attempt
+agent.on('connected', () => {
+    clearTimeout(agent._retryConnection);   
+    // etc etc
 });
+
+agent.on('closed', () => {
+    agent._reconnect();             // call our reconnect looper
+});
+
+agent._reconnect = (delay = reconnectInterval, attempt = 1) => {
+    agent._retryConnection = setTimeout(()=>{
+        agent.reconnect();
+        if (++attempt <= reconnectAttempts) { agent._reconnect(reconnectInterval * reconnectRatio, attempt) }
+    }, delay * 1000)
+ }
 ```
 
 Example payload:
@@ -964,13 +958,13 @@ Example payload:
 ```
 
 #### error
-This event fires when the SDK receives an error from the messaging service. If you receive a `401` error you should call [reconnect()](#reconnect)
+This event fires when the SDK receives an error from the messaging service. If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section. 
 
 Sample code:
 ```javascript
 agent.on('error', err => {
     if (err && err.code === 401) {
-        agent.reconnect();
+        agent._reconnect();  // agent._reconnect() defined in the on('closed',() => {}) example above.
     }
 });
 ```
