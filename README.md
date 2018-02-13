@@ -1,4 +1,5 @@
 
+
 # node-agent-sdk
 
 [![build](https://travis-ci.org/LivePersonInc/node-agent-sdk.svg?branch=master)](https://travis-ci.org/LivePersonInc/node-agent-sdk)
@@ -12,41 +13,50 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 
 - [Disclaimer](#disclaimer)
 - [Getting Started](#getting-started)
-- [Example Usage](#example-usage)
-- [Example Sending Rich Content (Structured Content)](#example-sending-rich-content-structured-content)
+  - [Pre-Requisites](#pre-requisites)
+  - [Install](#install)
+  - [Quick Start Example](#quick-start-example)
+  - [Running the Sample Apps][3]
 - [API Overview](#api-overview)
   - [Agent class](#agent-class)
+  - [Methods](#methods)
   - [Events](#events)
-  - [Specific notifications additions](#specific-notifications-additions)
-    - [MessagingEventNotification isMe() - deprecated](#messagingeventnotification-isme-deprecated)
-    - [ExConversationChangeNotification getMyRole() - deprecated](#exconversationchangenotification-getmyrole-deprecated)
-  - [Messaging Agent API (backend)](#messaging-agent-api-backend)
-    - [reconnect()](#reconnectskiptokengeneration)
-    - [dispose()](#dispose)
-    - [registerRequests(arr)](#registerrequestsarr)
-    - [request(type, body[, headers][, metadata], callback)](#requesttype-body-headers-metadata-callback)
+- [Deprecation Notices](#deprecation-notices)
 - [Further documentation](#further-documentation)
-- [Running The Sample App](#running-the-sample-app)
 - [Contributing](#contributing)
 
 ## Disclaimer
-A new major version of the SDK will be released soon with a breaking change:  
-The current SDK will start sending notifications once connected.  
-The next version will require explicit registration.  
+Currently the API behind this SDK starts sending *MessagingEventNotification*s immediately upon connection, but this subscription will exclude some notifications.
+
+A new version of the API will be released soon in which there is no automatic subscription, and you must explicitly subscribe to these events for each conversation in order to receive them.
+
+In order to guarantee compatibility with future versions of the API, and to ensure that no notifications are missed even with the current API version, it is highly recommended that your bot explicitly subscribe to *MessagingEventNotification*s for all relevant conversations, as demonstrated in the [Agent-Bot](/examples/agent-bot) example's [MyCoolAgent.js](/examples/agent-bot/MyCoolAgent.js).
 
 ## Getting Started
 
-- Install:
-   
+### Pre-requisites
+
+In order to use this SDK you need a LivePerson account with the Messaging feature enabled.  You can tell whether you have Messaging by logging into LiveEngage and looking at the available sections for the main view. All accounts should have "Web Visitors", "Web History", and "All Agents". **Messaging accounts will also have "Open Connections", "All Connections", and "Messaging Agents".**
+
+### Install
+
+- **Option 1 - npm install (does not include sample apps)**
+
    ```sh
    npm i node-agent-sdk --save
    ```
 
-- Run the [greeting bot example][3] (see how in [Running The Sample App][4]).
+- **Option 2 - Clone this repository (includes sample apps)**
+
+    ```sh
+    git clone https://github.com/LivePersonInc/node-agent-sdk.git
+    ```
+    Run the [greeting bot](/examples/greeting-bot/greeting-bot.js) example (see how in [Running The Sample Apps][3]).
 
 
-### Example Usage
+### Quick Start Example
 
+#### Create `index.js`
 ```javascript
 const Agent = require('node-agent-sdk').Agent;
 
@@ -59,220 +69,942 @@ const agent = new Agent({
 agent.on('connected', () => {
     console.log(`connected...`);
 
+    // subscribe to all conversations in the account
     agent.subscribeExConversations({
         'convState': ['OPEN']
     }, (err, resp) => {
         console.log('subscribed successfully', err, resp);
     });
 });
+
+// log all conversation updates
+agent.on('cqm.ExConversationChangeNotification', notificationBody => {
+    console.log(JSON.stringify(notificationBody));
+})
 ```
 
-### Example Sending Rich Content (Structured Content)
-```javascript
-agent.publishEvent({
-    dialogId: 'MY_DIALOG_ID',
-    event: {
-        type: 'RichContentEvent',
-        content: {
-            "type": "vertical",
-            "elements": [
-                {
-                    "type": "image",
-                    "url": "http://cdn.mos.cms.futurecdn.net/vkrEdZXgwP2vFa6AEQLF7f-480-80.jpg?quality=98&strip=all",
-                    "tooltip": "image tooltip",
-                    "click": {
-                        "actions": [
-                            {
-                                "type": "navigate",
-                                "name": "Navigate to store via image",
-                                "lo": 23423423,
-                                "la": 2423423423
-                            }
-                        ]
-                    }
-                },
-                {
-                    "type": "text",
-                    "text": "product name (Title)",
-                    "tooltip": "text tooltip",
-                    "style": {
-                        "bold": true,
-                        "size": "large"
-                    }
-                },
-                {
-                    "type": "text",
-                    "text": "product name (Title)",
-                    "tooltip": "text tooltip"
-                },
-                {
-                    "type": "button",
-                    "tooltip": "button tooltip",
-                    "title": "Add to cart",
-                    "click": {
-                        "actions": [
-                            {
-                                "type": "link",
-                                "name": "Add to cart",
-                                "uri": "http://www.google.com"
-                            }
-                        ]
-                    }
-                },
-                {
-                    "type": "horizontal",
-                    "elements": [
-                        {
-                            "type": "button",
-                            "title": "Buy",
-                            "tooltip": "Buy this product",
-                            "click": {
-                                "actions": [
-                                    {
-                                        "type": "link",
-                                        "name": "Buy",
-                                        "uri": "http://www.google.com"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "type": "button",
-                            "title": "Find similar",
-                            "tooltip": "store is the thing",
-                            "click": {
-                                "actions": [
-                                    {
-                                        "type": "link",
-                                        "name": "Buy",
-                                        "uri": "http://www.google.com"
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "button",
-                    "tooltip": "button tooltip",
-                    "title": "Publish text",
-                    "click": {
-                        "metadata": [
-                            {
-                                "type": "ExternalId",
-                                "id": "MY_ACTION_ID"
-                            }
-                        ],
-                        "actions": [
-                            {
-                                "type": "publishText",
-                                "text": "my text"
-                            }
-                        ]
-                    }
-                },
-                {
-                    "type": "button",
-                    "tooltip": "button tooltip",
-                    "title": "Navigate",
-                    "click": {
-                        "actions": [
-                            {
-                                "type": "publishText",
-                                "text": "my text"
-                            },
-                            {
-                                "type": "navigate",
-                                "name": "Navigate to store via image",
-                                "lo": 23423423,
-                                "la": 2423423423
-                            }
-                        ]
-                    }
-                }
-            ]
-        }
-    }
-}, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}]);
+#### Run it:
+
+```sh
+LP_ACCOUNT=(YourAccountNumber) LP_USER=(YourBotUsername) LP_PASS=(YourBotPassword) node index.js
 ```
-For more information on how this example was built, please refer to the [Structured Content Templates document on the Developers' Community](https://developers.liveperson.com/structured-content-templates.html).
+
+### [Running the Sample Apps][3]
 
 ## API Overview
-
 
 ### Agent class
 
 ```javascript
 new Agent({
-    accountId: String,
-    username: String,
-    password: String,
-    token: String, // a bearer token instead of username and password
-    userId: String, // the user id - mandatory when using token as authentication method 
-    assertion: String, // a SAML assertion to be used instead of token or username and password
-    appKey: String,// oauth1 keys needed (with username) to be used instead of assertion or token or username and password
-    secret: String,
-    accessToken: String,
-    accessTokenSecret: String,
+    accountId: String,  // required
+    username: String,  // required for username/password authentication and OAuth1 authentication
+    password: String,  // required for username/password authentication
+    appKey: String, // required for OAuth1 authentication
+    secret: String, // required for OAuth1 authentication
+    accessToken: String, // required for OAuth1 authentication
+    accessTokenSecret: String, // required for OAuth1 authentication
+    token: String, // required for token authentication
+    userId: String, // required for token authentication
+    assertion: String, // required for SAML authentication
     csdsDomain: String, // override the CSDS domain if needed
     requestTimeout: Number, // default to 10000 milliseconds
     errorCheckInterval: Number, // defaults to 1000 milliseconds
     apiVersion: Number // Messaging API version - defaults to 2 (version 1 is not supported anymore)
 });
 ```
-### Authentication
+#### Authentication
 The Agent Messaging SDK support the following authentication methods:
-- username and password
-- Barear token as `token` with user id as `userId`
+- Username and password as `username` and `password`
+- Bearer token as `token` with user id as `userId`
 - SAML assertion as `assertion`
+- OAuth1 with `username`, `appkey`, `secret`, `accessToken`, and `accessTokenSecret`
 
-### Events
+#### agentId
+
+You can get your agentId from the SDK using `agent.agentId`.
+
+### Methods
+
+- [subscribeExConversations](#subscribeexconversations)
+- [subscribeAgentsState](#subscribeagentsstate)
+- [subscribeRoutingTasks](#subscriberoutingtasks)
+- [subscribeMessagingEvents](#subscribemessagingevents)
+- [setAgentState](#setagentstate)
+- [getClock](#getclock)
+- [getUserProfile](#getuserprofile)
+- [updateRingState](#updateringstate)
+- [updateConversationField](#updateConversationField)
+- [publishEvent](#publishevent)
+- [reconnect](#reconnect)
+- [dispose](#dispose)
+
+#### subscribeExConversations
+This method is used to create a subscription for conversation updates. You can subscribe to all events, or to only those events pertaining to a specific agent or agents.
 
 ```javascript
-agent.on('connected', msg => {
-    // socket is now connected to the server
-});
-
-agent.on('notification', message => {
-    // listen on all notifications
-});
-
-agent.on('ms.MessagingEventNotification', body => { // specific notification type
-    // listen on notifications of the MessagingEvent type
-});
-
-agent.on('GenericSubscribeResponse', (body, requestId) => { // specific response type
-    // listen on notifications of the specified type, do something with the requestId
-});
-
-agent.on('closed', reason => {
-    // socket is now closed
-});
-
-agent.on('error', err => {
-    // some error happened
-    //might get error.code
-    //if code === 401 should call reconnect
+agent.subscribeExConversations({
+    'convState': ['OPEN']
+    ,'agentIds': [agent.agentId] // remove this line to subscribe to all conversations instead of just the bot's conversations
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
 });
 ```
 
-### Specific notifications additions
-Some notifications support helper methods to obtain the role and to identify if the message event is from "me".
+Success response:
 
-#### MessagingEventNotification isMe() - deprecated
-This method is deprecated. please use `agent.agentId` instead  
-A method to understand on each change on the messaging event if it is from the agent connected right now or not. 
+`{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
+
+#### subscribeAgentsState
+This method is used to create a subscription for Agent State updates. An event will be received whenever the bot user's state is updated.
+
 ```javascript
-agent.on('ms.MessagingEventNotification', body => { 
+agent.subscribeAgentsState({}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+Success response:
+
+`{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
+
+#### subscribeRoutingTasks
+This method is used to create a subscription for Routing Tasks. An event will be received whenever new conversation(s) are routed to the agent. In response your bot can 'accept' the new conversation, as described below in the updateRingState method.
+
+```javascript
+agent.subscribeRoutingTasks({}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+Success response:
+
+`{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
+
+#### subscribeMessagingEvents
+This method is used to create a subscription for all of the Messaging Events in a particular conversation. This includes messages sent by any participant in the conversation, as well as "agent is typing" or "visitor is typing" notifications and notifications when a message has been read by a participant.
+
+```javascript
+agent.subscribeMessagingEvents({dialogId: 'some conversation id'}, (e) => {if (e) console.error(e)});
+```
+
+This method returns no data when the subscription is successful.
+
+#### setAgentState
+This method is used to set your agent's state to one of: `'ONLINE'` (can receive routing tasks for incoming conversations), `'OCCUPIED'` (can receive routing tasks for incoming transfers only), or `'AWAY'` (cannot receive routing tasks)
+
+```javascript
+agent.setAgentState({
+    'availability': 'ONLINE'
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+Success response:
+
+`"Agent state updated successfully"`
+
+#### getClock
+This method is used to synchronize your client clock with the messaging server's clock. It can also be used as a periodic keep-alive request, to ensure that your bot's connection is maintained even in periods of low activity.
+
+```javascript
+agent.getClock({}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+Success response:
+
+`{"currentTime":1513813587308}`
+
+#### getUserProfile
+This method is used to get a consumer's profile data
+
+```javascript
+agent.getUserProfile(consumerId, (e, profile) => {
+    if (e) { console.error(e) }
+    console.log(profile)
+});
+```
+
+The consumerId parameter can be retrieved from the array of participants that accompanies a cqm.ExConversationChangeNotification event as follows:
+
+```javascript
+agent.on('cqm.ExConversationChangeNotification', body => {
     body.changes.forEach(change => {
-        change.isMe(); 
+        agent.getuserProfile(change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER'[0].id), callback)
+    })
+})
+```
+
+Success response:
+
+`[{"type":"personal","personal":{"firstname":"Michael","lastname":"Bolton"}}]`
+
+#### updateRingState
+This method is used to update the ring state of an incoming conversation--In other words, to accept the conversation
+
+```javascript
+agent.updateRingState({
+    "ringId": "someRingId",  // Ring ID received from the routing.routingTaskNotification event
+    "ringState": "ACCEPTED"
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+Success response:
+
+`"Ring state updated successfully"`
+
+#### updateConversationField
+This method is used to update some field of a conversation object, such as when joining a conversation as a 'MANAGER' or during a transfer when the `SKILL` is changed and the `ASSIGNED_AGENT` is removed
+
+```javascript
+agent.updateConversationField({
+    'conversationId': 'conversationId/dialogId',
+    'conversationField': [{
+        'field': '',
+        'type': '',
+        '' : ''
+    }]
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+##### Example: Join conversation as manager
+```javascript
+agent.updateConversationField({
+    'conversationId': 'conversationId/dialogId',
+    'conversationField': [{
+         'field': 'ParticipantsChange',
+         'type': 'ADD',
+         'role': 'MANAGER'
+     }]
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+Success response:
+
+`"OK Agent added successfully"`
+
+##### Example: Transfer conversation to a new skill
+```javascript
+agent.updateConversationField({
+'conversationId': 'conversationId/dialogId',
+    'conversationField': [
+        {
+            'field': 'ParticipantsChange',
+            'type': 'REMOVE',
+            'role': 'ASSIGNED_AGENT'
+        },
+        {
+            'field': 'Skill',
+            'type': 'UPDATE',
+            'skill': 'targetSkillId'
+        }
+    ]
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+Success response:
+
+`"OK Agent removed successfully"`
+
+#### publishEvent
+This method is used to publish an event to a conversation.
+```javascript
+agent.publishEvent({
+    dialogId: 'conversationId/dialogId',
+    event: {}
+});
+```
+
+##### Example: Sending Text
+```javascript
+agent.publishEvent({
+	dialogId: 'MY_DIALOG_ID',
+	event: {
+		type: 'ContentEvent',
+		contentType: 'text/plain',
+		message: 'hello world!'
+	}
+});
+```
+
+Success response:
+`{"sequence":17}`
+
+##### Example: Sending Rich Content (Structured Content)
+
+*Note that if your structured content card contains images (like the one below) the image must be on an https domain and that domain must be whitelisted on your account. Ask your LivePerson representative to help you with that.*
+
+For more examples see [Structured Content Templates](https://developers.liveperson.com/structured-content-templates.html)
+```javascript
+agent.publishEvent({
+	dialogId: 'MY_DIALOG_ID',
+	event: {
+		type: 'RichContentEvent',
+		content: {
+			"type": "vertical",
+			"elements": [
+				{
+				 "type": "image",
+					"url": "http://cdn.mos.cms.futurecdn.net/vkrEdZXgwP2vFa6AEQLF7f-480-80.jpg?quality=98&strip=all",
+					"tooltip": "image tooltip",
+					"click": {
+						"actions": [
+							{
+								"type": "navigate",
+								"name": "Navigate to store via image",
+								"lo": -73.99852590,
+								"la": 40.7562724
+							}
+						]
+					}
+				},
+				{
+					"type": "text",
+					"text": "Product Name",
+					"tooltip": "text tooltip",
+					"style": {
+						"bold": true,
+						"size": "large"
+					}
+				},
+				{
+					"type": "text",
+					"text": "Product description",
+					"tooltip": "text tooltip"
+				},
+				{
+					"type": "button",
+					"tooltip": "button tooltip",
+					"title": "Add to cart",
+					"click": {
+						"actions": [
+							{
+									"type": "link",
+									"name": "Add to cart",
+									"uri": "http://www.google.com"
+							}
+						]
+					}
+				}
+			]
+		}
+	}
+}, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}]);  // ExternalId is how this card will be referred to in reports
+```
+
+Success response:
+`{"sequence":29}`
+
+#### reconnect(skipTokenGeneration)
+**Make sure that you implement reconnect logic according to [liveperson's retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html)**
+
+Will reconnect the socket with the same configurations - will also regenerate token by default.  Use if socket closes unexpectedly or on token revocation.
+
+Use `skipTokenGeneration = true` if you want to skip the generation of a new token.
+
+Call `reconnect` on `error` with code `401`
+
+#### dispose()
+Will dispose of the connection and unregister internal events.
+
+Use it in order to clean the agent from memory.
+
+### Events
+
+- [connected](#connected)
+- [notification](#notification)
+- [routing.RoutingTaskNotification](#routingroutingtasknotification)
+- [routing.AgentStateNotification](#routingagentstatenotification)
+- [cqm.ExConversationChangeNotification](#cqmexconversationchangenotification)
+- [ms.MessagingEventNotification](#msmessagingeventnotification)
+- [closed](#closed)
+- [error](#error)
+
+These are events emitted by the SDK which you can listen to and react to.
+
+#### connected
+This event occurs when you establish a websocket connection to the server. This is where you should [set your agent's initial state](#setagentstate), [subscribe to conversation changes](#subscribeexconversations), [subscribe to routing notifications](#subscriberoutingtasks), and perform general initialization tasks.
+
+Sample code:
+```javascript
+agent.on('connected', message => {
+    // socket connected
+});
+```
+
+Example payload:
+
+```json
+{"connected":true,"ts":1516999337528}
+```
+
+#### routing.RoutingTaskNotification
+This event occurs when new conversations are presented to the bot by LivePerson's routing mechanism. This is equivalent to a new conversation "ringing" in a human agent's workspace. In response to this event you should have your bot [updateRingState](#updateringstate) for each ring.
+
+Sample code:
+```javascript
+agent.on('routing.RoutingTaskNotification', body => {
+    data.changes.forEach(change => {
+        if (change.type === 'UPSERT') {
+            change.result.ringsDetails.forEach(ring => {
+                if (ring.ringState === 'WAITING') {
+                    this.updateRingState({
+                        'ringId': ring.ringId,
+                        'ringState': 'ACCEPTED'
+                    }, (e, resp) => {
+                        if (e) { log.error(`[bot.js] acceptWaitingConversations ${JSON.stringify(e)}`) }
+                        else { log.info(`[bot.js] acceptWaitingConversations: Joined conversation ${JSON.stringify(change.result.conversationId)}, ${JSON.stringify(resp)}`) }
+                    });
+                }
+            });
+        }
     });
 });
 ```
 
-#### ExConversationChangeNotification getMyRole() - deprecated
-This method is deprecated. please use `agent.agentId` instead  
+Example payload:
+```json
+{
+  "subscriptionId": "be13bab4-ec92-472f-b840-798b4cb476a4",
+  "changes": [
+    {
+      "type": "UPSERT",
+      "result": {
+        "taskCompleted": true,
+        "conversationId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+        "consumerId": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+        "skillId": "-1",
+        "ringsDetails": [
+          {
+            "ringId": "41d33e78-9701-4edd-a569-01dfb6c0f40a_89476943_1517000827442",
+            "ringExpirationTs": 1517000899442,
+            "ringState": "ACCEPTED",
+            "weight": 1517004427244,
+            "ringExpiration": 72000
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+#### routing.AgentStateNotification
+This event occurs when your agent's state changes (usually as a result of using [setAgentState()](#setagentstate))
+
+Sample code:
+```javascript
+agent.on('routing.AgentStateNotification', body => {
+    // TODO: stuff here
+})
+```
+
+Example payload:
+```json
+{
+  "subscriptionId": "5ebe7fcd-c59e-4fd2-a622-ec412a01a549",
+  "changes": [
+    {
+      "type": "UPSERT",
+      "result": {
+        "channels": [
+          "MESSAGING"
+        ],
+        "availability": "ONLINE",
+        "description": ""
+      }
+    }
+  ]
+}
+```
+
+#### cqm.ExConversationChangeNotification
+This event occurs when a conversation that your subscription qualifies for* is updated in any way. If you passed no agentIds array when calling [subscribExConversations()](#subscribeexconversations), and you have the necessary permissions to see all agents' conversations, you will receive these events for all conversations. If you passed in your own agentId with `subscribeExConversations` you will only receive updates for conversations that you are a participant in (such as conversations that you have just accepted via a [routing.routingTaskNotification](#routingroutingtasknotification)).
+
+**Important** Due to a race condition in the service that serves these notifications they may not always contain the lastContentEventNotification attribute. For this reason you cannot rely on them to consume all of the messages in the conversation, and you should use this event to call [subscribeMessagingEvents()](#subscribemessagingevents) for conversations you want to follow.  You should keep a list of conversations you are handling in order to prevent attempting to subscribe to the same conversation repeatedly.
+
+Sample code:
+```javascript
+agent.on('cqm.ExConversationChangeNotification', body => {
+    body.changes.forEach(change => {
+        if (change.type === 'UPSERT' && !inMyConversationList(change.result.convId)) {
+            addToMyConversationList(change.result.convId);
+            agent.subscribeMessagingEvents({dialogId: change.result.convId}, e => {if (e) console.error(e)})
+        } else if (change.type === 'DELETE') {
+            removeFromMyConversationList(change.result.convId);
+        }
+    })
+})
+```
+
+Example payload:
+```json
+{
+  "subscriptionId": "e7f5ee81-4556-406c-8c72-94c69dd68fad",
+  "changes": [
+    {
+      "type": "UPSERT",
+      "result": {
+        "convId": "220d3639-ae23-4c90-83e8-455e3bb2cf13",
+        "conversationDetails": {
+          "skillId": "-1",
+          "participants": [
+            {
+              "id": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+              "role": "CONSUMER"
+            },
+            {
+              "id": "1a41233d-1d2c-5158-bacc-ee0f2d384888",
+              "role": "MANAGER"
+            },
+            {
+              "id": "393c6873-756d-54af-86e1-8795d57eba14",
+              "role": "ASSIGNED_AGENT"
+            }
+          ],
+          "state": "OPEN",
+          "startTs": 1516999063585,
+          "metaDataLastUpdateTs": 1516999196220,
+          "firstConversation": false,
+          "ttr": {
+            "ttrType": "NORMAL",
+            "value": 3600
+          },
+          "context": {
+            "type": "MobileAppContext",
+            "lang": "en-US",
+            "clientProperties": {
+              "type": ".ClientProperties",
+              "appId": "com.liveperson.mmanguno.upgradetest23_30",
+              "ipAddress": "172.26.138.125",
+              "deviceFamily": "MOBILE",
+              "os": "ANDROID",
+              "osVersion": "27",
+              "integration": "MOBILE_SDK",
+              "integrationVersion": "3.0.0.0",
+              "timeZone": "America/New_York",
+              "features": [
+                "PHOTO_SHARING",
+                "CO_APP",
+                "AUTO_MESSAGES",
+                "RICH_CONTENT",
+                "SECURE_FORMS"
+              ]
+            }
+          },
+          "__myRole": "ASSIGNED_AGENT"
+        },
+        "lastContentEventNotification": {
+          "sequence": 29,
+          "originatorClientProperties": {
+            "type": ".ClientProperties",
+            "ipAddress": "172.26.138.214"
+          },
+          "originatorId": "89476943.282467514",
+          "originatorPId": "393c6873-756d-54af-86e1-8795d57eba14",
+          "originatorMetadata": {
+            "id": "393c6873-756d-54af-86e1-8795d57eba14",
+            "role": "ASSIGNED_AGENT",
+            "clientProperties": {
+              "type": ".ClientProperties",
+              "ipAddress": "172.26.138.214"
+            }
+          },
+          "serverTimestamp": 1516999340978,
+          "event": {
+            "type": "RichContentEvent",
+            "content": {
+              "type": "vertical",
+              "elements": [
+                {
+                  "type": "text",
+                  "text": "Product Name",
+                  "tooltip": "text tooltip",
+                  "style": {
+                    "bold": true,
+                    "size": "large"
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "Product description",
+                  "tooltip": "text tooltip"
+                },
+                {
+                  "type": "button",
+                  "tooltip": "button tooltip",
+                  "title": "Add to cart",
+                  "click": {
+                    "actions": [
+                      {
+                        "type": "link",
+                        "name": "Add to cart",
+                        "uri": "http://www.google.com"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "dialogId": "220d3639-ae23-4c90-83e8-455e3bb2cf13"
+        }
+      }
+    }
+  ]
+}
+```
+
+#### ms.MessagingEventNotification
+This event occurs whenever there is a new message in a conversation, a message is marked as read, a participant starts typing or stops typing, or the consumer opens/closes their websocket connection (such as when they enter or leave the messaging window in a LivePerson Mobile SDK implementation).  Use this to consume messages, mark them as read, and react to them as you see fit.
+
+Sample code:
+```javascript
+agent.on('ms.MessagingEventNotification', body => { // specific notification type
+    // TODO: stuff here
+});
+```
+
+###### Example payloads
+New message (sent by the agent in this case)
+```json
+{
+  "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+  "changes": [
+    {
+      "sequence": 10,
+      "originatorClientProperties": {
+        "type": ".ClientProperties",
+        "ipAddress": "172.26.138.213"
+      },
+      "originatorId": "393c6873-756d-54af-86e1-8795d57eba14",
+      "originatorMetadata": {
+        "id": "393c6873-756d-54af-86e1-8795d57eba14",
+        "role": "ASSIGNED_AGENT",
+        "clientProperties": {
+          "type": ".ClientProperties",
+          "ipAddress": "172.26.138.213"
+        }
+      },
+      "serverTimestamp": 1517002351775,
+      "event": {
+        "type": "ContentEvent",
+        "message": "16:32:31 GMT-0500 (EST)",
+        "contentType": "text/plain"
+      },
+      "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+      "__isMe": true
+    }
+  ]
+}
+```
+
+Message(s) read
+```json
+{
+  "sequence": 9,
+  "originatorClientProperties": {
+    "type": ".ClientProperties",
+    "ipAddress": "172.26.138.213"
+  },
+  "originatorId": "393c6873-756d-54af-86e1-8795d57eba14",
+  "originatorMetadata": {
+    "id": "393c6873-756d-54af-86e1-8795d57eba14",
+    "role": "ASSIGNED_AGENT",
+    "clientProperties": {
+      "type": ".ClientProperties",
+      "ipAddress": "172.26.138.213"
+    }
+  },
+  "serverTimestamp": 1517002351770,
+  "event": {
+    "type": "AcceptStatusEvent",
+    "status": "READ",
+    "sequenceList": [
+      8
+    ]
+  },
+  "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+  "__isMe": true
+}
+```
+
+Consumer is typing
+```json
+{
+  "originatorClientProperties": {
+    "type": ".ClientProperties",
+    "appId": "com.liveperson.mmanguno.upgradetest23_30",
+    "ipAddress": "172.26.138.214",
+    "deviceFamily": "MOBILE",
+    "os": "ANDROID",
+    "osVersion": "27",
+    "integration": "MOBILE_SDK",
+    "integrationVersion": "3.0.0.0",
+    "timeZone": "America/New_York",
+    "features": [
+      "PHOTO_SHARING",
+      "CO_APP",
+      "AUTO_MESSAGES",
+      "RICH_CONTENT",
+      "SECURE_FORMS"
+    ]
+  },
+  "originatorId": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+  "originatorMetadata": {
+    "id": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+    "role": "CONSUMER",
+    "clientProperties": {
+      "type": ".ClientProperties",
+      "appId": "com.liveperson.mmanguno.upgradetest23_30",
+      "ipAddress": "172.26.138.214",
+      "deviceFamily": "MOBILE",
+      "os": "ANDROID",
+      "osVersion": "27",
+      "integration": "MOBILE_SDK",
+      "integrationVersion": "3.0.0.0",
+      "timeZone": "America/New_York",
+      "features": [
+        "PHOTO_SHARING",
+        "CO_APP",
+        "AUTO_MESSAGES",
+        "RICH_CONTENT",
+        "SECURE_FORMS"
+      ]
+    }
+  },
+  "event": {
+    "type": "ChatStateEvent",
+    "chatState": "COMPOSING"
+  },
+  "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+  "__isMe": false
+}
+```
+
+Consumer websocket closed
+```json
+{
+  "originatorClientProperties": {
+    "type": ".ClientProperties",
+    "appId": "com.liveperson.mmanguno.upgradetest23_30",
+    "ipAddress": "172.26.138.214",
+    "deviceFamily": "MOBILE",
+    "os": "ANDROID",
+    "osVersion": "27",
+    "integration": "MOBILE_SDK",
+    "integrationVersion": "3.0.0.0",
+    "timeZone": "America/New_York",
+    "features": [
+      "PHOTO_SHARING",
+      "CO_APP",
+      "AUTO_MESSAGES",
+      "RICH_CONTENT",
+      "SECURE_FORMS"
+    ]
+  },
+  "originatorId": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+  "originatorMetadata": {
+    "id": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+    "role": "CONSUMER",
+    "clientProperties": {
+      "type": ".ClientProperties",
+      "appId": "com.liveperson.mmanguno.upgradetest23_30",
+      "ipAddress": "172.26.138.214",
+      "deviceFamily": "MOBILE",
+      "os": "ANDROID",
+      "osVersion": "27",
+      "integration": "MOBILE_SDK",
+      "integrationVersion": "3.0.0.0",
+      "timeZone": "America/New_York",
+      "features": [
+        "PHOTO_SHARING",
+        "CO_APP",
+        "AUTO_MESSAGES",
+        "RICH_CONTENT",
+        "SECURE_FORMS"
+      ]
+    }
+  },
+  "event": {
+    "type": "ChatStateEvent",
+    "chatState": "BACKGROUND"
+  },
+  "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+  "__isMe": false
+}
+```
+
+Consumer websocket resumed
+```json
+{
+  "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+  "changes": [
+    {
+      "originatorClientProperties": {
+        "type": ".ClientProperties",
+        "appId": "com.liveperson.mmanguno.upgradetest23_30",
+        "ipAddress": "172.26.138.214",
+        "deviceFamily": "MOBILE",
+        "os": "ANDROID",
+        "osVersion": "27",
+        "integration": "MOBILE_SDK",
+        "integrationVersion": "3.0.0.0",
+        "timeZone": "America/New_York",
+        "features": [
+          "PHOTO_SHARING",
+          "CO_APP",
+          "AUTO_MESSAGES",
+          "RICH_CONTENT",
+          "SECURE_FORMS"
+        ]
+      },
+      "originatorId": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+      "originatorMetadata": {
+        "id": "d51ce914-97ad-4544-a686-8335b61dcdf3",
+        "role": "CONSUMER",
+        "clientProperties": {
+          "type": ".ClientProperties",
+          "appId": "com.liveperson.mmanguno.upgradetest23_30",
+          "ipAddress": "172.26.138.214",
+          "deviceFamily": "MOBILE",
+          "os": "ANDROID",
+          "osVersion": "27",
+          "integration": "MOBILE_SDK",
+          "integrationVersion": "3.0.0.0",
+          "timeZone": "America/New_York",
+          "features": [
+            "PHOTO_SHARING",
+            "CO_APP",
+            "AUTO_MESSAGES",
+            "RICH_CONTENT",
+            "SECURE_FORMS"
+          ]
+        }
+      },
+      "event": {
+        "type": "ChatStateEvent",
+        "chatState": "ACTIVE"
+      },
+      "dialogId": "41d33e78-9701-4edd-a569-01dfb6c0f40a",
+      "__isMe": false
+    }
+  ]
+}
+```
+
+#### notification
+This event fires on all notifications. We recommend that instead of using this listener you instead listen to the specific notification categories detailed above.
+
+Sample code:
+```javascript
+agent.on('notification', body => {});
+```
+
+#### closed
+This event fires when the socket is closed.  If the reason is code 4401 or 4407 this indicates an authentication issue, so when you call [reconnect()](#reconnect(skiptokengeneration)) you should make sure not to pass the `skipTokenGeneration` argument.
+
+This event will only occur once, so if you want to attempt to reconnect repeatedly you should initiate a periodic reconnect attempt here. **LivePerson recommends that you make periodic reconnect attempts at increasing intervals up to a finite number of attempts in order to prevent flooding our service and being blocked as a potentially abusive client**. See [LivePerson's retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) for more information.
+
+In the sample below we attempt to reconnect 35 times, waiting 5 seconds the first time and increasing the interval by a factor of 1.25 between each attempt.
+
+Sample code:
+```javascript
+const reconnectInterval = 5;        // in seconds
+const reconnectAttempts = 35;
+const reconnectRatio    = 1.25;     // ratio in the geometric series used to determine reconnect exponential back-off
+
+// on connected cancel any retry interval remaining from reconnect attempt
+agent.on('connected', () => {
+    clearTimeout(agent._retryConnection);   
+    // etc etc
+});
+
+agent.on('closed', () => {
+    agent._reconnect();             // call our reconnect looper
+});
+
+agent._reconnect = (delay = reconnectInterval, attempt = 1) => {
+    agent._retryConnection = setTimeout(()=>{
+        agent.reconnect();
+        if (++attempt <= reconnectAttempts) { agent._reconnect(reconnectInterval * reconnectRatio, attempt) }
+    }, delay * 1000)
+ }
+```
+
+Example payload:
+```json
+1006
+```
+
+#### error
+This event fires when the SDK receives an error from the messaging service. If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section. 
+
+Sample code:
+```javascript
+agent.on('error', err => {
+    if (err && err.code === 401) {
+        agent._reconnect();  // agent._reconnect() defined in the on('closed',() => {}) example above.
+    }
+});
+```
+
+Example payload:
+```json
+{"code":"ENOTFOUND","errno":"ENOTFOUND","syscall":"getaddrinfo","hostname":"va.agentvep.liveperson.net","host":"va.agentvep.liveperson.net","port":443}
+```
+
+### Deprecation notices
+
+##### MessagingEventNotification isMe() - *deprecated*
+**This method is deprecated. Please use [agent.agentId](#agentid) instead.**
+
+A method to understand on each change on the messaging event if it is from the agent connected right now or not.
+
+Old way:
+```javascript
+agent.on('ms.MessagingEventNotification', body => {
+    body.changes.forEach(change => {
+        let isMe = change.isMe();
+    });
+});
+```
+
+New way:
+```javascript
+agent.on('ms.MessagingEventNotification', body => {
+    body.changes.forEach(change => {
+        let isMe = change.originatorMetadata.id === agent.agentId;
+    });
+});
+```
+
+##### ExConversationChangeNotification getMyRole() - *deprecated*
+**This method is deprecated. Please use `agent.agentId` instead.**
+
 A method to understand on each change on the conversation change notification conversation details the current agent role in the conversation or undefined if he is not participant.
+
+Old way:
 ```javascript
 agent.on('cqm.ExConversationChangeNotification', body => {
     body.changes.forEach(change => {
@@ -281,97 +1013,18 @@ agent.on('cqm.ExConversationChangeNotification', body => {
 });
 ```
 
-### Deprecation notice
-in the `cqm.ExConversationChangeNotification` the field `firstConversation` is deprecated
-
-### Messaging Agent API (backend)
-
-All request types are dynamically assigned to the object on creation.
-The supported API calls are a mirror of the LiveEngage Messaging Agent API - please read 
-the documentation carefully for full examples.
-
-The available API calls are:
-
-```
-getClock
-agentRequestConversation
-subscribeExConversations
-unsubscribeExConversations
-updateConversationField
-publishEvent
-queryMessages
-updateRingState
-subscribeRoutingTasks
-updateRoutingTaskSubscription
-getUserProfile
-setAgentState
-subscribeAgentsState
-```
-
-#### reconnect(skipTokenGeneration) 
-Will reconnect the socket with the same configurations - will also regenerate token by default.  
-Use if when socket closed unexpectedly or on token revocation.
-use `skipTokenGeneration = true` if you want to skip the token generation
-Call `reconnect` on `error` with code `401`
-
-#### dispose() 
-Will dispose of the connection and unregister internal events.  
-Use it in order to clean the agent from memory.
-
-#### registerRequests(arr)
-
-You can dynamically add functionality to the SDK by registering more requests.
-For example:
-
+New way:
 ```javascript
-registerRequests(['.ams.AnotherTypeOfRequest']);
-// ... will register the following API:
-agent.anotherTypeOfRequest({/*some data*/}, (err, response) => {
-    // do something
+agent.on('cqm.ExConversationChangeNotification', body => {
+    body.changes.forEach(change => {
+        let participant = change.result.conversationDetails.participants.filter(p => p.id === agent.agentId)[0];
+        let myRole = participant && participant.role;
+    });
 });
 ```
 
-
-#### request(type, body[, headers][, metadata], callback)
-
-You can call any request API functionality as follows:
-
-```javascript
-agent.request('.ams.aam.SubscribeExConversations', {
-        'convState': ['OPEN']
-    }, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}], (err, resp) => {
-        console.log('subscribed successfully', err, resp);
-    });
-```
-
-_Note_: It is also possible to add a 'metadata' field to your JSON. Using the conversation metadata will enable you to enjoy the advanced analytics and reporting provided by LP - report on your intents, MCS per intent, containment rate, escalation reasons per intent and more. To learn more on how to deploy conversation metadata [please review the full Metadata guide](https://developers.liveperson.com/guides-conversation-metadata-guide.html).
-
-#### agentId
-
-You can get your agentId from the SDK using ``agent.agentId``.
-
-### Transfer sample script 
-
-The following code snippet will allow you to transfer an ongoing conversation to a different skill of agents 
-
-```javascript
-agent.updateConversationField({
-conversationId: "THE CONVERSATION ID",
-conversationField: [
-                        {
-                            field: "ParticipantsChange",
-                            type: "REMOVE",
-                            role: "ASSIGNED_AGENT"
-                        },
-                        {
-                            field: "Skill",
-                            type: "UPDATE",
-                            skill: "TARGET SKILL ID"
-                        }]
-}, function(err) {
-    if(err)....
-})
-```
+##### ExConversationChangeNotification firstConversation - *deprecated*
+In the `cqm.ExConversationChangeNotification` the field `firstConversation` is deprecated
 
 ### Further documentation
 
@@ -380,50 +1033,17 @@ conversationField: [
 
 When creating a request through the request builder you should provide only the `body` to the sdk request method
 
-## Running The Sample App
+### Contributing
 
-To run the [greeting bot example][3]:
-
-- Provide the following `env` variables:
-   - `LP_ACCOUNT` - Your LivePerson account ID
-   - `LP_USER` - Your LivePerson agent username
-   - `LP_PASS` - Your LivePerson agent password
-
-- If you are consuming the Agent Messaging SDK as a dependency, switch to the 
-package root:
-   
-   ```sh
-   cd ./node_modules/node-agent-sdk
-   ```
-
-If you are a developer, the package root is the same as the repository root. 
-There is therefore no need to change directories.
-
-- Run with npm:
-   
-   ```sh
-   npm start
-   ```
-
-
-## Contributing
-
-In lieu of a formal styleguide, take care to maintain the existing coding 
+In lieu of a formal style guide, take care to maintain the existing coding
 style. Add unit tests for any new or changed functionality, lint and test your code.
 
 - To run the tests:
-   
+
    ```sh
    npm test
    ```
 
-- To run the [greeting bot example][3], see [Running The Sample App][4].
-
-
-
-
-
 [1]: https://developers.liveperson.com/agent-int-api-reference.html
 [2]: https://github.com/LivePersonInc/agent-sample-app
-[3]: /examples/greeting-bot.js
-[4]: #running-the-sample-app
+[3]: /examples
