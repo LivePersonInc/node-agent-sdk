@@ -38,6 +38,8 @@ In order to guarantee compatibility with future versions of the API, and to ensu
 
 In order to use this SDK you need a LivePerson account with the Messaging feature enabled.  You can tell whether you have Messaging by logging into LiveEngage and looking at the available sections for the main view. All accounts should have "Web Visitors", "Web History", and "All Agents". **Messaging accounts will also have "Open Connections", "All Connections", and "Messaging Agents".**
 
+To have the Messaging feature added to your account speak with your LivePerson Account Team. If you don't have one, click [here](https://z1-a.liveper.sn/api/account/75555851/route/campaign/333765313/engagement/333765413) to chat with our Sales team.
+
 ### Install
 
 - **Option 1 - npm install (does not include sample apps)**
