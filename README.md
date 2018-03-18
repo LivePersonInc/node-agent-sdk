@@ -302,6 +302,17 @@ Success response:
 
 `"OK Agent added successfully"`
 
+##### Example: Close a conversation
+```javascript
+agent.updateConversationField({
+        conversationId: conversationId/dialogId,
+        conversationField: [{
+            field: 'ConversationStateField',
+            conversationState: 'CLOSE'
+        }]
+    });
+ ```
+
 ##### Example: Transfer conversation to a new skill
 ```javascript
 agent.updateConversationField({
