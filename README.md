@@ -366,7 +366,7 @@ Success response:
 
 ##### Example: Sending Text with Quick Replies
 
-For more examples see [Quick Replies Documentation](https://developers.liveperson.com/quick-replies.html)
+For more examples see [Quick Replies Documentation](https://developers.liveperson.com/rich-messaging-quick-replies-overview.html)
 ```javascript
 agent.publishEvent({
     dialogId: 'MY_DIALOG_ID',
@@ -495,7 +495,7 @@ Success response:
 *Note that if your structured content card contains images (like the one below) the image must be on an https domain and that domain must be whitelisted on your account. Ask your LivePerson representative to help you with that.*
 
 For more examples using Structured Content see [Structured Content Templates](https://developers.liveperson.com/structured-content-templates.html)
-For more examples using Quick Replies see [Quick Replies Documentation](https://developers.liveperson.com/quick-relies-todo.html)
+For more examples using Quick Replies see [Quick Replies Documentation](https://developers.liveperson.com/rich-messaging-quick-replies-overview.html)
 ```javascript
 agent.publishEvent({
     dialogId: 'MY_DIALOG_ID',
