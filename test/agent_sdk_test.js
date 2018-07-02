@@ -8,7 +8,14 @@ describe('Agent SDK Tests', () => {
 
     let tranportSendStub;
     let externalServices;
+    let requestCSDSStub;
     let Agent;
+    const csdsResponse = {
+        baseURIs: [{service: 'agentVep', baseURI: 'some-domain'}, {
+            service: 'asyncMessaging',
+            baseURI: 'another-domain'
+        }]
+    };
 
     before(() => {
         mockery.enable({
@@ -28,14 +35,17 @@ describe('Agent SDK Tests', () => {
                     this.emit('open', conf);
                 });
             }
+
             close() {
 
             }
         }
 
         externalServices = {getDomains: sinon.stub(), login: sinon.stub(), getAgentId: sinon.stub()};
+        requestCSDSStub = sinon.stub();
         mockery.registerMock('./Transport', Transport);
         mockery.registerMock('./ExternalServices', externalServices);
+        mockery.registerMock('request', requestCSDSStub);
         Agent = require('./../lib/AgentSDK');
     });
 
@@ -44,7 +54,7 @@ describe('Agent SDK Tests', () => {
     });
 
     it('should create an instance and publish connected event', done => {
-        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
         const agent = new Agent({
@@ -61,7 +71,7 @@ describe('Agent SDK Tests', () => {
     });
 
     it('should fail to create an instance when csds is not available', done => {
-        externalServices.getDomains.yieldsAsync(new Error('cannot connect to csds'));
+        requestCSDSStub.yieldsAsync(new Error('cannot connect to csds'));
 
         const agent = new Agent({
             accountId: 'account',
@@ -76,7 +86,7 @@ describe('Agent SDK Tests', () => {
     });
 
     // it('should fail to create an instance when cannot get agent id', done => {
-    //     externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+    //     requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
     //     externalServices.getAgentId.yieldsAsync(new Error('cannot get agent id'));
     //
     //     const agent = new Agent({
@@ -92,7 +102,7 @@ describe('Agent SDK Tests', () => {
     // });
 
     it('should fail to create an instance when login service is not available', done => {
-        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(new Error('cannot login'));
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
         const agent = new Agent({
@@ -108,7 +118,7 @@ describe('Agent SDK Tests', () => {
     });
 
     it('should receive all notifications', done => {
-        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
 
@@ -129,7 +139,7 @@ describe('Agent SDK Tests', () => {
     });
 
     it('should receive all notifications using assertion', done => {
-        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
 
@@ -149,7 +159,7 @@ describe('Agent SDK Tests', () => {
     });
 
     it('should receive all notifications using oauth1', done => {
-        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
 
@@ -173,7 +183,7 @@ describe('Agent SDK Tests', () => {
     });
 
     it('should receive all notifications using token', done => {
-        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
 
@@ -194,7 +204,7 @@ describe('Agent SDK Tests', () => {
     });
 
     it('should receive specific notifications', done => {
-        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
 
@@ -215,7 +225,7 @@ describe('Agent SDK Tests', () => {
     });
 
     it('should call the request callback on response', done => {
-        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
 
@@ -246,7 +256,7 @@ describe('Agent SDK Tests', () => {
     });
 
     it('should emit specific response event', done => {
-        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
 
@@ -257,7 +267,8 @@ describe('Agent SDK Tests', () => {
         });
 
         agent.on('connected', msg => {
-            agent.getClock({some: 'data'}, response => {});
+            agent.getClock({some: 'data'}, response => {
+            });
 
             setImmediate(() => {
                 agent.transport.emit('message', {
@@ -277,7 +288,7 @@ describe('Agent SDK Tests', () => {
     });
 
     it('should call the request callback with error on timeout', done => {
-        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
 
@@ -301,7 +312,7 @@ describe('Agent SDK Tests', () => {
     });
 
     it('should dispose correctly', done => {
-        externalServices.getDomains.yieldsAsync(null, {agentVep: 'some-domain', asyncMessaging: 'another-domain'});
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
 
