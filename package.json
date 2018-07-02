@@ -1,53 +1,54 @@
 {
-    "name": "node-agent-sdk",
-    "description": "Liveperson Agent Messaging SDK for NodeJS",
-    "version": "0.3.4",
-    "author": {
-        "name": "LivePersonInc",
-        "email": "fe-infra-lp@liveperson.com"
-    },
-    "contributors": [
-        {
-            "name": "Michael Dimenshtein",
-            "email": "michaeld@liveperson.com"
-        }
-    ],
-    "scripts": {
-        "start": "node ./examples/greeting-bot/greeting-bot.js",
-        "lint": "eslint lib/*; true",
-        "test": "mocha"
-    },
-    "devDependencies": {
-        "chai": "^3.5.0",
-        "eslint": "^3.13.1",
-        "mocha": "^3.2.0",
-        "mockery": "^2.0.0",
-        "sinon": "^1.17.7"
-    },
-    "main": "index.js",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/LivePersonInc/node-agent-sdk.git"
-    },
-    "keywords": [
-        "agent",
-        "sdk",
-        "liveperson",
-        "node",
-        "nodejs",
-        "bot",
-        "messaging"
-    ],
-    "readme": "README.md",
-    "engines": {
-        "node": ">=6.9.1",
-        "npm": ">=3.0"
-    },
-    "license": "MIT",
-    "dependencies": {
-        "async": "^2.1.4",
-        "request": "^2.79.0",
-        "uuid": "^3.0.1",
-        "ws": "^1.1.1"
+  "name": "node-agent-sdk",
+  "description": "Liveperson Agent Messaging SDK for NodeJS",
+  "version": "0.3.4",
+  "author": {
+    "name": "LivePersonInc",
+    "email": "fe-infra-lp@liveperson.com"
+  },
+  "contributors": [
+    {
+      "name": "Michael Dimenshtein",
+      "email": "michaeld@liveperson.com"
     }
+  ],
+  "scripts": {
+    "start": "node ./examples/greeting-bot/greeting-bot.js",
+    "lint": "eslint lib/*; true",
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^3.13.1",
+    "mocha": "^3.2.0",
+    "mockery": "^2.0.0",
+    "sinon": "^1.17.7"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LivePersonInc/node-agent-sdk.git"
+  },
+  "keywords": [
+    "agent",
+    "sdk",
+    "liveperson",
+    "node",
+    "nodejs",
+    "bot",
+    "messaging"
+  ],
+  "readme": "README.md",
+  "engines": {
+    "node": ">=6.9.1",
+    "npm": ">=3.0"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "async": "^2.1.4",
+    "node-cache": "^4.2.0",
+    "request": "^2.79.0",
+    "uuid": "^3.0.1",
+    "ws": "^1.1.1"
+  }
 }
