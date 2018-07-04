@@ -363,6 +363,68 @@ agent.publishEvent({
 Success response:
 `{"sequence":17}`
 
+
+##### Example: Sending Text with Quick Replies
+
+For more examples see [Quick Replies Documentation](https://developers.liveperson.com/rich-messaging-quick-replies-overview.html)
+```javascript
+agent.publishEvent({
+    dialogId: 'MY_DIALOG_ID',
+    event: {
+        type: 'ContentEvent',
+        contentType: 'text/plain',
+        message: 'hello world!',
+        quickReplies: {
+            "type": "quickReplies",
+            "itemsPerRow": 8,
+            "replies": [
+                {
+                    "type": "button",
+                    "tooltip": "Yes!",
+                    "title": "Yes",
+                    "click": {
+                        "actions": [
+                            {
+                                "type": "publishText",
+                                "text": "yep"
+                            }
+                        ],
+                        "metadata": [
+                            {
+                                "type": "ExternalId",
+                                "id": "Yes-1234"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "button",
+                    "tooltip": "No!",
+                    "title": "No!",
+                    "click": {
+                        "actions": [
+                            {
+                                "type": "publishText",
+                                "text": "No!"
+                            }
+                        ],
+                        "metadata": [
+                            {
+                                "type": "ExternalId",
+                                "id": "No-4321"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+});
+```
+
+Success response:
+`{"sequence":21}`
+
 ##### Example: Sending Rich Content (Structured Content)
 
 *Note that if your structured content card contains images (like the one below) the image must be on an https domain and that domain must be whitelisted on your account. Ask your LivePerson representative to help you with that.*
@@ -427,6 +489,116 @@ agent.publishEvent({
 
 Success response:
 `{"sequence":29}`
+
+##### Example: Sending Rich Content (Structured Content) with Quick Replies
+
+*Note that if your structured content card contains images (like the one below) the image must be on an https domain and that domain must be whitelisted on your account. Ask your LivePerson representative to help you with that.*
+
+For more examples using Structured Content see [Structured Content Templates](https://developers.liveperson.com/structured-content-templates.html)
+For more examples using Quick Replies see [Quick Replies Documentation](https://developers.liveperson.com/rich-messaging-quick-replies-overview.html)
+```javascript
+agent.publishEvent({
+    dialogId: 'MY_DIALOG_ID',
+    event: {
+        type: 'RichContentEvent',
+        content: {
+            "type": "vertical",
+            "elements": [
+                {
+                    "type": "image",
+                    "url": "http://cdn.mos.cms.futurecdn.net/vkrEdZXgwP2vFa6AEQLF7f-480-80.jpg?quality=98&strip=all",
+                    "tooltip": "image tooltip",
+                    "click": {
+                        "actions": [
+                            {
+                                "type": "navigate",
+                                "name": "Navigate to store via image",
+                                "lo": -73.99852590,
+                                "la": 40.7562724
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "Product Name",
+                    "tooltip": "text tooltip",
+                    "style": {
+                        "bold": true,
+                        "size": "large"
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "Product description",
+                    "tooltip": "text tooltip"
+                },
+                {
+                    "type": "button",
+                    "tooltip": "button tooltip",
+                    "title": "Add to cart",
+                    "click": {
+                        "actions": [
+                            {
+                                "type": "link",
+                                "name": "Add to cart",
+                                "uri": "http://www.google.com"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        quickReplies: {
+            "type": "quickReplies",
+            "itemsPerRow": 8,
+            "replies": [
+                {
+                    "type": "button",
+                    "tooltip": "Yes!",
+                    "title": "Yes",
+                    "click": {
+                        "actions": [
+                            {
+                                "type": "publishText",
+                                "text": "yep"
+                            }
+                        ],
+                        "metadata": [
+                            {
+                                "type": "ExternalId",
+                                "id": "Yes-1234"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "button",
+                    "tooltip": "No!",
+                    "title": "No!",
+                    "click": {
+                        "actions": [
+                            {
+                                "type": "publishText",
+                                "text": "No!"
+                            }
+                        ],
+                        "metadata": [
+                            {
+                                "type": "ExternalId",
+                                "id": "No-4321"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}, null, [{type: 'ExternalId', id: 'MY_CARD_ID'}]);  // ExternalId is how this card will be referred to in reports
+```
+
+Success response:
+`{"sequence":32}`
 
 #### reconnect(skipTokenGeneration)
 **Make sure that you implement reconnect logic according to [liveperson's retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html)**
