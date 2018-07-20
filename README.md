@@ -649,7 +649,7 @@ This event occurs when new conversations are presented to the bot by LivePerson'
 Sample code:
 ```javascript
 agent.on('routing.RoutingTaskNotification', body => {
-    data.changes.forEach(change => {
+    body.changes.forEach(change => {
         if (change.type === 'UPSERT') {
             change.result.ringsDetails.forEach(ring => {
                 if (ring.ringState === 'WAITING') {
