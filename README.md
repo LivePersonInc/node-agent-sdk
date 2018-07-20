@@ -326,7 +326,7 @@ agent.updateConversationField({
         {
             'field': 'Skill',
             'type': 'UPDATE',
-            'skill': 'targetSkillId'
+            'skill': targetSkillId
         }
     ]
 }, (e, resp) => {
