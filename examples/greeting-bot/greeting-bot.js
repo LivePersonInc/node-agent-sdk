@@ -5,8 +5,7 @@ const Agent = require('./../../lib/AgentSDK');
 const agent = new Agent({
     accountId: process.env.LP_ACCOUNT,
     username: process.env.LP_USER,
-    password: process.env.LP_PASS,
-    csdsDomain: process.env.LP_CSDS // 'hc1n.dev.lprnd.net'
+    password: process.env.LP_PASS
 });
 
 let openConvs = {};
