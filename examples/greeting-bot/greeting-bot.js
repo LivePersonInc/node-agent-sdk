@@ -1,13 +1,15 @@
 'use strict';
 
 const Agent = require('./../../lib/AgentSDK');
-
-const agent = new Agent({
+const conf = {
     accountId: process.env.LP_ACCOUNT,
     username: process.env.LP_USER,
-    password: process.env.LP_PASS,
-    csdsDomain: process.env.LP_CSDS // 'hc1n.dev.lprnd.net'
-});
+    password: process.env.LP_PASS
+};
+if (process.env.LP_CSDS) {
+    conf.csdsDomain = process.env.LP_CSDS;
+}
+const agent = new Agent(conf);
 
 let openConvs = {};
 
