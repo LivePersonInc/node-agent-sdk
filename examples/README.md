@@ -22,7 +22,7 @@ To run the [greeting bot example][1]:
 - Run:
 
    ```sh
-   LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASSWORD=b0tpa55word node examples/greeting-bot/greeting-bot.js
+   LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASS=b0tpa55word node examples/greeting-bot/greeting-bot.js
    ```
    
 ## Agent Bot
@@ -44,7 +44,7 @@ To run the [agent bot example][2]
 - Run:
 
     ```sh
-   LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASSWORD=b0tpa55word node examples/agent-bot/main.js
+   LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASS=b0tpa55word node examples/agent-bot/main.js
     ```
    
 ## Bot Cluster
