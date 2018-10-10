@@ -141,6 +141,13 @@ You can get your agentId from the SDK using `agent.agentId`.
 - [reconnect](#reconnect)
 - [dispose](#dispose)
 
+#### General request signature
+All requests has the same method signature:
+```javascript
+agent.someRequest(body, headers, metadata, encodedMetadata, callback);
+```
+Where all except body are optional and callback can be placed instead off `headers`, `metadata` and `encodedMetadata`.
+
 #### subscribeExConversations
 This method is used to create a subscription for conversation updates. You can subscribe to all events, or to only those events pertaining to a specific agent or agents.
 
