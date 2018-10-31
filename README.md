@@ -614,7 +614,9 @@ Will reconnect the socket with the same configurations - will also regenerate to
 
 Use `skipTokenGeneration = true` if you want to skip the generation of a new token.
 
-Call `reconnect` on `error` with code `401`
+Call `reconnect` on `error` with code `401`.
+
+**Note**: When the `reconnect` method fails to re-establish a connection with LiveEngage, a `closed` and `error` events will fire. Unless these events are handled, multiple instances of a reconnection mechanism will be triggered. See our (retry policy)[https://developers.liveperson.com/retry-and-keepalive-best-practices-overview.html] for more information on how we recommend you handle a retry mechanism.
 
 #### dispose()
 Will dispose of the connection and unregister internal events.
