@@ -369,7 +369,6 @@ agent.publishEvent({
 
 Success response:
 `{"sequence":17}`
-```
 
 ##### Example: Set Agent Typing Notification
 ```javascript
