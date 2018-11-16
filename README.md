@@ -136,7 +136,7 @@ You can get your agentId from the SDK using `agent.agentId`.
 - [getClock](#getclock)
 - [getUserProfile](#getuserprofile)
 - [updateRingState](#updateringstate)
-- [updateConversationField](#updateConversationField)
+- [updateConversationField](#updateconversationfield)
 - [publishEvent](#publishevent)
 - [reconnect](#reconnect)
 - [dispose](#dispose)
@@ -370,6 +370,49 @@ agent.publishEvent({
 Success response:
 `{"sequence":17}`
 
+##### Example: Set Agent Typing Notification
+```javascript
+agent.publishEvent({
+    dialogId: 'MY_DIALOG_ID',
+    event: {
+        type: 'ChatStateEvent',
+        chatState: 'COMPOSING'
+    }
+})
+```
+
+##### Example: Clear Agent Typing Notification
+```javascript
+agent.publishEvent({
+    dialogId: 'MY_DIALOG_ID',
+    event: {
+        type: 'ChatStateEvent',
+        chatState: 'ACTIVE'
+    }
+})
+```
+
+##### Example: Set Agent Typing Notification
+```javascript
+agent.publishEvent({
+    dialogId: 'MY_DIALOG_ID',
+    event: {
+        type: 'ChatStateEvent',
+        chatState: 'COMPOSING'
+    }
+})
+```
+
+##### Example: Clear Agent Typing Notification
+```javascript
+agent.publishEvent({
+    dialogId: 'MY_DIALOG_ID',
+    event: {
+        type: 'ChatStateEvent',
+        chatState: 'ACTIVE'
+    }
+})
+```
 
 ##### Example: Sending Text with Quick Replies
 
