@@ -369,27 +369,6 @@ agent.publishEvent({
 
 Success response:
 `{"sequence":17}`
-
-##### Example: Set Agent Typing Notification
-```javascript
-agent.publishEvent({
-    dialogId: 'MY_DIALOG_ID',
-    event: {
-        type: 'ChatStateEvent',
-        chatState: 'COMPOSING'
-    }
-})
-```
-
-##### Example: Clear Agent Typing Notification
-```javascript
-agent.publishEvent({
-    dialogId: 'MY_DIALOG_ID',
-    event: {
-        type: 'ChatStateEvent',
-        chatState: 'ACTIVE'
-    }
-})
 ```
 
 ##### Example: Set Agent Typing Notification
