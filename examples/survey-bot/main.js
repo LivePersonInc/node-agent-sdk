@@ -11,15 +11,17 @@
 
 const MySurveyBot = require('./MySurveyBot');
 
-const surveyBot = new MySurveyBot({
+const conf = {
     accountId: process.env.LP_ACCOUNT,
     username: process.env.LP_USER,
     password: process.env.LP_PASS,
-    // For internal lp only use
-    //  export LP_CSDS=hc1n.dev.lprnd.net
-    csdsDomain: process.env.LP_CSDS,
     appInstall: process.env.APP_INST
-});
+};
+if (process.env.LP_CSDS) {
+    conf.csdsDomain = process.env.LP_CSDS;
+}
+
+const surveyBot = new MySurveyBot(conf);
 
 surveyBot.on('MySurveyBot.SURVEY', ({dialogId, conversationId, profile}) => {
     startSurvey({dialogId, conversationId, profile}, (err, res) => {
