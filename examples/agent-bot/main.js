@@ -10,14 +10,16 @@
 
 const MyCoolAgent = require('./MyCoolAgent');
 
-const echoAgent = new MyCoolAgent({
+const conf = {
     accountId: process.env.LP_ACCOUNT,
     username: process.env.LP_USER,
-    password: process.env.LP_PASS,
-    // For internal lp only use 
-    //  export LP_CSDS=hc1n.dev.lprnd.net
-    csdsDomain: process.env.LP_CSDS
-});
+    password: process.env.LP_PASS
+};
+if (process.env.LP_CSDS) {
+    conf.csdsDomain = process.env.LP_CSDS;
+}
+
+const echoAgent = new MyCoolAgent(conf);
 
 echoAgent.on('MyCoolAgent.ContentEvnet',(contentEvent)=>{
     if (contentEvent.message.startsWith('#close')) {
