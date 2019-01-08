@@ -1238,9 +1238,6 @@ agent.on('cqm.ExConversationChangeNotification', body => {
 });
 ```
 
-##### ExConversationChangeNotification firstConversation - *deprecated*
-In the `cqm.ExConversationChangeNotification` the field `firstConversation` is deprecated
-
 ### Further documentation
 
 - [LivePerson messaging API][1]
