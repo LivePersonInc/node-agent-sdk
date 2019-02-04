@@ -81,8 +81,8 @@ function publishEvent(convId, text) {
             message: text
         }
     }, (e, r)=>{
-        console.log ('e: ' + e);
-        console.log ('msg sequence: ' + r.sequence);
+        if (e) console.log ('e: ' + e);
+        if (r) console.log ('msg sequence: ' + r.sequence);
     });
 }
 
@@ -101,8 +101,8 @@ function publishHostedFile (convId, relativePath, caption) {
             }
         }
     }, (e, r)=>{
-        console.log ('e: ' + e);
-        console.log ('msg sequence: ' + r.sequence);
+        if (e) console.log ('e: ' + e);
+        if (r) console.log ('msg sequence: ' + r.sequence);
     });
 
     downloadFile(relativePath);
@@ -168,7 +168,7 @@ function downloadFile(relativePath) {
         relativePath:relativePath
     }, (e, res) => {
         if (e && e.code === 500) {
-            downloadFile(relativePath);
+            console.log(e);
         }
 
         console.log('relative path: ' + res.relativePath);
