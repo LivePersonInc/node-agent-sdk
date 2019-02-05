@@ -1,6 +1,8 @@
 'use strict';
 
 const fs = require('fs');
+const request = require('request');
+const path = require('path');
 const Agent = require('./../../lib/AgentSDK');
 const conf = {
     accountId: process.env.LP_ACCOUNT,
@@ -8,7 +10,6 @@ const conf = {
     password: process.env.LP_PASS
 };
 
-const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 
 if (process.env.LP_CSDS) {
     conf.csdsDomain = process.env.LP_CSDS;
@@ -86,7 +87,7 @@ function publishEvent(convId, text) {
     });
 }
 
-function publishHostedFile (convId, relativePath, caption) {
+function publishHostedFile(convId, relativePath, caption) {
     console.log('publishHostedFile');
 
     agent.publishEvent({
@@ -113,54 +114,35 @@ function shareFile(convId, caption) {
         fileSize: 5020,
         fileType: 'JPEG'
     }, (e, resp) => {
-        let tempUrlSig = resp.queryParams.temp_url_sig;
-        let tempUrlExp = resp.queryParams.temp_url_expires;
-        let relativePath = resp.relativePath;
+        const tempUrlSig = resp.queryParams.temp_url_sig;
+        const tempUrlExp = resp.queryParams.temp_url_expires;
+        const relativePath = resp.relativePath;
 
         console.log('relative path: ' + relativePath);
 
-        uploadFile(convId, caption, swift_domain, relativePath, '?temp_url_sig=' + tempUrlSig + '&temp_url_expires=' + tempUrlExp);
-        // downloadFile(relativePath);
-    });
-}
-
-function _uploadFile(selectedFile, binaryString, domain, relativePath, params, cb) {
-    if (binaryString) {
-        let request = new XMLHttpRequest();
-        let uploadUrl = domain+relativePath+params;
-        request.open('PUT', uploadUrl);
-        request.onreadystatechange = function () {
-            if (request.readyState === 4) {
-                //return true if success
-                // callback(request.status === 201, request.status < 400 || request.status >= 500);
-                console.log('Done uploading');
-                cb();
+        uploadFile(convId, caption, swift_domain, relativePath, `?temp_url_sig=${tempUrlSig}&temp_url_expires=${tempUrlExp}`, (err) => {
+            if (err) {
+                publishEvent(convId, 'error uploading');
+            } else {
+                publishHostedFile(convId, relativePath, 'yay!');
             }
-        };
-
-        request.send(binaryString);
-    }
+        });
+    });
 }
 
-function uploadFile(convId, caption, domain, relativePath, params) {
-    let selectedFile = __dirname + '/lp-logo.jpeg';
+function uploadFile(convId, caption, domain, relativePath, params, callback) {
+    const file = path.resolve(__dirname, 'lp-logo.jpeg');
+    const url = `${domain}${relativePath}${params}`;
 
-    let readStream = fs.createReadStream(selectedFile);
-    readStream.on('ready', () => {
-        console.log('ready');
-    });
-
-    readStream.on('end', () => {
-        console.log('end');
-    });
-
-    readStream.on('readable', () => {
-        console.log('readable');
-
-        let binaryString = readStream.read();
-        _uploadFile(selectedFile, binaryString, domain, relativePath, params, publishHostedFile.bind(this, convId, relativePath, caption));
-
-    });
+    fs.createReadStream(file).pipe(request.put(url, (err, response) => {
+        if (err) {
+            console.log('Error uploading file', err);
+            callback(err);
+        } else {
+            console.log('Successfully uploaded file', response.body);
+            callback();
+        }
+    }));
 }
 
 function downloadFile(relativePath) {
