@@ -22,8 +22,7 @@
     "eslint": "^3.13.1",
     "mocha": "^5.2.0",
     "mockery": "^2.0.0",
-    "sinon": "^1.17.7",
-    "xmlhttprequest": "^1.8.0"
+    "sinon": "^1.17.7"
   },
   "main": "index.js",
   "repository": {
