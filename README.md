@@ -137,6 +137,8 @@ You can get your agentId from the SDK using `agent.agentId`.
 - [getUserProfile](#getuserprofile)
 - [updateRingState](#updateringstate)
 - [updateConversationField](#updateconversationfield)
+- [generateURLForDownloadFile](#generateurlfordownloadfile)
+- [generateURLForUploadFile](#generateurlforuploadfile)
 - [publishEvent](#publishevent)
 - [reconnect](#reconnect)
 - [dispose](#dispose)
@@ -342,9 +344,58 @@ agent.updateConversationField({
 });
 ```
 
+##### Example: Transfer conversation to a new agent
+```javascript
+agent.updateConversationField({
+'conversationId': 'conversationId/dialogId',
+    'conversationField': [
+        {
+            'field': 'ParticipantsChange',
+            'type': 'REMOVE',
+            'role': 'ASSIGNED_AGENT'
+        },{
+            'field': 'ParticipantsChange',
+            'type': 'SUGGEST',
+            'userId': '<suggested agent id>'
+            'role': 'ASSIGNED_AGENT'
+        },{
+            'field': 'Skill',
+            'type': 'UPDATE',
+            'skill': targetSkillId
+        }
+    ]
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
 Success response:
 
 `"OK Agent removed successfully"`
+
+#### generateURLForDownloadFile
+In order the generate url for download the file was published by one of the participants, use the following:
+```javascript
+agent.generateURLForDownloadFile({
+    relativePath:'<path>'
+}, (e, res) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+#### generateURLForUploadFile
+In order the generate url for upload a file for sharing with other participants, use the following:
+```javascript
+agent.generateURLForUploadFile({
+    fileSize: 5020,
+    fileType: 'JPEG'
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
 
 #### publishEvent
 This method is used to publish an event to a conversation.
@@ -390,6 +441,25 @@ agent.publishEvent({
         chatState: 'ACTIVE'
     }
 })
+```
+
+##### Example: Share An Uploaded File
+```javascript
+agent.publishEvent({
+    dialogId: '<the id of the dialog>',
+    event: {
+        type: 'ContentEvent',
+        contentType: 'hosted/file',
+        message: {
+            caption: '<some test here>',
+            relativePath: '<relative path got from the generateUrlForUploadFile>',
+            fileType: '<the file type>'
+        }
+    }
+}, (e, r)=>{
+    if (e) console.log ('e: ' + e);
+    if (r) console.log ('msg sequence: ' + r.sequence);
+});
 ```
 
 ##### Example: Sending Text with Quick Replies
