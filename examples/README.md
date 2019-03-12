@@ -107,6 +107,36 @@ To run the [file sharing bot example][4]
     ```sh
    LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASSWORD=b0tpa55word node examples/filesharing-bot/filesharing-bot.js
 
+## Return To Same Agent Bot
+The file return to same agent bot is an example SDK implementation in which the bot 
+1. Waits for any conversation coming, on a pre-configured skill
+2. Accept the ring
+3. Wait for notification says that bot has joined the con conversation
+4. Bot then using the Messaging Interaction API, [Get Conversations by Consumer id](https://developers.liveperson.com/messaging-interactions-api-methods-get-conversations-by-consumer-id.html), in order to get all conversation from the current consumer
+5. Get the conversation with the best MCS record
+6. From that conversation Bot extract the agent id
+7. Using the Agent Metrics API, [Agent Status](https://developers.liveperson.com/agent-metrics-api-methods-agent-status.html), check if that agent is ONLINE
+8. In case answer is yes, transfer the conversation to that agent
+
+This example extends the Agent class, which you can read more about below.
+
+Pre-requisites:
+- A LivePerson Account with Messaging
+  + Account should be enable ac-feature: `Messaging.Transfer_To_Agent`
+- A user with Agent permission, need to edit the agent permission: login to your account using administrator/agent manager permissions, and go to users tab. In the users tab click the __Profiles__ and click the __Agent__ or create new profile based on the __Agent__ role and there enable the following
+  + `Transfer messaging conversations to a specific agent in 'online' or 'back soon' state`
+
+To run the [return to same agent bot example][4]
+
+- Provide the following `env` variables:
+   - `LP_ACCOUNT` - Your LivePerson account ID
+   - `LP_USER` - Your LivePerson agent username
+   - `LP_PASS` - Your LivePerson agent password
+
+- Run:
+
+    ```sh
+   LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASSWORD=b0tpa55word node examples/transfer2same-agent-bot/main.js
 
 ## Bot Cluster
 
