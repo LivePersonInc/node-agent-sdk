@@ -3,6 +3,8 @@
 - [Greeting Bot](#greeting-bot)
 - [Agent Bot](#agent-bot)
 - [Survey Bot](#survey-bot)
+- [File Sharing Bot](#file-sharing-bot)
+- [Return To Same Agent Bot](#return-to-same-agent-bot)
 - [Bot Cluster](#bot-cluster)
 - [Extending the Agent Class](#extending-the-agent-class)
 
@@ -72,6 +74,38 @@ To run the [survey bot example][3]
     ```sh
    APP_INST=1234-3454-34657 LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASSWORD=b0tpa55word node examples/survey-bot/main.js
     ```
+
+## File Sharing Bot
+The file sharing bot is an example SDK implementation in which the bot 
+1. Waits for any conversation coming
+2. Joins the main dialog as a manager
+3. Generate an upload token
+4. Upload the image to specified url from the previous step
+5. Publish the image message to the conversation (publish hosted file)
+6. Generate a download url for the file shared
+7. Validates that download url is received (only can happen when file is uploaded successfuly)
+8. Publish a regular message
+This example extends the Agent class, which you can read more about below.
+
+Pre-requisites:
+- A LivePerson Account with Messaging
+  + Account should be enable ac-feature: `Messaging.Agent_File_Sharing`
+  + Account site settings should enable: `messaging.agent.file.sharing.enable`
+- A user with Agent permission, need to edit the agent permission: login to your account using administrator/agent manager permissions, and go to users tab. In the users tab click the __Profiles__ and click the __Agent__ or create new profile based on the __Agent__ role and there enable the following
+  + `Send files to consumers from local file browser` and/or
+  + `Send files to consumers from custom widgets`
+
+To run the [file sharing bot example][4]
+
+- Provide the following `env` variables:
+   - `LP_ACCOUNT` - Your LivePerson account ID
+   - `LP_USER` - Your LivePerson agent username
+   - `LP_PASS` - Your LivePerson agent password
+
+- Run:
+
+    ```sh
+   LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASSWORD=b0tpa55word node examples/filesharing-bot/filesharing-bot.js
 
 
 ## Bot Cluster
