@@ -76,30 +76,55 @@ To run the [survey bot example][3]
     ```
 
 ## File Sharing Bot
-The file sharing bot is an example SDK implementation in which the bot 
-1. Waits for any conversation coming
-2. Joins the main dialog as a manager
-3. Generate an upload token
-4. Upload the image to specified url from the previous step
-5. Publish the image message to the conversation (publish hosted file)
-6. Generate a download url for the file shared
-7. Validates that download url is received (only can happen when file is uploaded successfuly)
-8. Publish a regular message
+
+The file sharing bot is an example SDK implementation which showcases file sharing capabilities. The bot performs the following actions:
+
+1. Listens for any incoming conversation.
+
+2. Joins the main dialog as an agent manager.
+
+3. Generate an upload token.
+
+4. Uploads the image to url specificed in the previous steps.
+
+5. Publishes the image message to the conversation (publish hosted file).
+
+6. Generates a download url for the file shared.
+
+7. Validates that the download url is received (can only happen when file is uploaded successfuly).
+
+8. Publishes a regular message.
+
 This example extends the Agent class, which you can read more about below.
 
-Pre-requisites:
-- A LivePerson Account with Messaging
+**Pre-requisites**:
+
+- A LivePerson Account with Messaging enabled.
+
   + Account should be enable ac-feature: `Messaging.Agent_File_Sharing`
+  
   + Account site settings should enable: `messaging.agent.file.sharing.enable`
-- A user with Agent permission, need to edit the agent permission: login to your account using administrator/agent manager permissions, and go to users tab. In the users tab click the __Profiles__ and click the __Agent__ or create new profile based on the __Agent__ role and there enable the following
+  
+- A user with Agent permissions. These permissions also need to be edited. To edit the agent permission: 
+
+* Login to your account using administrator/agent manager permissions.
+
+* Navigate to the users tab. 
+
+* Click the __Profiles__ option and then click the __Agent__ profile or create a new profile based on the __Agent__ role and there enable the following:
+
   + `Send files to consumers from local file browser` and/or
+  
   + `Send files to consumers from custom widgets`
 
 To run the [file sharing bot example][4]
 
 - Provide the following `env` variables:
+
    - `LP_ACCOUNT` - Your LivePerson account ID
+   
    - `LP_USER` - Your LivePerson agent username
+   
    - `LP_PASS` - Your LivePerson agent password
 
 - Run:
@@ -108,27 +133,47 @@ To run the [file sharing bot example][4]
    LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASSWORD=b0tpa55word node examples/filesharing-bot/filesharing-bot.js
 
 ## Return To Same Agent Bot
-The file return to same agent bot is an example SDK implementation in which the bot 
-1. Waits for any conversation coming, on a pre-configured skill
-2. Accept the ring
-3. Wait for notification says that bot has joined the con conversation
-4. Bot then using the Messaging Interaction API, [Get Conversations by Consumer id](https://developers.liveperson.com/messaging-interactions-api-methods-get-conversations-by-consumer-id.html), in order to get all conversation from the current consumer
-5. Get the conversation with the best MCS record
-6. From that conversation Bot extract the agent id
-7. Using the Agent Metrics API, [Agent Status](https://developers.liveperson.com/agent-metrics-api-methods-agent-status.html), check if that agent is ONLINE
-8. In case answer is yes, transfer the conversation to that agent
+
+The Return to Same Agent bot is an example SDK implementation which showcases transfer to agent capabilities. The bot performs the following actions:
+
+1. Listens for any incoming conversations, on a pre-configured skill.
+
+2. Acceps the conversation.
+
+3. Waits for a notification which says that a bot has joined the conversation.
+
+4. The bot then uses the Messaging Interactions API method, [Get Conversations by Consumer id](https://developers.liveperson.com/messaging-interactions-api-methods-get-conversations-by-consumer-id.html), in order to get all conversation for the current consumer.
+
+5. The conversation with the best MCS record is retrieved.
+
+6. From that conversation the bot extracts the agent id.
+
+7. Using the Agent Metrics API method, [Agent Status](https://developers.liveperson.com/agent-metrics-api-methods-agent-status.html), the bot checks if that agent is ONLINE.
+
+8. In case the answer is yes, it transfers the conversation to that agent.
 
 This example extends the Agent class, which you can read more about below.
 
 Pre-requisites:
-- A LivePerson Account with Messaging
-  + Account should be enable ac-feature: `Messaging.Transfer_To_Agent`
-- A user with Agent permission, need to edit the agent permission: login to your account using administrator/agent manager permissions, and go to users tab. In the users tab click the __Profiles__ and click the __Agent__ or create new profile based on the __Agent__ role and there enable the following
+
+- A LivePerson Account with Messaging enabled.
+
+  + Account should have the ac-feature `Messaging.Transfer_To_Agent` enabled.
+  
+- A user with Agent permissions. These permissions also need to be edited. To edit the agent permission: 
+
+* Login to your account using administrator/agent manager permissions.
+
+* Navigate to the users tab. 
+
+* Click the __Profiles__ option and then click the __Agent__ profile or create a new profile based on the __Agent__ role and there enable the following:
+
   + `Transfer messaging conversations to a specific agent in 'online' or 'back soon' state`
 
 To run the [return to same agent bot example][4]
 
 - Provide the following `env` variables:
+
    - `LP_ACCOUNT` - Your LivePerson account ID
    - `LP_USER` - Your LivePerson agent username
    - `LP_PASS` - Your LivePerson agent password
