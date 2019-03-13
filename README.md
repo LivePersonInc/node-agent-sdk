@@ -87,8 +87,19 @@ agent.on('cqm.ExConversationChangeNotification', notificationBody => {
 
 #### Run it:
 
+###### Unix Shell
+
 ```sh
 LP_ACCOUNT=(YourAccountNumber) LP_USER=(YourBotUsername) LP_PASS=(YourBotPassword) node index.js
+```
+
+###### Windows Shell
+
+```sh
+set LP_ACCOUNT=(YourAccountNumber)
+set LP_USER=(YourBotUsername)
+set LP_PASS=(YourBotPassword)
+node index.js
 ```
 
 ### [Running the Sample Apps][3]
