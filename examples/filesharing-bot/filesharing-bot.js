@@ -114,6 +114,10 @@ function shareFile(convId, caption) {
         fileSize: 5020,
         fileType: 'JPEG'
     }, (e, resp) => {
+        if (e || !resp.queryParams) {
+            console.log(`share file failed: ${e}, ${resp}`);
+        }
+
         const tempUrlSig = resp.queryParams.temp_url_sig;
         const tempUrlExp = resp.queryParams.temp_url_expires;
         const relativePath = resp.relativePath;
@@ -151,6 +155,7 @@ function downloadFile(relativePath) {
     }, (e, res) => {
         if (e && e.code === 500) {
             console.log(e);
+            return;
         }
 
         console.log('relative path: ' + res.relativePath);
