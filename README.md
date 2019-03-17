@@ -385,6 +385,11 @@ Success response:
 
 `"OK Agent removed successfully"`
 
+__NOTE:__
+When an agent is suggested, the `cqm.ExConversationChangeNotification` is affected by reflecting the request in the notification. Meaning that in the participants section you will see 
+that the assigned agent is removed and the suggested agent replaced it.
+
+
 #### generateURLForDownloadFile
 In order the generate url for download the file was published by one of the participants, use the following:
 ```javascript
@@ -835,7 +840,8 @@ Example payload:
 ```
 
 #### cqm.ExConversationChangeNotification
-This event occurs when a conversation that your subscription qualifies for* is updated in any way. If you passed no agentIds array when calling [subscribExConversations()](#subscribeexconversations), and you have the necessary permissions to see all agents' conversations, you will receive these events for all conversations. If you passed in your own agentId with `subscribeExConversations` you will only receive updates for conversations that you are a participant in (such as conversations that you have just accepted via a [routing.routingTaskNotification](#routingroutingtasknotification)).
+This event occurs when a conversation that your subscription qualifies for* is updated in any way. If you passed no agentIds array when calling [subscribExConversations()](#subscribeexconversations), and you have the necessary permissions to see all agents' conversations, you will receive these events for all conversations. If you passed in your own agentId with `subscribeExConversations` you will only receive updates for conversations that you are a participant in (such as conversations that you have just accepted via a [routing.routingTaskNotification](#routingroutingtasknotification), 
+this won't include converastions that you are not the assigned agent).
 
 **Important** Due to a race condition in the service that serves these notifications they may not always contain the lastContentEventNotification attribute. For this reason you cannot rely on them to consume all of the messages in the conversation, and you should use this event to call [subscribeMessagingEvents()](#subscribemessagingevents) for conversations you want to follow.  You should keep a list of conversations you are handling in order to prevent attempting to subscribe to the same conversation repeatedly.
 

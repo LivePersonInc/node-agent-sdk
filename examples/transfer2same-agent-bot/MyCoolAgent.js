@@ -83,11 +83,11 @@ class MyCoolAgent extends Agent {
                         // get consumer's best MCS conversation's agent id
                         this.msgHistoryClient = new MsgHistoryClient(this.conf);
                         this.msgHistoryClient.getConsumerConversations(consumerId, (err, conversations) => {
-                             let agentId = t2aUtils.getAgentIdForBestConversationMCS(conversations);
+                             let agentData = t2aUtils.getAgentDataForBestConversationMCS(conversations);
 
-                            if (agentId) { // check whether the agent is available
+                            if (agentData) { // check whether the agent is available
                                 // if agent is online transfer, and if not send a welcome message
-                                this.msgHistoryClient.getAgentStatus(agentId, (err, agentCurrentStatus) => {
+                                this.msgHistoryClient.getAgentStatus(agentData.agentId, (err, agentCurrentStatus) => {
                                     console.log(agentCurrentStatus);
                                     if (agentCurrentStatus === 'ONLINE') {
                                         this.updateConversationField({
@@ -96,7 +96,7 @@ class MyCoolAgent extends Agent {
                                             conversationField: [{
                                                 field: 'ParticipantsChange',
                                                 type: 'SUGGEST',
-                                                userId: `${this.accountId}.${agentId}`,
+                                                userId: `${this.accountId}.${agentData.agentId}`,
                                                 role: 'ASSIGNED_AGENT'
                                             }, {
                                                 field: 'ParticipantsChange',
@@ -106,7 +106,7 @@ class MyCoolAgent extends Agent {
                                             }, {
                                                 field: 'Skill',
                                                 type: 'UPDATE',
-                                                skill: '3380945110'
+                                                skill: agentData.skillId
                                             }]
                                         }, (err, res) => {
                                             console.log(`msg: err - ${err}, res - ${res}`);
