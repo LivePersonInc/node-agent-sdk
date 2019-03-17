@@ -4,7 +4,7 @@
  *
  * @param data the result that came out from the history api getting recently (last 10) consumers conversations
  */
-function getAgentIdForBestConversationMCS (data) {
+function getAgentDataForBestConversationMCS (data) {
     let conversations = data.conversationHistoryRecords;
     let mcsArr = [];
 
@@ -12,16 +12,17 @@ function getAgentIdForBestConversationMCS (data) {
         if (conversation && conversation.info && conversation.info.mcs) {
             mcsArr.push(
                 {
-                    "mcs": conversation.info.mcs,
-                    "agentId": conversation.info.latestAgentId
+                    'mcs': conversation.info.mcs,
+                    'agentId': conversation.info.latestAgentId,
+                    'skillId': conversation.info.latestSkillId
                 });
         }
     });
 
     mcsArr.sort((a, b) => a.mcs - b.mcs);
-    return mcsArr && mcsArr.length > 0 && mcsArr.pop().agentId;
+    return mcsArr && mcsArr.length > 0 && mcsArr.pop();
 }
 
 module.exports = {
-    getAgentIdForBestConversationMCS
+    getAgentDataForBestConversationMCS
 };
