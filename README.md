@@ -385,27 +385,6 @@ Success response:
 
 `"OK Agent removed successfully"`
 
-#### Subscribing to Change Notifications with Transfer to Agent
-
-After the transfer-to-agent API call,  the UMS will check the validity of the request and after doing internals it will notify agents with connection version 2.1  of the change. This change will be communicated via the `ExConversationChangeNotification` whose format has been changed to accomodate this new feature. 
-
-The change in the format is in the participants of the dialog, which is where we added the suggested agent, as follows:
-
-* A new ‘state’ field has been added to the items in ‘participantsDetails’ array.
-
-* The state can be either ‘ACTIVE’ or ‘SUGGESTED’.
-
-* When the ‘role’ is set to ‘ASSIGNED_AGENT’, this value differentiates between agents which have been ‘SUGGESTED’ (that is, a conversation was transferred directly to them but might not yet have been accepted) and ‘ACTIVE’ agents, which have actually accepted the incoming conversation (that is, the conversation has been transferred to them and they have accepted it).
-
-**Note**: If your existing code uses the existing property ‘role’ to check if the agent has been assigned to the conversation ('role': 'ASSIGNED_AGENT') and doesn’t check the new ‘state’ property, you might get a false positive. That is, a conversation was transferred to an agent (so the ‘role’ of that agent is now ‘ASSIGNED_AGENT’) but the agent has not yet accepted this conversation (so their ‘type’ is now ‘SUGGESTED’ instead of ‘ACTIVE’).
-
-In this case, you will need to add some function into your code which checks both the ‘role’ and ‘state’ properties.
-
-For other role types, the state field will always be populated with ‘ACTIVE’. 
-
-The API should be used on the new version published (2.1). In case the transfer-to-agent call is triggered from version 2.0 with the described format, the transfer will occur but the one who triggered won't get the notification,  since notification is available only from the new version!
-
-
 #### generateURLForDownloadFile
 In order the generate url for download the file was published by one of the participants, use the following:
 ```javascript
@@ -860,6 +839,27 @@ This event occurs when a conversation that your subscription qualifies for* is u
 this won't include converastions that you are not the assigned agent).
 
 **Important** Due to a race condition in the service that serves these notifications they may not always contain the lastContentEventNotification attribute. For this reason you cannot rely on them to consume all of the messages in the conversation, and you should use this event to call [subscribeMessagingEvents()](#subscribemessagingevents) for conversations you want to follow.  You should keep a list of conversations you are handling in order to prevent attempting to subscribe to the same conversation repeatedly.
+
+##### Subscribing to Change Notifications with Transfer to Agent
+
+After the transfer-to-agent API call,  the UMS will check the validity of the request and after doing internals it will notify agents with connection version 2.1  of the change. This change will be communicated via the `ExConversationChangeNotification` whose format has been changed to accomodate this new feature. 
+
+The change in the format is in the participants of the dialog, which is where we added the suggested agent, as follows:
+
+* A new ‘state’ field has been added to the items in ‘participantsDetails’ array.
+
+* The state can be either ‘ACTIVE’ or ‘SUGGESTED’.
+
+* When the ‘role’ is set to ‘ASSIGNED_AGENT’, this value differentiates between agents which have been ‘SUGGESTED’ (that is, a conversation was transferred directly to them but might not yet have been accepted) and ‘ACTIVE’ agents, which have actually accepted the incoming conversation (that is, the conversation has been transferred to them and they have accepted it).
+
+**Note**: If your existing code uses the existing property ‘role’ to check if the agent has been assigned to the conversation ('role': 'ASSIGNED_AGENT') and doesn’t check the new ‘state’ property, you might get a false positive. That is, a conversation was transferred to an agent (so the ‘role’ of that agent is now ‘ASSIGNED_AGENT’) but the agent has not yet accepted this conversation (so their ‘type’ is now ‘SUGGESTED’ instead of ‘ACTIVE’).
+
+In this case, you will need to add some function into your code which checks both the ‘role’ and ‘state’ properties.
+
+For other role types, the state field will always be populated with ‘ACTIVE’. 
+
+The API should be used on the new version published (2.1). In case the transfer-to-agent call is triggered from version 2.0 with the described format, the transfer will occur but the one who triggered won't get the notification,  since notification is available only from the new version!
+
 
 Sample code:
 ```javascript
