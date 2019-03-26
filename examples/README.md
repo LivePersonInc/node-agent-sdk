@@ -167,7 +167,7 @@ Pre-requisites:
     * Click the __Profiles__ option and then click the __Agent__ profile or create a new profile based on the __Agent__ role and there enable the following:
         + `Transfer messaging conversations to a specific agent in 'online' or 'back soon' state`
 
-To run the [return to same agent bot example][https://github.com/LivePersonInc/node-agent-sdk/tree/master/examples/transfer2same-agent-bot]
+To run the [return to same agent bot example](https://github.com/LivePersonInc/node-agent-sdk/tree/master/examples/transfer2same-agent-bot)
 
 - Provide the following `env` variables:
 
