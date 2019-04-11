@@ -21,6 +21,7 @@ class MyCoolAgent extends Agent {
         this.conf = conf;
         this.init();
         this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvnet';
+        this.consumerId = undefined;
     }
 
     init() {
@@ -61,8 +62,8 @@ class MyCoolAgent extends Agent {
                     openConvs[change.result.convId] = {};
 
                     // demonstraiton of using the consumer profile calls
-                    const consumerId = change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id;
-                    this.getUserProfile(consumerId, (e, profileResp) => {
+                    this.consumerId = change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id;
+                    this.getUserProfile(this.consumerId, (e, profileResp) => {
                         this.publishEvent({
                             dialogId: change.result.convId,
                             event: {
@@ -73,6 +74,19 @@ class MyCoolAgent extends Agent {
                         });
                     });
                     this.subscribeMessagingEvents({dialogId: change.result.convId});
+                } else if(change.type === 'UPSERT' && openConvs[change.result.convId] && change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id !== this.consumerId) {
+                    // ConsumerID changed. Typically, a Step Up from an unauthenticated to an authenticated user.
+                    this.consumerId = change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id;
+                    this.getUserProfile(this.consumerId, (e, profileResp) => {
+                        this.publishEvent({
+                            dialogId: change.result.convId,
+                            event: {
+                                type: 'ContentEvent',
+                                contentType: 'text/plain',
+                                message: `Consumer stepped up in conversation with ${JSON.stringify(profileResp)}`
+                            }
+                        });
+                    });
                 } else if (change.type === 'DELETE') {
                     // conversation was closed or transferred
                     delete openConvs[change.result.convId];
