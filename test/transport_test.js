@@ -27,7 +27,9 @@ describe('Test Transport.js',()=>{
         wsConstructorSpy.reset();
         transport = new Transport({});
     });
+
     describe('test initialization', ()=>{
+
         it('should be listening to all ws events after class initialization', ()=>{
             expect(wsConstructorSpy.calledOnce).to.be.true;
             expect(transport.ws.listenerCount(Transport.WS_EVENTS.OPEN)).to.equal(1);
@@ -36,7 +38,9 @@ describe('Test Transport.js',()=>{
             expect(transport.ws.listenerCount(Transport.WS_EVENTS.MESSAGE)).to.equal(1);
         });
     });
+
     describe('test close', ()=>{
+
         it('should unbind all events and terminate connection and set ws to null', ()=>{
             const terminateSpy = sinon.spy(transport.ws, 'terminate');
             const removeListenerSpy = sinon.spy(transport.ws, 'removeListener');
