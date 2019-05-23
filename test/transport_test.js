@@ -55,6 +55,7 @@ describe('Test Transport.js',()=>{
         });
     });
     describe('test reconnect', ()=>{
+
        it('should call close and then create new ws instance', ()=>{
           const closeSpy = sinon.spy(transport, 'close');
           transport.reconnect();
