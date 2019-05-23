@@ -7,7 +7,7 @@ const Events = require('events');
 describe('Test Transport.js',()=>{
     const wsConstructorSpy = sinon.spy();
     class Websocket extends Events{
-        constructor(conf){
+        constructor(){
             super();
             wsConstructorSpy();
         }
