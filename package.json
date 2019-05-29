@@ -41,7 +41,7 @@
   "readme": "README.md",
   "engines": {
     "node": ">=6.9.1",
-    "npm": ">=3.0"
+    "npm": ">=6.9.0"
   },
   "license": "MIT",
   "dependencies": {
