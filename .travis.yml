@@ -12,3 +12,4 @@ deploy:
   on:
     tags: true
     repo: LivePersonInc/node-agent-sdk
+    branch: master
