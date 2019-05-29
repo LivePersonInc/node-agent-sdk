@@ -1,7 +1,14 @@
 language: node_js
 node_js:
-  - "6.9.4"
-
+- 6.9.4
 script:
-  - npm test
-  - npm run lint
+- npm test
+- npm run lint
+deploy:
+  provider: npm
+  email: tass@liveperson.com
+  api_key:
+    secure: qIYTjoJeUXoJ/9++efMzrcoFvvpEDY9jAulkVTbWgXDS5Bjoq4pjY7NHZeED0YPu9rPoWPVF2BLMe7EdpulTRs0UrvwAHnwasrLLuhCCJC5DAZVISxxMaF8YKYREEZJ/+G60zV0OB1KEgtWJ3UgUMbA7GF3Hk/J7FE+Vzhm8KseNjU+hVCpZthXxNFd/3A/O8hNL5DgQ1GOC53bvTUyqQ/0CjmZD5Y1q3B2v/rpXqP2KQe7QQZNHHlTDj8KiIrUOwroROEDIC8K48pZXkgczeRWG6zVR21lXdMxdK9d8KXSFwgDq4E0b7oQet48G4sqKiIjWOTTjBkjWzEKMwaYTTE2/D230BqEko4lG9nBTG4rkYTN2bbnGJJUb2I4tr587637DGC/4yNb/afNnoxurvVX7phwsHJwdNyg257S0EbktLrfdgy0J9iHrG/LTTMGWaW66xwuqqLexCju52g/KQHJISnliTCgoNSvPVjs9Xd89zU+jb6v0tpL/BD8r9hVlhwjViX6hEgk45zl/LMUQ0LL+jyJL3mugkaSuhNCG7kyTcWWkEfcG5CGCyR2FfiPryt+sTddRvm92kcCDA5BTNDTOt7QjvMJaH5H9l9wYUSN4OMuFQTLBY5qqxe1Uu3fntXGrQ+C7vNBlIJCqw2jWPQlCebWDUXGTK+8AyZuiLw4=
+  on:
+    tags: true
+    repo: LivePersonInc/node-agent-sdk
