@@ -260,7 +260,7 @@ The consumerId parameter can be retrieved from the array of participants that ac
 ```javascript
 agent.on('cqm.ExConversationChangeNotification', body => {
     body.changes.forEach(change => {
-        agent.getUserProfile(change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER'[0].id), callback)
+        agent.getUserProfile(change.result.conversationDetails.participants.find(p => p.role === 'CONSUMER').id, callback)
     })
 })
 ```
