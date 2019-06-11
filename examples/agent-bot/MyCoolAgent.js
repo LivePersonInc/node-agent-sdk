@@ -26,6 +26,9 @@ class MyCoolAgent extends Agent {
 
     init() {
         let openConvs = {};
+        /** Needed for transfer back to bot flow **/
+        this.firstSequence = [];
+        this.lastSequence = [];
 
         this.on('connected', msg => {
             console.log('connected...', this.conf.id || '', msg);
@@ -90,6 +93,8 @@ class MyCoolAgent extends Agent {
                 } else if (change.type === 'DELETE') {
                     // conversation was closed or transferred
                     delete openConvs[change.result.convId];
+                    delete this.firstSequence[change.result.convId];
+                    delete this.lastSequence[change.result.convId];
                 }
             });
         });
@@ -98,22 +103,33 @@ class MyCoolAgent extends Agent {
         this.on('ms.MessagingEventNotification', body => {
             const respond = {};
             body.changes.forEach(c => {
-                // In the current version MessagingEventNotification are recived also without subscription
-                // Will be fixed in the next api version. So we have to check if this notification is handled by us.
-                if (openConvs[c.dialogId]) {
-                    // add to respond list all content event not by me
-                    if (c.event.type === 'ContentEvent' && c.originatorId !== this.agentId) {
-                        respond[`${body.dialogId}-${c.sequence}`] = {
-                            dialogId: body.dialogId,
-                            sequence: c.sequence,
-                            message: c.event.message
-                        };
+                // add to respond list all content events not by the bot and only consumer events
+                if (c.event.type === 'ContentEvent' && c.originatorId !== this.agentId && c.originatorMetadata.role === 'CONSUMER') {
+
+                    if (typeof this.firstSequence[body.dialogId] === 'undefined') {
+                        this.firstSequence[body.dialogId] = c.sequence;
                     }
-                    // remove from respond list all the messages that were already read
-                    if (c.event.type === 'AcceptStatusEvent' && c.originatorId === this.agentId) {
-                        c.event.sequenceList.forEach(seq => {
-                            delete respond[`${body.dialogId}-${seq}`];
-                        });
+
+                    respond[`${body.dialogId}-${c.sequence}`] = {
+                        dialogId: body.dialogId,
+                        sequence: c.sequence,
+                        message: c.event.message
+                    };
+
+                    this.lastSequence[body.dialogId] = c.sequence;
+                }
+
+                // remove from respond list all the messages that were already read by the bot
+                if (c.event.type === 'AcceptStatusEvent' && c.originatorId === this.agentId) {
+                    c.event.sequenceList.forEach(seq => {
+                        delete respond[`${body.dialogId}-${seq}`];
+                    });
+                }
+
+                // if an assigned agent has already responded to a message from a visitor, the bot won't respond to it
+                if (c.event.type === 'ContentEvent' && c.originatorId !== this.agentId && (c.originatorMetadata.role === 'ASSIGNED_AGENT' || c.originatorMetadata.role === 'MANAGER')) {
+                    for (let i = this.firstSequence[body.dialogId]; i <= this.lastSequence[body.dialogId]; i++) {
+                        delete respond[`${body.dialogId}-${i}`];
                     }
                 }
             });
