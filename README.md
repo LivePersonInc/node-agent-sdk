@@ -324,7 +324,7 @@ Success response:
 
 ##### Example: Close a conversation
 This will immediately close the conversation and any associated dialogs.
->Note: If the account is configured for post-conversation survey (PCS), the survey dialog will not be triggered. To allow PCS, without closing the conversation, the conversation's main dialog can be closed (see the next example).
+>Note: If the account is configured for post-conversation survey (PCS), the survey dialog will not be triggered. To allow PCS without closing the conversation, the conversation's main dialog should be closed instead (see the "Close Dialog" example).
 
 ```javascript
 agent.updateConversationField({
