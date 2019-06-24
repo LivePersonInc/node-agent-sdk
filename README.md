@@ -334,6 +334,26 @@ agent.updateConversationField({
  ```
 
 ##### Example: Transfer conversation to a new skill
+This request will attempt to transfer the conversation to a new skill.
+>Note: In order to transfer the conversation, the caller must be a participant of the conversation.
+```javascript
+agent.updateConversationField({
+'conversationId': 'conversationId/dialogId',
+    'conversationField': [
+        {
+            'field': 'Skill',
+            'type': 'UPDATE',
+            'skill': targetSkillId
+        }
+    ]
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+If the conversation has an assigned agent which needs to be removed, this can be done as a part of the same request.
+>Note: Attempting to remove the assigned agent when there is none will cause the request to fail.
 ```javascript
 agent.updateConversationField({
 'conversationId': 'conversationId/dialogId',
