@@ -323,15 +323,39 @@ Success response:
 `"OK Agent added successfully"`
 
 ##### Example: Close a conversation
+This will immediately close the conversation and any associated dialogs.
+>Note: If the account is configured for post-conversation survey (PCS), the survey dialog will not be triggered. To allow PCS without closing the conversation, the conversation's main dialog should be closed instead (see the "Close Dialog" example).
+
 ```javascript
 agent.updateConversationField({
-        conversationId: conversationId/dialogId,
-        conversationField: [{
-            field: 'ConversationStateField',
-            conversationState: 'CLOSE'
-        }]
-    });
- ```
+    conversationId: conversationId/dialogId,
+    conversationField: [{
+        field: 'ConversationStateField',
+        conversationState: 'CLOSE'
+    }]
+});
+```
+
+##### Example: Close dialog
+Closes the specified dialog. Depending on the account's dialog flow configuration, the next dialog will be triggered (e.g. post-conversation survey dialog).
+>Note: The main dialog carries the same ID as the conversation. Other dialogs will have unique dialog IDs. When the last dialog of the defined flow is closed, the conversation will automatically be closed as well.
+
+```javascript
+agent.updateConversationField({
+    conversationId: conversationId/dialogId,
+    conversationField: [{
+        field: 'DialogChange',
+        type: 'UPDATE',
+        dialog: {
+            dialogId: conversationId/dialogId,
+            state: 'CLOSE'
+        }
+    }]
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
 
 ##### Example: Transfer conversation to a new skill
 ```javascript
