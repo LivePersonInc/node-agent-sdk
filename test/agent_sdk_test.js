@@ -218,7 +218,7 @@ describe('Agent SDK Tests', () => {
         });
 
         agent.on('myType', body => {
-            expect(body.x).to.equal('x');
+            expect(body).to.be.defined;
             expect(body.x).to.equal('x');
             done();
         });
@@ -332,7 +332,7 @@ describe('Agent SDK Tests', () => {
 
     });
 
-    it('Should thrown ParseError when a notification with missing participantsPId is received', done => {
+    it('Should throw ParseError when a notification with missing participantsPId is received', done => {
         requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
@@ -357,7 +357,7 @@ describe('Agent SDK Tests', () => {
 
     });
 
-    it('Should thrown ParseError when a response with missing participantsPId is received', done => {
+    it('Should throw ParseError when a response with missing participantsPId is received', done => {
         requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
@@ -371,6 +371,7 @@ describe('Agent SDK Tests', () => {
             try{
                 agent.transport.emit('message', {kind: 'resp', type: '.ams.aam.ExConversationChangeNotification', body: { changes:[change]}});
             } catch (err) {
+                console.log(err);
                 expect(err).to.be.defined;
                 expect(err.message).to.be.equal('TypeError: Cannot read property \'0\' of undefined');
                 expect(err.payload.body.changes[0]).to.be.equal(change);
