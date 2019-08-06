@@ -371,7 +371,6 @@ describe('Agent SDK Tests', () => {
             try{
                 agent.transport.emit('message', {kind: 'resp', type: '.ams.aam.ExConversationChangeNotification', body: { changes:[change]}});
             } catch (err) {
-                console.log(err);
                 expect(err).to.be.defined;
                 expect(err.message).to.be.equal('TypeError: Cannot read property \'0\' of undefined');
                 expect(err.payload.body.changes[0]).to.be.equal(change);
