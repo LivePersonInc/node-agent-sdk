@@ -332,7 +332,7 @@ describe('Agent SDK Tests', () => {
 
     });
 
-    it('Should throw ParseError when a notification with missing participantsPId is received', done => {
+    it('Should throw a ParseError when a notification with missed participantsPId data is received', done => {
         requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
@@ -357,7 +357,7 @@ describe('Agent SDK Tests', () => {
 
     });
 
-    it('Should throw ParseError when a response with missing participantsPId is received', done => {
+    it('Should throw a ParseError when a response with missed participantsPId data is received', done => {
         requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
