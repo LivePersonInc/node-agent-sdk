@@ -332,7 +332,7 @@ describe('Agent SDK Tests', () => {
 
     });
 
-    it('Should throw a ParseError when a notification with missed participantsPId data is received', done => {
+    it('Should throw a TransformError when a notification with missed participantsPId data is received', done => {
         requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
@@ -349,7 +349,7 @@ describe('Agent SDK Tests', () => {
                 expect(err).to.be.defined;
                 expect(err.message).to.be.equal('TypeError: Cannot read property \'0\' of undefined');
                 expect(err.payload.body.changes[0]).to.be.equal(change);
-                expect(err.constructor.name).to.be.equal('ParseError');
+                expect(err.constructor.name).to.be.equal('TransformError');
                 done();
             }
 
@@ -357,7 +357,7 @@ describe('Agent SDK Tests', () => {
 
     });
 
-    it('Should throw a ParseError when a response with missed participantsPId data is received', done => {
+    it('Should throw a TransformError when a response with missed participantsPId data is received', done => {
         requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
@@ -374,7 +374,7 @@ describe('Agent SDK Tests', () => {
                 expect(err).to.be.defined;
                 expect(err.message).to.be.equal('TypeError: Cannot read property \'0\' of undefined');
                 expect(err.payload.body.changes[0]).to.be.equal(change);
-                expect(err.constructor.name).to.be.equal('ParseError');
+                expect(err.constructor.name).to.be.equal('TransformError');
                 done();
             }
 
