@@ -332,4 +332,54 @@ describe('Agent SDK Tests', () => {
 
     });
 
+    it('Should throw a TransformError when a notification with missed participantsPId data is received', done => {
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+        const change =  {'type':'UPSERT','result':{'convId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','effectiveTTR':-1,'conversationDetails':{'convId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','skillId':'1251428632','participants':{'CONSUMER':['102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11'],'MANAGER':['2344566.1282051932','2344566.901083232'],'CONTROLLER':['2344566.1257599432'],'READER':[]},'participantsPId':{'CONSUMER':['102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11'],'MANAGER':['f675416a-7d5a-5d06-a7bd-bdf5fcc426a1','8ffebb81-0614-568c-a011-3b17eafc5b9d'],'READER':[]},'dialogs':[{'dialogId':'5Yn6I7hpR6C3JWg4YT-Meg','participantsDetails':[{'id':'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11','role':'CONSUMER','state':'ACTIVE'}],'dialogType':'POST_SURVEY','channelType':'MESSAGING','metaData':{'appInstallId':'896ef5ea-b954-42c9-91b7-a9134a47faa7'},'state':'OPEN','creationTs':1564734095888,'metaDataLastUpdateTs':1564734095887},{'dialogId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','participantsDetails':[{'id':'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11','role':'CONSUMER','state':'ACTIVE'},{'id':'2344566.1282051932','role':'MANAGER','state':'ACTIVE'},{'id':'2344566.1257599432','role':'CONTROLLER','state':'ACTIVE'},{'id':'2344566.901083232','role':'MANAGER','state':'ACTIVE'}],'dialogType':'MAIN','channelType':'MESSAGING','state':'CLOSE','creationTs':1564685380489,'endTs':1564734095888,'metaDataLastUpdateTs':1564734095888,'closedBy':'AGENT'}],'brandId':'2344566','state':'CLOSE','stage':'OPEN','closeReason':'AGENT','startTs':1564685380489,'metaDataLastUpdateTs':1564734095888,'firstConversation':false,'csatRate':0,'ttr':{'ttrType':'NORMAL','value':1200},'note':'','context':{'type':'CustomContext','clientProperties':{'type':'.ClientProperties','appId':'whatsapp','ipAddress':'10.42.138.108','features':['PHOTO_SHARING','QUICK_REPLIES','AUTO_MESSAGES','MULTI_DIALOG','FILE_SHARING','RICH_CONTENT']},'name':'WhatsApp Business'},'conversationHandlerDetails':{'accountId':'2344566','skillId':'1251428632'}},'numberOfunreadMessages':{'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11':1,'2344566.901083232':0,'2344566.1282051932':10},'lastUpdateTime':1564734095888}};
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+        agent.on('connected', msg => {
+            try{
+                agent.transport.emit('message', {kind: 'notification', type: '.ams.aam.ExConversationChangeNotification', body: { changes:[change]}});
+            } catch (err) {
+                expect(err).to.be.defined;
+                expect(err.message).to.be.equal('TypeError: Cannot read property \'0\' of undefined');
+                expect(err.payload.body.changes[0]).to.be.equal(change);
+                expect(err.constructor.name).to.be.equal('TransformError');
+                done();
+            }
+
+        });
+
+    });
+
+    it('Should throw a TransformError when a response with missed participantsPId data is received', done => {
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+        const change =  {'type':'UPSERT','result':{'convId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','effectiveTTR':-1,'conversationDetails':{'convId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','skillId':'1251428632','participants':{'CONSUMER':['102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11'],'MANAGER':['2344566.1282051932','2344566.901083232'],'CONTROLLER':['2344566.1257599432'],'READER':[]},'participantsPId':{'CONSUMER':['102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11'],'MANAGER':['f675416a-7d5a-5d06-a7bd-bdf5fcc426a1','8ffebb81-0614-568c-a011-3b17eafc5b9d'],'READER':[]},'dialogs':[{'dialogId':'5Yn6I7hpR6C3JWg4YT-Meg','participantsDetails':[{'id':'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11','role':'CONSUMER','state':'ACTIVE'}],'dialogType':'POST_SURVEY','channelType':'MESSAGING','metaData':{'appInstallId':'896ef5ea-b954-42c9-91b7-a9134a47faa7'},'state':'OPEN','creationTs':1564734095888,'metaDataLastUpdateTs':1564734095887},{'dialogId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','participantsDetails':[{'id':'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11','role':'CONSUMER','state':'ACTIVE'},{'id':'2344566.1282051932','role':'MANAGER','state':'ACTIVE'},{'id':'2344566.1257599432','role':'CONTROLLER','state':'ACTIVE'},{'id':'2344566.901083232','role':'MANAGER','state':'ACTIVE'}],'dialogType':'MAIN','channelType':'MESSAGING','state':'CLOSE','creationTs':1564685380489,'endTs':1564734095888,'metaDataLastUpdateTs':1564734095888,'closedBy':'AGENT'}],'brandId':'2344566','state':'CLOSE','stage':'OPEN','closeReason':'AGENT','startTs':1564685380489,'metaDataLastUpdateTs':1564734095888,'firstConversation':false,'csatRate':0,'ttr':{'ttrType':'NORMAL','value':1200},'note':'','context':{'type':'CustomContext','clientProperties':{'type':'.ClientProperties','appId':'whatsapp','ipAddress':'10.42.138.108','features':['PHOTO_SHARING','QUICK_REPLIES','AUTO_MESSAGES','MULTI_DIALOG','FILE_SHARING','RICH_CONTENT']},'name':'WhatsApp Business'},'conversationHandlerDetails':{'accountId':'2344566','skillId':'1251428632'}},'numberOfunreadMessages':{'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11':1,'2344566.901083232':0,'2344566.1282051932':10},'lastUpdateTime':1564734095888}};
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+        agent.on('connected', msg => {
+            try{
+                agent.transport.emit('message', {kind: 'resp', type: '.ams.aam.ExConversationChangeNotification', body: { changes:[change]}});
+            } catch (err) {
+                expect(err).to.be.defined;
+                expect(err.message).to.be.equal('TypeError: Cannot read property \'0\' of undefined');
+                expect(err.payload.body.changes[0]).to.be.equal(change);
+                expect(err.constructor.name).to.be.equal('TransformError');
+                done();
+            }
+
+        });
+
+    });
+
 });
