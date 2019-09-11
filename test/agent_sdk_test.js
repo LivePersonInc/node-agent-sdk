@@ -100,7 +100,7 @@ describe('Agent SDK Tests', () => {
         });
         agent.on('error', err => {
             expect(err).to.be.instanceof(Error);
-            expect(err.message).to.contain('csds');
+            expect(err.message).to.equal('cannot connect to csds');
             done();
         });
     });
@@ -132,7 +132,7 @@ describe('Agent SDK Tests', () => {
         });
         agent.on('error', err => {
             expect(err).to.be.instanceof(Error);
-            expect(err.message).to.contain('login');
+            expect(err.message).to.contain('cannot login');
             done();
         });
     });
