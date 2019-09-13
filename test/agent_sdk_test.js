@@ -70,6 +70,26 @@ describe('Agent SDK Tests', () => {
         });
     });
 
+    it('should emit an error if userId is undefined', done => {
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {}, accountData:'NO'});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+        agent.on('connected', msg => {
+            throw new Error('connected event received invalidly');
+        });
+
+        agent.on('error', (err) => {
+            // err.message = invalid login state, userId is undefined
+            expect(err.message).to.equal('invalid login state, userId is undefined');
+            done();
+        });
+    });
+
     it('should fail to create an instance when csds is not available', done => {
         requestCSDSStub.yieldsAsync(new Error('cannot connect to csds'));
 
@@ -80,7 +100,7 @@ describe('Agent SDK Tests', () => {
         });
         agent.on('error', err => {
             expect(err).to.be.instanceof(Error);
-            expect(err.message).to.contain('csds');
+            expect(err.message).to.equal('cannot connect to csds');
             done();
         });
     });
@@ -112,7 +132,7 @@ describe('Agent SDK Tests', () => {
         });
         agent.on('error', err => {
             expect(err).to.be.instanceof(Error);
-            expect(err.message).to.contain('login');
+            expect(err.message).to.contain('cannot login');
             done();
         });
     });
