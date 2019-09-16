@@ -3,6 +3,7 @@ const expect = require('chai').expect;
 const mockery = require('mockery');
 const sinon = require('sinon');
 const Events = require('events');
+const fs = require('fs');
 
 describe('Agent SDK Tests', () => {
 
@@ -398,6 +399,28 @@ describe('Agent SDK Tests', () => {
                 done();
             }
 
+        });
+
+    });
+
+    it('Should handle suggested participant without error', done => {
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+        const change = JSON.parse(fs.readFileSync(__dirname + '/TransformError1.json').toString());
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+        agent.on('connected', msg => {
+            agent.transport.emit('message', {kind: 'notification', type: '.ams.aam.ExConversationChangeNotification', body: { changes:[change]}});
+        });
+
+        agent.on('notification', msg => {
+            expect(msg).to.be.defined;
+            expect(msg.body.changes[0].result.conversationDetails.participants.length).to.equal(5);
+            done();
         });
 
     });

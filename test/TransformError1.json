@@ -1,0 +1,196 @@
+{
+    "type": "UPSERT",
+    "result": {
+        "convId": "816566d3-3825-4375-b2c6-82bcd000b623",
+        "effectiveTTR": -1,
+        "conversationDetails": {
+            "skillId": "792479851",
+            "participants": {
+                "CONSUMER": [
+                    "1bb11075bd2611b5c4d4d73bfbb156c8afae6de6756fea9f6231cf38b5e5fc84"
+                ],
+                "READER": [
+                    "956e3f43-45e4-5a3d-bfc0-9b7049e81fd3",
+                    "d5edc6a8-f7e9-5eaf-993f-d5a50daa0ac9"
+                ],
+                "MANAGER": [
+                    "956e3f43-45e4-5a3d-bfc0-9b7049e81fd3"
+                ],
+                "CONTROLLER": [
+                    "3175f264-2a40-5b11-99aa-06b0a4020de3"
+                ]
+            },
+            "participantsPId": {
+                "CONSUMER": [
+                    "1bb11075bd2611b5c4d4d73bfbb156c8afae6de6756fea9f6231cf38b5e5fc84"
+                ],
+                "READER": [
+                    "956e3f43-45e4-5a3d-bfc0-9b7049e81fd3",
+                    "d5edc6a8-f7e9-5eaf-993f-d5a50daa0ac9"
+                ],
+                "MANAGER": [
+                    "956e3f43-45e4-5a3d-bfc0-9b7049e81fd3"
+                ],
+                "CONTROLLER": [
+                    "3175f264-2a40-5b11-99aa-06b0a4020de3"
+                ]
+            },
+            "dialogs": [
+                {
+                    "dialogId": "5rLPNzXpRl-oV56TlNuC5g",
+                    "participantsDetails": [
+                        {
+                            "id": "1bb11075bd2611b5c4d4d73bfbb156c8afae6de6756fea9f6231cf38b5e5fc84",
+                            "role": "CONSUMER",
+                            "state": "ACTIVE"
+                        },
+                        {
+                            "id": "956e3f43-45e4-5a3d-bfc0-9b7049e81fd3",
+                            "role": "READER",
+                            "state": "ACTIVE"
+                        },
+                        {
+                            "id": "d5edc6a8-f7e9-5eaf-993f-d5a50daa0ac9",
+                            "role": "READER",
+                            "state": "ACTIVE"
+                        }
+                    ],
+                    "dialogType": "POST_SURVEY",
+                    "channelType": "MESSAGING",
+                    "metaData": {
+                        "appInstallId": "31f55e51-35fc-4187-9742-8c5fcc218048"
+                    },
+                    "state": "OPEN",
+                    "creationTs": 1568004100407,
+                    "metaDataLastUpdateTs": 1568004100406
+                },
+                {
+                    "dialogId": "816566d3-3825-4375-b2c6-82bcd000b623",
+                    "participantsDetails": [
+                        {
+                            "id": "1bb11075bd2611b5c4d4d73bfbb156c8afae6de6756fea9f6231cf38b5e5fc84",
+                            "role": "CONSUMER",
+                            "state": "ACTIVE"
+                        },
+                        {
+                            "id": "3175f264-2a40-5b11-99aa-06b0a4020de3",
+                            "role": "CONTROLLER",
+                            "state": "ACTIVE"
+                        },
+                        {
+                            "id": "956e3f43-45e4-5a3d-bfc0-9b7049e81fd3",
+                            "role": "MANAGER",
+                            "state": "ACTIVE"
+                        },
+                        {
+                            "id": "7149717.880365851",
+                            "role": "ASSIGNED_AGENT",
+                            "state": "SUGGESTED"
+                        }
+                    ],
+                    "dialogType": "MAIN",
+                    "channelType": "MESSAGING",
+                    "state": "CLOSE",
+                    "creationTs": 1568004067509,
+                    "endTs": 1568004100407,
+                    "metaDataLastUpdateTs": 1568004100407,
+                    "closedBy": "CONSUMER",
+                    "closedCause": "Closed by consumer"
+                }
+            ],
+            "state": "CLOSE",
+            "stage": "OPEN",
+            "closeReason": "CONSUMER",
+            "startTs": 1568004067509,
+            "metaDataLastUpdateTs": 1568009422485,
+            "firstConversation": true,
+            "ttr": {
+                "ttrType": "",
+                "ype": ".ClientProperties",
+                "appId": "webAsync",
+                "ipAddress": "10.160.89.81",
+                "deviceFamily": "TABLET",
+                "os": "IOS",
+                "osVersion": "12.3.1",
+                "integration": "WEB_SDK",
+                "integrationVersion": "3.0.25",
+                "browser": "MOBILE_SAFARI",
+                "browserVersion": "12.1.1",
+                "features": [
+                    "PHOTO_SHARING",
+                    "CO_BROWSE",
+                    "QUICK_REPLIES",
+                    "AUTO_MESSAGES",
+                    "MULTI_DIALOG",
+                    "FILE_SHARING",
+                    "RICH_CONTENT"
+                ]
+            },
+            "visitorId": "U3YzBkYzg2OWM4MjUwN2M5",
+            "sessionId": "TLFI1wgCQ8Gxt9cVqj1guA",
+            "interactionContextId": "13"
+        },
+        "conversationHandlerDetails": {
+            "accountId": "7149717",
+            "skillId": "792479851"
+        }
+    },
+    "lastContentEventNotification": {
+        "sequence": 1,
+        "originatorClientProperties": {
+            "type": ".ClientProperties",
+            "appId": "webAsync",
+            "ipAddress": "10.160.89.81",
+            "deviceFamily": "TABLET",
+            "os": "IOS",
+            "osVersion": "12.3.1",
+            "integration": "WEB_SDK",
+            "integrationVersion": "3.0.25",
+            "browser": "MOBILE_SAFARI",
+            "browserVersion": "12.1.1",
+            "features": [
+                "PHOTO_SHARING",
+                "CO_BROWSE",
+                "QUICK_REPLIES",
+                "AUTO_MESSAGES",
+                "MULTI_DIALOG",
+                "FILE_SHARING",
+                "RICH_CONTENT"
+            ]
+        },
+        "originatorId": "1bb11075bd2611b5c4d4d73bfbb156c8afae6de6756fea9f6231cf38b5e5fc84",
+        "originatorPId": "1bb11075bd2611b5c4d4d73bfbb156c8afae6de6756fea9f6231cf38b5e5fc84",
+        "originatorMetadata": {
+            "id": "1bb11075bd2611b5c4d4d73bfbb156c8afae6de6756fea9f6231cf38b5e5fc84",
+            "role": "CONSUMER",
+            "clientProperties": {
+                "type": ".ClientProperties",
+                "appId": "webAsync",
+                "ipAddress": "10.160.89.81",
+                "deviceFamily": "TABLET",
+                "os": "IOS",
+                "osVersion": "12.3.1",
+                "integration": "WEB_SDK",
+                "integrationVersion": "3.0.25",
+                "browser": "MOBILE_SAFARI",
+                "browserVersion": "12.1.1",
+                "features": [
+                    "PHOTO_SHARING",
+                    "CO_BROWSE",
+                    "QUICK_REPLIES",
+                    "AUTO_MESSAGES",
+                    "MULTI_DIALOG",
+                    "FILE_SHARING",
+                    "RICH_CONTENT"
+                ]
+            }
+        },
+        "serverTimestamp": 1568004067782,
+        "event": {
+            "type": "ContentEvent",
+            "message": "こちらをクリック",
+            "contentType": "text/plain"
+        },
+        "dialogId": "816566d3-3825-4375-b2c6-82bcd000b623"
+    }
+}
