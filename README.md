@@ -453,13 +453,8 @@ agent.generateURLForUploadFile({
 ```
 
 #### publishEvent
-This method is used to publish an event to a conversation.
-```javascript
-agent.publishEvent({
-    dialogId: 'conversationId/dialogId',
-    event: {}
-});
-```
+This method is used to publish an event to a conversation. 
+For different types of events see the following examples: 
 
 ##### Example: Sending Text
 ```javascript
