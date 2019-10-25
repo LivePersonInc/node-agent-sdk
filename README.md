@@ -21,6 +21,7 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
   - [Agent class](#agent-class)
   - [Methods](#methods)
   - [Events](#events)
+  - [Best Practices](#best-practices)
 - [Deprecation Notices](#deprecation-notices)
 - [Further documentation](#further-documentation)
 - [Contributing](#contributing)
@@ -411,7 +412,7 @@ agent.updateConversationField({
         },{
             'field': 'ParticipantsChange',
             'type': 'SUGGEST',
-            'userId': '<suggested agent id>'
+            'userId': '<suggested agent id>',
             'role': 'ASSIGNED_AGENT'
         },{
             'field': 'Skill',
@@ -481,6 +482,7 @@ agent.publishEvent({
     }
 })
 ```
+> Note: this event will always return {"sequence":0}
 
 ##### Example: Clear Agent Typing Notification
 ```javascript
@@ -492,6 +494,7 @@ agent.publishEvent({
     }
 })
 ```
+> Note: this event will always return {"sequence":0}
 
 ##### Example: Share An Uploaded File
 ```javascript
@@ -1379,6 +1382,18 @@ agent.on('cqm.ExConversationChangeNotification', body => {
     });
 });
 ```
+
+### Best Practices
+
+#### Typing Events:
+
+For typing events is important to understand this are UI related only, this won't contain a `serverTimestamp` and will always return `{"sequence":0}`, so it should be updated after each `publishEvent` using the following sequence:
+
+- COMPOSING
+- PUBLISH_EVENT
+- ACTIVE
+
+<img src="https://user-images.githubusercontent.com/11651229/67116458-487bba00-f195-11e9-960f-6ba0654f1099.png" alt="TypingEventDiagram" width="400"/>
 
 ### Further documentation
 
