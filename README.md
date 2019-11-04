@@ -1307,7 +1307,7 @@ agent.on('closed', () => {
 agent._reconnect = (delay = reconnectInterval, attempt = 1) => {
     agent._retryConnection = setTimeout(()=>{
         agent.reconnect();
-        if (++attempt <= reconnectAttempts) { agent._reconnect(reconnectInterval * reconnectRatio, attempt) }
+        if (++attempt <= reconnectAttempts) { agent._reconnect(delay * reconnectRatio, attempt) }
     }, delay * 1000)
  }
 ```
