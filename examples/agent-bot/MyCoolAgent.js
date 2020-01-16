@@ -25,7 +25,6 @@ class MyCoolAgent extends Agent {
         this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvnet'; // TODO fix spelling mistake?
 
         this.openConvs = {};
-        this.respond = {};
 
         this.on('connected', this.onConnected.bind(this));
 
@@ -120,7 +119,7 @@ class MyCoolAgent extends Agent {
 
         // create a conversation state object
         let conversation = {
-            seenSequences: {},
+            messages: {},
             consumerId: null
         };
 
@@ -172,21 +171,8 @@ class MyCoolAgent extends Agent {
 
     // Echo every unread consumer message and mark it as read
     onMessagingNotification(body) {
-
         // respond to each message
         body.changes.forEach(this.onMessage.bind(this));
-
-        // publish read, and echo
-        // this is a bad practice, it could send duplicates if message notifications are received to quickly
-        // TODO just move this to the place where we add things to this.respond
-        Object.keys(this.respond).forEach(key => {
-            let contentEvent = this.respond[key];
-            this.publishEvent({
-                dialogId: contentEvent.dialogId,
-                event: {type: 'AcceptStatusEvent', status: 'READ', sequenceList: [contentEvent.sequence]}
-            });
-            this.emit(this.CONTENT_NOTIFICATION, contentEvent);
-        });
     }
 
     onMessage(c) {
@@ -194,24 +180,30 @@ class MyCoolAgent extends Agent {
         // Will be fixed in the next api version. So we have to check if this notification is handled by us.
         if (!this.openConvs[c.dialogId]) { return; }
 
-        // TODO ignore messages with a sequence in seenSequences
+        // get conversation state
+        let conversation = this.openConvs[c.dialogId];
+
+        // store this message
+        conversation.messages[c.sequence] = c.event;
 
         // if the message is not from this agent, add it to a list of messages that we need to send an "accept" message for
         if (c.event.type === 'ContentEvent' && c.originatorId !== this.agentId) {
-            let key = `${c.dialogId}-${c.sequence}`;
-            this.respond[key] = {
+
+            // send a read response, indicating that the agent has read this message
+            this.publishEvent({
+                dialogId: c.dialogId,
+                event: {type: 'AcceptStatusEvent', status: 'READ', sequenceList: [c.sequence]}
+            });
+
+            // emit the message to any listeners
+            let contentEvent = {
                 dialogId: c.dialogId,
                 sequence: c.sequence,
                 message: c.event.message
             };
+            this.emit(this.CONTENT_NOTIFICATION, contentEvent);
         }
 
-        // when this agent's accept messages arrive, check off the message from the list of pending accept messages
-        if (c.event.type === 'AcceptStatusEvent' && c.originatorId === this.agentId) {
-            c.event.sequenceList.forEach(seq => {
-                delete this.respond[`${c.dialogId}-${seq}`];
-            });
-        }
     }
 
 }
