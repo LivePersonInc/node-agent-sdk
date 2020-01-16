@@ -22,7 +22,8 @@ class MyCoolAgent extends Agent {
 
         this.conf = conf;
 
-        this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvnet'; // TODO fix spelling mistake?
+        this.CONTENT_NOTIFICATION_LEGACY = 'MyCoolAgent.ContentEvnet';
+        this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvent';
 
         this.openConvs = {};
 
@@ -208,6 +209,7 @@ class MyCoolAgent extends Agent {
                 message: c.event.message
             };
             this.emit(this.CONTENT_NOTIFICATION, contentEvent);
+            this.emit(this.CONTENT_NOTIFICATION_LEGACY, contentEvent);
         }
 
     }
