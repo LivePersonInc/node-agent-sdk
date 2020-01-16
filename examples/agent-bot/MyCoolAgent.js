@@ -183,6 +183,12 @@ class MyCoolAgent extends Agent {
         // get conversation state
         let conversation = this.openConvs[c.dialogId];
 
+        // check for duplicate message by sequence
+        if (conversation.messages.hasOwnProperty(c.sequence)) {
+            console.log(`ignoring duplicate message ${c.sequence}`);
+            return;
+        }
+
         // store this message
         conversation.messages[c.sequence] = c.event;
 
