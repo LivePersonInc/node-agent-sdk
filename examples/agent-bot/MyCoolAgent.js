@@ -24,8 +24,6 @@ class MyCoolAgent extends Agent {
 
         this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvnet'; // TODO fix spelling mistake?
 
-        this.consumerId = undefined; // TODO move this to the openConvs, otherwise this agent can only handle 1 consumer at a time
-
         this.openConvs = {};
         this.respond = {};
 
@@ -97,10 +95,16 @@ class MyCoolAgent extends Agent {
                     this.onNewConversation(change);
                 }
 
-                // an existing conversation, but the consumerId changed
-                // Typically, a Step Up from an unauthenticated to an authenticated user.
-                else if (change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id !== this.consumerId) {
-                    this.onConversationConsumerChange(change);
+                // an existing conversation
+                else {
+                    // look up the conversation state
+                    let conversation = this.openConvs[change.result.convId];
+
+                    // handle consumerId change
+                    // Typically, a Step Up from an unauthenticated to an authenticated user.
+                    if (change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id !== conversation.consumerId) {
+                        this.onConversationConsumerChange(change);
+                    }
                 }
             }
 
@@ -113,16 +117,21 @@ class MyCoolAgent extends Agent {
     }
 
     onNewConversation(change) {
-        // add it to our list of known conversations
-        this.openConvs[change.result.convId] = {
-            seenSequences: {}
+
+        // create a conversation state object
+        let conversation = {
+            seenSequences: {},
+            consumerId: null
         };
 
+        // add it to our list of known conversations
+        this.openConvs[change.result.convId] = conversation;
+
         // take note of the consumerId
-        this.consumerId = change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id;
+        conversation.consumerId = change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id;
 
         // get the user profile for this consumer
-        this.getUserProfile(this.consumerId, (e, profileResp) => {
+        this.getUserProfile(conversation.consumerId, (e, profileResp) => {
 
             // then send a message with this info
             this.publishEvent({
@@ -140,11 +149,14 @@ class MyCoolAgent extends Agent {
     }
 
     onConversationConsumerChange(change) {
+
+        let conversation = this.openConvs[change.result.convId];
+
         // take note of the new consumerId
-        this.consumerId = change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id;
+        conversation.consumerId = change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id;
 
         // get the user profile for the new consumer
-        this.getUserProfile(this.consumerId, (e, profileResp) => {
+        this.getUserProfile(conversation.consumerId, (e, profileResp) => {
 
             // then send a message with this info
             this.publishEvent({
