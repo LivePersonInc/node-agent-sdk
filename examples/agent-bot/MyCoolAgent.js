@@ -172,8 +172,53 @@ class MyCoolAgent extends Agent {
 
     // Echo every unread consumer message and mark it as read
     onMessagingNotification(body) {
+
         // respond to each message
         body.changes.forEach(this.onMessage.bind(this));
+
+        // process messages for read, mainly for preventing duplicate read messages from being sent on queryMessages
+        body.changes.forEach(c => {
+
+            // get conversation state
+            let conversation = this.openConvs[c.dialogId];
+
+            // handle read receipts
+            if (c.event.type === 'AcceptStatusEvent' && c.event.status === 'READ') {
+                c.event.sequenceList.forEach(sequence => {
+                    if (!conversation.messages.hasOwnProperty(sequence)) {
+                        console.log(`invalid sequence: ${sequence}`);
+                    }
+                    else {
+                        conversation.messages[sequence].readStatus = 'RECEIVED';
+                    }
+                });
+            }
+
+        });
+
+        // send read for any messages that need it
+        body.changes.forEach(c => {
+            // if the message is not from this agent, add it to a list of messages that we need to send an "accept" message for
+            if (c.event.type === 'ContentEvent' && c.originatorId !== this.agentId) {
+
+                // get conversation state
+                let conversation = this.openConvs[c.dialogId];
+
+                // if we've already sent or received a read, do nothing
+                if (conversation.messages[c.sequence].readStatus !== 'NOT_SENT') return;
+
+                // mark it so we don't do twice
+                conversation.messages[c.sequence].readStatus = 'PENDING';
+
+                // send a read response, indicating that the agent has read this message
+                this.publishEvent({
+                    dialogId: c.dialogId,
+                    event: {type: 'AcceptStatusEvent', status: 'READ', sequenceList: [c.sequence]}
+                });
+
+            }
+        });
+
     }
 
     onMessage(c) {
@@ -192,15 +237,10 @@ class MyCoolAgent extends Agent {
 
         // store this message
         conversation.messages[c.sequence] = c.event;
+        conversation.messages[c.sequence].readStatus = 'NOT_SENT';
 
-        // if the message is not from this agent, add it to a list of messages that we need to send an "accept" message for
+        // if this is a contentEvent from anybody other than the current agent...
         if (c.event.type === 'ContentEvent' && c.originatorId !== this.agentId) {
-
-            // send a read response, indicating that the agent has read this message
-            this.publishEvent({
-                dialogId: c.dialogId,
-                event: {type: 'AcceptStatusEvent', status: 'READ', sequenceList: [c.sequence]}
-            });
 
             // emit the message to any listeners
             let contentEvent = {
@@ -208,10 +248,10 @@ class MyCoolAgent extends Agent {
                 sequence: c.sequence,
                 message: c.event.message
             };
+
             this.emit(this.CONTENT_NOTIFICATION, contentEvent);
             this.emit(this.CONTENT_NOTIFICATION_LEGACY, contentEvent);
         }
-
     }
 
 }
