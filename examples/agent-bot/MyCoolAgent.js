@@ -109,8 +109,14 @@ class MyCoolAgent extends Agent {
             }
 
             else if (change.type === 'DELETE') {
-                // conversation was closed or transferred
-                delete this.openConvs[change.result.convId];
+                setTimeout(() => {
+
+                    if (this.openConvs.hasOwnProperty(change.result.convId)) {
+                        // conversation was closed or transferred
+                        delete this.openConvs[change.result.convId];
+                    }
+
+                }, 1000);
             }
 
         });
