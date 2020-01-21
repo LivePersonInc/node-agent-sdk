@@ -24,6 +24,7 @@ class MyCoolAgent extends Agent {
 
         this.CONTENT_NOTIFICATION_LEGACY = 'MyCoolAgent.ContentEvnet';
         this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvent';
+        this.NEW_CONVERSATION = 'MyCoolAgent.NewConversation';
 
         this.openConvs = {};
 
@@ -152,6 +153,9 @@ class MyCoolAgent extends Agent {
 
         // request all previous messages
         this.subscribeMessagingEvents({dialogId: change.result.convId});
+
+        // tell listeners about this conversation
+        this.emit(this.NEW_CONVERSATION, {change, conversation});
     }
 
     onConversationConsumerChange(change) {
