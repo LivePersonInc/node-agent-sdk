@@ -21,7 +21,7 @@ if (process.env.LP_CSDS) {
 
 const echoAgent = new MyCoolAgent(conf);
 
-echoAgent.on('MyCoolAgent.ContentEvnet',(contentEvent)=>{
+echoAgent.on(echoAgent.CONTENT_NOTIFICATION,(contentEvent)=>{
     if (contentEvent.message.startsWith('#close')) {
         echoAgent.updateConversationField({
             conversationId: contentEvent.dialogId,
