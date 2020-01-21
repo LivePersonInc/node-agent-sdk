@@ -22,12 +22,10 @@ class MyCoolAgent extends Agent {
 
         this.conf = conf;
 
-        this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvnet'; // TODO fix spelling mistake?
-
-        this.consumerId = undefined; // TODO move this to the openConvs, otherwise this agent can only handle 1 consumer at a time
+        this.CONTENT_NOTIFICATION_LEGACY = 'MyCoolAgent.ContentEvnet';
+        this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvent';
 
         this.openConvs = {};
-        this.respond = {};
 
         this.on('connected', this.onConnected.bind(this));
 
@@ -97,10 +95,16 @@ class MyCoolAgent extends Agent {
                     this.onNewConversation(change);
                 }
 
-                // an existing conversation, but the consumerId changed
-                // Typically, a Step Up from an unauthenticated to an authenticated user.
-                else if (change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id !== this.consumerId) {
-                    this.onConversationConsumerChange(change);
+                // an existing conversation
+                else {
+                    // look up the conversation state
+                    let conversation = this.openConvs[change.result.convId];
+
+                    // handle consumerId change
+                    // Typically, a Step Up from an unauthenticated to an authenticated user.
+                    if (change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id !== conversation.consumerId) {
+                        this.onConversationConsumerChange(change);
+                    }
                 }
             }
 
@@ -113,16 +117,21 @@ class MyCoolAgent extends Agent {
     }
 
     onNewConversation(change) {
-        // add it to our list of known conversations
-        this.openConvs[change.result.convId] = {
-            seenSequences: {}
+
+        // create a conversation state object
+        let conversation = {
+            messages: {},
+            consumerId: null
         };
 
+        // add it to our list of known conversations
+        this.openConvs[change.result.convId] = conversation;
+
         // take note of the consumerId
-        this.consumerId = change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id;
+        conversation.consumerId = change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id;
 
         // get the user profile for this consumer
-        this.getUserProfile(this.consumerId, (e, profileResp) => {
+        this.getUserProfile(conversation.consumerId, (e, profileResp) => {
 
             // then send a message with this info
             this.publishEvent({
@@ -140,11 +149,14 @@ class MyCoolAgent extends Agent {
     }
 
     onConversationConsumerChange(change) {
+
+        let conversation = this.openConvs[change.result.convId];
+
         // take note of the new consumerId
-        this.consumerId = change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id;
+        conversation.consumerId = change.result.conversationDetails.participants.filter(p => p.role === 'CONSUMER')[0].id;
 
         // get the user profile for the new consumer
-        this.getUserProfile(this.consumerId, (e, profileResp) => {
+        this.getUserProfile(conversation.consumerId, (e, profileResp) => {
 
             // then send a message with this info
             this.publishEvent({
@@ -164,17 +176,49 @@ class MyCoolAgent extends Agent {
         // respond to each message
         body.changes.forEach(this.onMessage.bind(this));
 
-        // publish read, and echo
-        // this is a bad practice, it could send duplicates if message notifications are received to quickly
-        // TODO just move this to the place where we add things to this.respond
-        Object.keys(this.respond).forEach(key => {
-            let contentEvent = this.respond[key];
-            this.publishEvent({
-                dialogId: contentEvent.dialogId,
-                event: {type: 'AcceptStatusEvent', status: 'READ', sequenceList: [contentEvent.sequence]}
-            });
-            this.emit(this.CONTENT_NOTIFICATION, contentEvent);
+        // process messages for read, mainly for preventing duplicate read messages from being sent on queryMessages
+        body.changes.forEach(c => {
+
+            // get conversation state
+            let conversation = this.openConvs[c.dialogId];
+
+            // handle read receipts
+            if (c.event.type === 'AcceptStatusEvent' && c.event.status === 'READ') {
+                c.event.sequenceList.forEach(sequence => {
+                    if (!conversation.messages.hasOwnProperty(sequence)) {
+                        console.log(`invalid sequence: ${sequence}`);
+                    }
+                    else {
+                        conversation.messages[sequence].readStatus = 'RECEIVED';
+                    }
+                });
+            }
+
         });
+
+        // send read for any messages that need it
+        body.changes.forEach(c => {
+            // if the message is not from this agent, add it to a list of messages that we need to send an "accept" message for
+            if (c.event.type === 'ContentEvent' && c.originatorId !== this.agentId) {
+
+                // get conversation state
+                let conversation = this.openConvs[c.dialogId];
+
+                // if we've already sent or received a read, do nothing
+                if (conversation.messages[c.sequence].readStatus !== 'NOT_SENT') return;
+
+                // mark it so we don't do twice
+                conversation.messages[c.sequence].readStatus = 'PENDING';
+
+                // send a read response, indicating that the agent has read this message
+                this.publishEvent({
+                    dialogId: c.dialogId,
+                    event: {type: 'AcceptStatusEvent', status: 'READ', sequenceList: [c.sequence]}
+                });
+
+            }
+        });
+
     }
 
     onMessage(c) {
@@ -182,23 +226,31 @@ class MyCoolAgent extends Agent {
         // Will be fixed in the next api version. So we have to check if this notification is handled by us.
         if (!this.openConvs[c.dialogId]) { return; }
 
-        // TODO ignore messages with a sequence in seenSequences
+        // get conversation state
+        let conversation = this.openConvs[c.dialogId];
 
-        // if the message is not from this agent, add it to a list of messages that we need to send an "accept" message for
+        // check for duplicate message by sequence
+        if (conversation.messages.hasOwnProperty(c.sequence)) {
+            console.log(`ignoring duplicate message ${c.sequence}`);
+            return;
+        }
+
+        // store this message
+        conversation.messages[c.sequence] = c.event;
+        conversation.messages[c.sequence].readStatus = 'NOT_SENT';
+
+        // if this is a contentEvent from anybody other than the current agent...
         if (c.event.type === 'ContentEvent' && c.originatorId !== this.agentId) {
-            let key = `${c.dialogId}-${c.sequence}`;
-            this.respond[key] = {
+
+            // emit the message to any listeners
+            let contentEvent = {
                 dialogId: c.dialogId,
                 sequence: c.sequence,
                 message: c.event.message
             };
-        }
 
-        // when this agent's accept messages arrive, check off the message from the list of pending accept messages
-        if (c.event.type === 'AcceptStatusEvent' && c.originatorId === this.agentId) {
-            c.event.sequenceList.forEach(seq => {
-                delete this.respond[`${c.dialogId}-${seq}`];
-            });
+            this.emit(this.CONTENT_NOTIFICATION, contentEvent);
+            this.emit(this.CONTENT_NOTIFICATION_LEGACY, contentEvent);
         }
     }
 

@@ -21,7 +21,7 @@ class MyCoolAgent extends Agent {
     constructor(conf) {
         super(conf);
         this.conf = conf;
-        this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvnet';
+        this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvent';
 
         this.init();
     }
