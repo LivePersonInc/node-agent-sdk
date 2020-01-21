@@ -12,13 +12,11 @@
  *
  */
 
-//const Agent = require('./../../lib/AgentSDK');
 const MyCoolAgent = require('../agent-bot/MyCoolAgent');
 const MsgHistoryClient = require('./MsgHistoryClient');
 const t2aUtils = require('./Utils');
 
-
-class MyCoolTransferAgent extends MyCoolAgent {
+class TransferAgentBot extends MyCoolAgent {
 
     constructor(conf) {
         super(conf);
@@ -102,4 +100,4 @@ class MyCoolTransferAgent extends MyCoolAgent {
 
 }
 
-module.exports = MyCoolTransferAgent;
+module.exports = TransferAgentBot;

@@ -8,7 +8,7 @@
  * 
  */
 
-const MyCoolAgent = require('./MyCoolAgent');
+const TransferAgentBot = require('./transfer-agent-bot');
 
 const conf = {
     accountId: process.env.LP_ACCOUNT,
@@ -20,11 +20,11 @@ if (process.env.LP_CSDS) {
     conf.csdsDomain = process.env.LP_CSDS;
 }
 
-const echoAgent = new MyCoolAgent(conf);
+const bot = new TransferAgentBot(conf);
 
-echoAgent.on('MyCoolAgent.ContentEvnet',(contentEvent)=>{
+bot.on('MyCoolAgent.ContentEvnet',(contentEvent)=>{
     if (contentEvent.message.startsWith('#close')) {
-        echoAgent.updateConversationField({
+        bot.updateConversationField({
             conversationId: contentEvent.dialogId,
             conversationField: [{
                     field: "ConversationStateField",
@@ -32,7 +32,7 @@ echoAgent.on('MyCoolAgent.ContentEvnet',(contentEvent)=>{
                 }]
         });
     } else {
-        echoAgent.publishEvent({
+        bot.publishEvent({
             dialogId: contentEvent.dialogId,
             event: {
                 type: 'ContentEvent', 
