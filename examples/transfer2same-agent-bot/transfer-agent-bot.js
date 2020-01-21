@@ -7,7 +7,7 @@
  * 2) Accepts any routing task (== ring)
  * 3) Publishes to the conversation the consumer info when it gets new conversation
  * 4) Gets the content of the conversation
- * 5) Emit 'MyCoolAgent.ContentEvnet' to let the developer handle contentEvent responses
+ * 5) Emit 'MyCoolAgent.ContentEvent' to let the developer handle contentEvent responses
  * 6) Mark as 'read' the handled messages
  *
  */

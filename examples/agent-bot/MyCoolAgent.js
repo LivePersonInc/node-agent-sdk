@@ -7,7 +7,7 @@
  * 2) Accepts any routing task (== ring)
  * 3) Publishes to the conversation the consumer info when it gets new conversation
  * 4) Gets the content of the conversation
- * 5) Emit 'MyCoolAgent.ContentEvnet' to let the developer handle contentEvent responses
+ * 5) Emit 'MyCoolAgent.ContentEvent' to let the developer handle contentEvent responses
  * 6) Mark as 'read' the handled messages
  *
  */
@@ -22,7 +22,7 @@ class MyCoolAgent extends Agent {
 
         this.conf = conf;
 
-        this.CONTENT_NOTIFICATION_LEGACY = 'MyCoolAgent.ContentEvnet';
+        this.CONTENT_NOTIFICATION_LEGACY = 'MyCoolAgent.ContentEvnet'; // deprecated, some old bots might still use this, but example code will not reference this
         this.CONTENT_NOTIFICATION = 'MyCoolAgent.ContentEvent';
         this.NEW_CONVERSATION = 'MyCoolAgent.NewConversation';
 

@@ -22,7 +22,7 @@ if (process.env.LP_CSDS) {
 
 const bot = new TransferAgentBot(conf);
 
-bot.on('MyCoolAgent.ContentEvnet',(contentEvent)=>{
+bot.on(bot.CONTENT_NOTIFICATION,(contentEvent)=>{
     if (contentEvent.message.startsWith('#close')) {
         bot.updateConversationField({
             conversationId: contentEvent.dialogId,
