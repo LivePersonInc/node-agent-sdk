@@ -30,7 +30,18 @@ echoAgent.on(echoAgent.CONTENT_NOTIFICATION,(contentEvent)=>{
                     conversationState: "CLOSE"
                 }]
         });
-    } else {
+    }
+
+    else if (contentEvent.message.startsWith('#test')) {
+        console.log('closing WS in 5s');
+
+        setTimeout(() => {
+            console.log('closing WS');
+            echoAgent.transport.ws.close();
+        }, 5000);
+    }
+
+    else {
         echoAgent.publishEvent({
             dialogId: contentEvent.dialogId,
             event: {

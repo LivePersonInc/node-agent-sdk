@@ -48,6 +48,14 @@ class MyCoolAgent extends Agent {
 
             // stop keep alive
             clearInterval(this._pingClock);
+
+            // mark all convs as offline
+            Object.keys(this.openConvs).forEach(key => {
+                this.openConvs[key].state = 'offline';
+            });
+
+            // then reconnect
+            this.reconnectWithMessages();
         });
     }
 
@@ -68,6 +76,11 @@ class MyCoolAgent extends Agent {
 
         // start the keep alive process
         this._pingClock = setInterval(this.getClock, 30000);
+    }
+
+    reconnectWithMessages() {
+        console.log('reconnecting');
+        this.reconnect(); // regenerate token for reasons of authorization (data === 4401 || data === 4407)
     }
 
     onRoutingTask(body) {
@@ -98,8 +111,18 @@ class MyCoolAgent extends Agent {
 
                 // an existing conversation
                 else {
+
                     // look up the conversation state
                     let conversation = this.openConvs[change.result.convId];
+
+                    // this is the first time we've seen this since reconnect
+                    if (conversation.state === 'offline') {
+                        conversation.state = 'active';
+                        console.log('conversation resumed after being online');
+
+                        // request all previous messages to make sure that none were missed while the connection was down
+                        this.subscribeMessagingEvents({dialogId: change.result.convId});
+                    }
 
                     // handle consumerId change
                     // Typically, a Step Up from an unauthenticated to an authenticated user.
@@ -128,7 +151,8 @@ class MyCoolAgent extends Agent {
         // create a conversation state object
         let conversation = {
             messages: {},
-            consumerId: null
+            consumerId: null,
+            state: 'active'
         };
 
         // add it to our list of known conversations
