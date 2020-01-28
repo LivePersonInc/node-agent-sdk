@@ -26,13 +26,6 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 - [Further documentation](#further-documentation)
 - [Contributing](#contributing)
 
-## Disclaimer
-Currently the API behind this SDK starts sending *MessagingEventNotification*s immediately upon connection, but this subscription will exclude some notifications.
-
-A new version of the API will be released soon in which there is no automatic subscription, and you must explicitly subscribe to these events for each conversation in order to receive them.
-
-In order to guarantee compatibility with future versions of the API, and to ensure that no notifications are missed even with the current API version, it is highly recommended that your bot explicitly subscribe to *MessagingEventNotification*s for all relevant conversations, as demonstrated in the [Agent-Bot](/examples/agent-bot) example's [MyCoolAgent.js](/examples/agent-bot/MyCoolAgent.js).
-
 ## Getting Started
 
 ### Pre-requisites
@@ -108,35 +101,43 @@ node index.js
 ## API Overview
 
 ### Agent class
-
+When instantiating the Agent class, authentication is required, this can be passed in one of four ways:
 ```javascript
+// username/password authentication
 new Agent({
-    accountId: String,  // required
-    username: String,  // required for username/password authentication and OAuth1 authentication
-    password: String,  // required for username/password authentication
-    appKey: String, // required for OAuth1 authentication
-    secret: String, // required for OAuth1 authentication
-    accessToken: String, // required for OAuth1 authentication
-    accessTokenSecret: String, // required for OAuth1 authentication
-    token: String, // required for token authentication
-    userId: String, // required for token authentication
-    assertion: String, // required for SAML authentication
-    csdsDomain: String, // override the CSDS domain if needed
-    requestTimeout: Number, // default to 10000 milliseconds
-    errorCheckInterval: Number, // defaults to 1000 milliseconds
-    apiVersion: Number // Messaging API version - defaults to 2 (version 1 is not supported anymore)
+    accountId: String,
+    username: String,
+    password: String
+});
+
+// OAuth1 authentication
+new Agent({
+    accountId: String,
+    username: String,
+    appKey: String,
+    secret: String,
+    accessToken: String,
+    accessTokenSecret: String
+});
+
+// Bearer token authentication
+new Agent({
+    accountId: String,
+    userId: String,
+    token: String
+});
+
+// SAML assertion authentication
+new Agent({
+    accountId: String,
+    assertion: String
 });
 ```
-#### Authentication
-The Agent Messaging SDK support the following authentication methods:
-- Username and password as `username` and `password`
-- Bearer token as `token` with user id as `userId`
-- SAML assertion as `assertion`
-- OAuth1 with `username`, `appkey`, `secret`, `accessToken`, and `accessTokenSecret`
+A websocket connection will be opened automatically as part of the constructor for this object.
 
 #### agentId
 
-You can get your agentId from the SDK using `agent.agentId`.
+Each agent has an agentId that must be passed to subsequent requests. This is made available on the agent object as `agent.agentId`.
 
 ### Methods
 
@@ -156,7 +157,7 @@ You can get your agentId from the SDK using `agent.agentId`.
 - [dispose](#dispose)
 
 #### General request signature
-All requests has the same method signature:
+All requests have the same method signature:
 ```javascript
 agent.someRequest(body, headers, metadata, encodedMetadata, callback);
 ```
@@ -177,7 +178,7 @@ agent.subscribeExConversations({
 
 Success response:
 
-`{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
+`{"subscriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
 
 #### subscribeAgentsState
 This method is used to create a subscription for Agent State updates. An event will be received whenever the bot user's state is updated.
@@ -191,7 +192,7 @@ agent.subscribeAgentsState({}, (e, resp) => {
 
 Success response:
 
-`{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
+`{"subscriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
 
 #### subscribeRoutingTasks
 This method is used to create a subscription for Routing Tasks. An event will be received whenever new conversation(s) are routed to the agent. In response your bot can 'accept' the new conversation, as described below in the updateRingState method.
@@ -205,10 +206,17 @@ agent.subscribeRoutingTasks({}, (e, resp) => {
 
 Success response:
 
-`{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
+`{"subscriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
 
 #### subscribeMessagingEvents
-This method is used to create a subscription for all of the Messaging Events in a particular conversation. This includes messages sent by any participant in the conversation, as well as "agent is typing" or "visitor is typing" notifications and notifications when a message has been read by a participant.
+
+At the moment, this method actually does not create a messaging subscription.
+In fact, the UMS v2 agent api does not use message subscriptions at all,
+joining the conversation as a participant is all that is required to begin receiving message notifications (done by accepting a ring or calling updateConversationField).
+
+Rather, this method makes a "queryMessages" call, which triggers UMS to return all existing publishEvents.
+This includes messages sent by any participant in the conversation, as well as "agent is typing" or "visitor is typing" notifications and notifications when a message has been read by a participant.
+These will be emitted from the agent object as "ms.MessagingEventNotification" events, the same as all other publishEvents.
 
 ```javascript
 agent.subscribeMessagingEvents({dialogId: 'some conversation id'}, (e) => {if (e) console.error(e)});
