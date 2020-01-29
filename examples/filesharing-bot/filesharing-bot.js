@@ -16,7 +16,9 @@ if (process.env.LP_CSDS) {
 }
 
 const agent = new Agent(conf);
-const swift_domain = 'https://qa-objectstorage.dev.lprnd.net';
+// use the Domain API to find your account's domain for the "swift" service
+// https://developers.liveperson.com/essential-resources-domain-api.html
+const swift_domain = 'qa-objectstorage.dev.lprnd.net';
 
 let openConvs = {};
 
@@ -136,7 +138,7 @@ function shareFile(convId, caption) {
 
 function uploadFile(convId, caption, domain, relativePath, params, callback) {
     const file = path.resolve(__dirname, 'lp-logo.jpeg');
-    const url = `${domain}${relativePath}${params}`;
+    const url = `https://${domain}${relativePath}${params}`;
 
     fs.createReadStream(file).pipe(request.put(url, (err, response) => {
         if (err) {
@@ -162,5 +164,6 @@ function downloadFile(relativePath) {
         console.log('path params: ');
         console.log('expires: ' + res.queryParams.temp_url_expires);
         console.log('signature: ' + res.queryParams.temp_url_sig);
+        console.log('url: ' + `https://${swift_domain}${res.relativePath}?temp_url_sig=${res.queryParams.temp_url_sig}&temp_url_expires=${res.queryParams.temp_url_expires}`);
     });
 }
