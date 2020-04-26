@@ -2,6 +2,7 @@
 
 - [Greeting Bot](#greeting-bot)
 - [Agent Bot](#agent-bot)
+- [Agent Survey Bot](#agent-survey-bot)
 - [Survey Bot](#survey-bot)
 - [File Sharing Bot](#file-sharing-bot)
 - [Return To Same Agent Bot](#return-to-same-agent-bot)
@@ -64,6 +65,43 @@ To run the [agent bot example][2]
        set LP_PASS=b0tpa55word 
        node examples/agent-bot/main.js
        ```
+      
+      
+## Agent Survey Bot
+ The agent survey bot is an example SDK implementation in which the bot accept conversation. After the conversation was accepted 
+ the bot sends get agent survey request. During the conversation the bot builds a submit body and store it in the file. If during 
+ the conversation the bot receives dismiss trigger (in the current example: 'dismiss') the bot gets current agent survey state and if it wasn't
+ submitted the bot sends dismiss request. In case of submit trigger (in the current example: 'submit') the bot sends submit request.  
+ On close the conversation the bot send request to get a current agent survey state and if it wasn't submitted yet it sends submit request.
+
+
+Pre-requisites:
+- A LivePerson Account with Messaging
+- A user with Agent or Agent Manager permissions
+- Configured Agent Survey for messaging
+
+To run the [agent survey bot example][2]
+
+- Provide the following `env` variables:
+   - `LP_ACCOUNT` - Your LivePerson account ID
+   - `LP_USER` - Your LivePerson agent username
+   - `LP_PASS` - Your LivePerson agent password
+   - `LP_CSDS` - csds domain
+
+- Run:
+    - Unix Shell
+        ```sh
+       LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASS=b0tpa55word node examples/agent-survey-bot/main.js
+        ```
+    - Windows Shell
+       ```sh
+       set LP_ACCOUNT=1234567 
+       set LP_USER=BotUserName 
+       set LP_PASS=b0tpa55word 
+       set LP_CSDS=b0tpa55word 
+       node examples/agent-bot/survey/main.js
+       ```
+      
 
 ## Survey Bot
 The survey bot is an example SDK implementation in which the bot waits on a survey dialog, validates the application id with its own and joins the dialog.
