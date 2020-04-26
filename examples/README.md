@@ -98,7 +98,7 @@ To run the [agent survey bot example][2]
        set LP_ACCOUNT=1234567 
        set LP_USER=BotUserName 
        set LP_PASS=b0tpa55word 
-       set LP_CSDS=b0tpa55word 
+       set LP_CSDS=csdsDomain 
        node examples/agent-bot/survey/main.js
        ```
       
