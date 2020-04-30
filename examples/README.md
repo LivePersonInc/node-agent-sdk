@@ -68,11 +68,12 @@ To run the [agent bot example][2]
       
       
 ## Agent Survey Bot
- The agent survey bot is an example SDK implementation in which the bot accept conversation. After the conversation was accepted 
- the bot sends get agent survey request. During the conversation the bot builds a submit body and store it in the file. If during 
- the conversation the bot receives dismiss trigger (in the current example: 'dismiss') the bot gets current agent survey state and if it wasn't
- submitted the bot sends dismiss request. In case of submit trigger (in the current example: 'submit') the bot sends submit request.  
- On close the conversation the bot send request to get a current agent survey state and if it wasn't submitted yet it sends submit request.
+ Agent survey bot is an example SDK implementation in which the bot accepts conversation. After the conversation was accepted, 
+ bot sends GET agent survey request. 
+ During the conversation, bot builds a submit body and stores it in the file. If during 
+ the conversation, bot receives a dismiss trigger (in the current example: 'dismiss') - then it gets the current agent survey state and if it wasn't
+ submitted, bot sends a dismiss request. In case of a submit trigger (in the current example: 'submit'), bot sends a submit request.  
+ On "close the conversation", bot sends a request to get the current agent survey's state and if it wasn't submitted yet - it sends a submit request.
 
 
 Pre-requisites:
