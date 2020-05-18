@@ -462,8 +462,8 @@ agent.generateURLForUploadFile({
 ```
 
 #### publishEvent
-This method is used to publish an event to a conversation. 
-For different types of events see the following examples: 
+This method is used to publish an event to a conversation.
+For different types of events see the following examples:
 
 ##### Example: Sending Text
 ```javascript
@@ -474,6 +474,19 @@ agent.publishEvent({
 		contentType: 'text/plain',
 		message: 'hello world!'
 	}
+});
+```
+
+##### Example: Sending Private Messages
+```javascript
+agent.publishEvent({
+	dialogId: 'MY_DIALOG_ID',
+	event: {
+		type: 'ContentEvent',
+		contentType: 'text/plain',
+		message: 'hello private message!'
+	},
+    messageAudience: 'AGENTS_AND_MANAGERS'
 });
 ```
 
@@ -885,14 +898,14 @@ Example payload:
 ```
 
 #### cqm.ExConversationChangeNotification
-This event occurs when a conversation that your subscription qualifies for* is updated in any way. If you passed no agentIds array when calling [subscribExConversations()](#subscribeexconversations), and you have the necessary permissions to see all agents' conversations, you will receive these events for all conversations. If you passed in your own agentId with `subscribeExConversations` you will only receive updates for conversations that you are a participant in (such as conversations that you have just accepted via a [routing.routingTaskNotification](#routingroutingtasknotification), 
+This event occurs when a conversation that your subscription qualifies for* is updated in any way. If you passed no agentIds array when calling [subscribExConversations()](#subscribeexconversations), and you have the necessary permissions to see all agents' conversations, you will receive these events for all conversations. If you passed in your own agentId with `subscribeExConversations` you will only receive updates for conversations that you are a participant in (such as conversations that you have just accepted via a [routing.routingTaskNotification](#routingroutingtasknotification),
 this won't include converastions that you are not the assigned agent).
 
 **Important** Due to a race condition in the service that serves these notifications they may not always contain the lastContentEventNotification attribute. For this reason you cannot rely on them to consume all of the messages in the conversation, and you should use this event to call [subscribeMessagingEvents()](#subscribemessagingevents) for conversations you want to follow.  You should keep a list of conversations you are handling in order to prevent attempting to subscribe to the same conversation repeatedly.
 
 ##### Subscribing to Change Notifications with Transfer to Agent
 
-After the transfer-to-agent API call,  the UMS will check the validity of the request and after doing internals it will notify agents with connection version 2.1  of the change. This change will be communicated via the `ExConversationChangeNotification` whose format has been changed to accomodate this new feature. 
+After the transfer-to-agent API call,  the UMS will check the validity of the request and after doing internals it will notify agents with connection version 2.1  of the change. This change will be communicated via the `ExConversationChangeNotification` whose format has been changed to accomodate this new feature.
 
 The change in the format is in the participants of the dialog, which is where we added the suggested agent, as follows:
 
@@ -906,7 +919,7 @@ The change in the format is in the participants of the dialog, which is where we
 
 In this case, you will need to add some function into your code which checks both the ‘role’ and ‘state’ properties.
 
-For other role types, the state field will always be populated with ‘ACTIVE’. 
+For other role types, the state field will always be populated with ‘ACTIVE’.
 
 The API should be used on the new version published (2.1). In case the transfer-to-agent call is triggered from version 2.0 with the described format, the transfer will occur but the one who triggered won't get the notification,  since notification is available only from the new version!
 
@@ -1304,7 +1317,7 @@ const reconnectRatio    = 1.25;     // ratio in the geometric series used to det
 
 // on connected cancel any retry interval remaining from reconnect attempt
 agent.on('connected', () => {
-    clearTimeout(agent._retryConnection);   
+    clearTimeout(agent._retryConnection);
     // etc etc
 });
 
@@ -1326,7 +1339,7 @@ Example payload:
 ```
 
 #### error
-This event fires when the SDK receives an error from the messaging service. If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section. 
+This event fires when the SDK receives an error from the messaging service. If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section.
 
 Sample code:
 ```javascript
@@ -1376,7 +1389,7 @@ Old way:
 ```javascript
 agent.on('cqm.ExConversationChangeNotification', body => {
     body.changes.forEach(change => {
-        change.result.conversationDetails.getMyRole();  
+        change.result.conversationDetails.getMyRole();
     });
 });
 ```
