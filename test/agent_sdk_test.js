@@ -2,6 +2,7 @@
 const expect = require('chai').expect;
 const mockery = require('mockery');
 const sinon = require('sinon');
+const external = require('../lib/ExternalServices');
 const Events = require('events');
 const fs = require('fs');
 
@@ -42,7 +43,7 @@ describe('Agent SDK Tests', () => {
             }
         }
 
-        externalServices = {getDomains: sinon.stub(), login: sinon.stub(), getAgentId: sinon.stub()};
+        externalServices = {getDomains: sinon.stub(), login: sinon.stub(), getAgentId: sinon.stub(), compileError: external.compileError };
         requestCSDSStub = sinon.stub();
         mockery.registerMock('./Transport', Transport);
         mockery.registerMock('./ExternalServices', externalServices);
@@ -101,7 +102,7 @@ describe('Agent SDK Tests', () => {
         });
         agent.on('error', err => {
             expect(err).to.be.instanceof(Error);
-            expect(err.message).to.equal('cannot connect to csds');
+            expect(err.message).to.equal('Error on CSDS request: cannot connect to csds');
             done();
         });
     });
