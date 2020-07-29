@@ -31,11 +31,16 @@ describe('Agent SDK Tests', () => {
         class Transport extends Events {
             constructor(conf) {
                 super();
+                this.configuration = { token: null };
                 this.send = tranportSendStub;
 
                 setImmediate(() => {
                     this.emit('open', conf);
                 });
+            }
+
+            reconnect() {
+
             }
 
             close() {
@@ -277,7 +282,7 @@ describe('Agent SDK Tests', () => {
         agent.on('error', (error, context) => {
             // Then:
             if (context && context.location) {
-                expect(context.location).to.equal('RefreshSession#CSDS');
+                expect(context.location).to.be.oneOf(['RefreshSession#CSDS', 'Connect#Login']);
                 expect(context.location).to.not.equal('RefreshSession#Relogin');
                 expect(context.location).to.not.equal('RefreshSession#REST');
             }
@@ -374,7 +379,7 @@ describe('Agent SDK Tests', () => {
 
         agent.on('error', (error, context) => {
             if (context && context.location) {
-                expect(context.location).to.be.oneOf(['RefreshSession#Relogin', 'RefreshSession#REST'])
+                expect(context.location).to.be.oneOf(['Connect#Login', 'RefreshSession#Relogin', 'RefreshSession#REST'])
                 expect(context.location).to.not.equal('RefreshSession#CSDS');
             }
         })
@@ -402,7 +407,7 @@ describe('Agent SDK Tests', () => {
 
         agent.on('success', (context) => {
             if (context && context.location) {
-                expect(context.location).to.be.oneOf(['RefreshSession#Relogin', 'RefreshSession#REST', 'RefreshSession#CSDS']);
+                expect(context.location).to.be.oneOf(['Connect#Login', 'RefreshSession#Relogin', 'RefreshSession#REST', 'RefreshSession#CSDS']);
             }
         })
     });
