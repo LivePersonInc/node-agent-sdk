@@ -43,7 +43,13 @@ describe('Agent SDK Tests', () => {
             }
         }
 
-        externalServices = {getDomains: sinon.stub(), login: sinon.stub(), getAgentId: sinon.stub(), compileError: external.compileError };
+        externalServices = {
+            getDomains: sinon.stub(),
+            login: sinon.stub(),
+            getAgentId: sinon.stub(),
+            refreshSession: sinon.stub(),
+            compileError: external.compileError
+        };
         requestCSDSStub = sinon.stub();
         mockery.registerMock('./Transport', Transport);
         mockery.registerMock('./ExternalServices', externalServices);
@@ -244,6 +250,161 @@ describe('Agent SDK Tests', () => {
             expect(body.x).to.equal('x');
             done();
         });
+    });
+
+    it('refreshSession: failed to connect to CSDS. Should fail with callback error', done => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.refreshSession.yieldsAsync(null, {});
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        // If:
+        requestCSDSStub.yieldsAsync(new Error('cannot connect to csds'));
+        agent._handleRefreshSessionFlow((err) => {
+            // Then:
+            // Propagate CSDS error
+            expect(err).to.be.instanceof(Error);
+            expect(err.message).to.equal('Error on CSDS request: cannot connect to csds');
+            done();
+        });
+
+        agent.on('error', (error, context) => {
+            // Then:
+            if (context && context.location) {
+                expect(context.location).to.equal('RefreshSession#CSDS');
+                expect(context.location).to.not.equal('RefreshSession#Relogin');
+                expect(context.location).to.not.equal('RefreshSession#REST');
+            }
+        })
+    });
+
+
+    it('refreshSession: failed to refresh session. Should fail with callback error', done => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.refreshSession.yieldsAsync(new Error('Failed to connect to agentVEP'));
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+
+        // If:
+        agent._handleRefreshSessionFlow((err) => {
+            // Then:
+            // Propagate refreshSession error
+            expect(err).to.be.instanceof(Error);
+            expect(err.message).to.equal('Failed to connect to agentVEP');
+            done();
+        });
+
+        agent.on('error', (error, context) => {
+            // Then:
+            if (context && context.location) {
+                expect(context.location).to.equal('RefreshSession#REST');
+                expect(context.location).to.not.equal('RefreshSession#CSDS');
+                expect(context.location).to.not.equal('RefreshSession#Relogin');
+            }
+        })
+    });
+
+    it('refreshSession: failed to refresh session with 401. Should succeed during re-login', done => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        const error = new Error('Unauthorized agentVEP refresh');
+        error.code = 401;
+        externalServices.refreshSession.yieldsAsync(error);
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        // If:
+        agent._handleRefreshSessionFlow((err) => {
+            // Then:
+            // Should be successful with re-login
+            expect(err).to.equal(null);
+            done();
+        });
+
+        agent.on('error', (error, context) => {
+            if (context && context.location) {
+                // Then:
+                expect(context.location).to.equal('RefreshSession#REST');
+                expect(context.location).to.not.equal('RefreshSession#CSDS');
+                expect(context.location).to.not.equal('RefreshSession#Relogin');
+            }
+        })
+    });
+
+    it('refreshSession: failed to refresh session with 401, failed to re-login. Should fail with callback error', done => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(new Error('Failed to login'));
+        const error = new Error('Unauthorized agentVEP refresh');
+        error.code = 401;
+        externalServices.refreshSession.yieldsAsync(error);
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+
+        // Then:
+        agent._handleRefreshSessionFlow((err) => {
+            // Should be successful with re-login
+            expect(err).to.be.instanceof(Error);
+            expect(err.message).to.equal('Failed to login');
+            done();
+        });
+
+        agent.on('error', (error, context) => {
+            if (context && context.location) {
+                expect(context.location).to.be.oneOf(['RefreshSession#Relogin', 'RefreshSession#REST'])
+                expect(context.location).to.not.equal('RefreshSession#CSDS');
+            }
+        })
+    });
+
+    it('refreshSession: should call refreshSessionFlow successfully', done => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.refreshSession.yieldsAsync(null, {});
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        // If:
+        agent._handleRefreshSessionFlow((err) => {
+            // Then:
+            // Successful handleRefreshSessionFlow
+            expect(err).to.equal(null);
+            done();
+        });
+
+        agent.on('success', (context) => {
+            if (context && context.location) {
+                expect(context.location).to.be.oneOf(['RefreshSession#Relogin', 'RefreshSession#REST', 'RefreshSession#CSDS']);
+            }
+        })
     });
 
     it('should call the request callback on response', done => {
