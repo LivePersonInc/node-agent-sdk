@@ -271,7 +271,7 @@ describe('Agent SDK Tests', () => {
 
         // If:
         requestCSDSStub.yieldsAsync(new Error('cannot connect to csds'));
-        agent._handleRefreshSessionFlow((err) => {
+        agent.refreshSession((err) => {
             // Then:
             // Propagate CSDS error
             expect(err).to.be.instanceof(Error);
@@ -283,7 +283,7 @@ describe('Agent SDK Tests', () => {
             // Then:
             if (context && context.location) {
                 expect(context.location).to.be.oneOf(['RefreshSession#CSDS', 'Connect#Login']);
-                expect(context.location).to.not.equal('RefreshSession#Relogin');
+                expect(context.location).to.not.equal('RefreshSession#Relogin#WS');
                 expect(context.location).to.not.equal('RefreshSession#REST');
             }
         })
@@ -304,7 +304,7 @@ describe('Agent SDK Tests', () => {
 
 
         // If:
-        agent._handleRefreshSessionFlow((err) => {
+        agent.refreshSession((err) => {
             // Then:
             // Propagate refreshSession error
             expect(err).to.be.instanceof(Error);
@@ -317,7 +317,7 @@ describe('Agent SDK Tests', () => {
             if (context && context.location) {
                 expect(context.location).to.equal('RefreshSession#REST');
                 expect(context.location).to.not.equal('RefreshSession#CSDS');
-                expect(context.location).to.not.equal('RefreshSession#Relogin');
+                expect(context.location).to.not.equal('RefreshSession#Relogin#WS');
             }
         })
     });
@@ -337,7 +337,7 @@ describe('Agent SDK Tests', () => {
         });
 
         // If:
-        agent._handleRefreshSessionFlow((err) => {
+        agent.refreshSession((err) => {
             // Then:
             // Should be successful with re-login
             expect(err).to.equal(null);
@@ -349,7 +349,7 @@ describe('Agent SDK Tests', () => {
                 // Then:
                 expect(context.location).to.equal('RefreshSession#REST');
                 expect(context.location).to.not.equal('RefreshSession#CSDS');
-                expect(context.location).to.not.equal('RefreshSession#Relogin');
+                expect(context.location).to.not.equal('RefreshSession#Relogin#WS');
             }
         })
     });
@@ -370,7 +370,7 @@ describe('Agent SDK Tests', () => {
 
 
         // Then:
-        agent._handleRefreshSessionFlow((err) => {
+        agent.refreshSession((err) => {
             // Should be successful with re-login
             expect(err).to.be.instanceof(Error);
             expect(err.message).to.equal('Failed to login');
@@ -379,7 +379,7 @@ describe('Agent SDK Tests', () => {
 
         agent.on('error', (error, context) => {
             if (context && context.location) {
-                expect(context.location).to.be.oneOf(['Connect#Login', 'RefreshSession#Relogin', 'RefreshSession#REST'])
+                expect(context.location).to.be.oneOf(['Connect#Login', 'RefreshSession#Relogin#WS', 'RefreshSession#REST'])
                 expect(context.location).to.not.equal('RefreshSession#CSDS');
             }
         })
@@ -398,7 +398,7 @@ describe('Agent SDK Tests', () => {
         });
 
         // If:
-        agent._handleRefreshSessionFlow((err) => {
+        agent.refreshSession((err) => {
             // Then:
             // Successful handleRefreshSessionFlow
             expect(err).to.equal(null);
@@ -407,7 +407,7 @@ describe('Agent SDK Tests', () => {
 
         agent.on('success', (context) => {
             if (context && context.location) {
-                expect(context.location).to.be.oneOf(['Connect#Login', 'RefreshSession#Relogin', 'RefreshSession#REST', 'RefreshSession#CSDS']);
+                expect(context.location).to.be.oneOf(['Connect#Login', 'RefreshSession#Relogin#WS', 'RefreshSession#REST', 'RefreshSession#CSDS']);
             }
         })
     });
