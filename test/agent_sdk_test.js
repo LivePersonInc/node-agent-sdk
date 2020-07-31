@@ -351,6 +351,7 @@ describe('Agent SDK Tests', () => {
                 // Propagate CSDS error
                 expect(err).to.be.instanceof(Error);
                 expect(err.message).to.equal('Error on CSDS request: cannot connect to csds');
+                agent.dispose();
                 done();
             });
         });
@@ -383,6 +384,7 @@ describe('Agent SDK Tests', () => {
                 // Propagate refreshSession error
                 expect(err).to.be.instanceof(Error);
                 expect(err.message).to.equal('Failed to connect to agentVEP');
+                agent.dispose();
                 done();
             });
         });
@@ -417,6 +419,7 @@ describe('Agent SDK Tests', () => {
                 // Then:
                 // Should be successful with re-login
                 expect(err).to.equal(null);
+                agent.dispose();
                 done();
             });
         });
@@ -453,6 +456,7 @@ describe('Agent SDK Tests', () => {
                 // Should be successful with re-login
                 expect(err).to.be.instanceof(Error);
                 expect(err.message).to.equal('Failed to login');
+                agent.dispose();
                 done();
             });
         });
@@ -483,6 +487,7 @@ describe('Agent SDK Tests', () => {
                 // Then:
                 // Successful handleRefreshSessionFlow
                 expect(err).to.equal(null);
+                agent.dispose();
                 done();
             });
         });
@@ -512,7 +517,8 @@ describe('Agent SDK Tests', () => {
                 // Then:
                 // Successful handleRefreshSessionFlow
                 expect(err).to.be.instanceOf(Error);
-                expect(err.message).to.equal('CSRF and JAR are not defined for this agent. Please reconnect with bearer token');
+                expect(err.message).to.equal('CSRF and JAR are not defined for this agent. Please reconnect with bearer token.');
+                agent.dispose();
                 done();
             });
         });
