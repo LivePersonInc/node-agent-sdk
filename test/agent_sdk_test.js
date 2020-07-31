@@ -83,6 +83,23 @@ describe('Agent SDK Tests', () => {
         });
     });
 
+    it('getBearerToken: should be able to get a token after agent is connected', done => {
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        const loginData = {bearer: 'im encrypted', csrf: 'someCsrf', config: {userId: 'imauser'}};
+        externalServices.login.yieldsAsync(null, loginData);
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+        agent.on('connected', () => {
+            expect(agent.getBearerToken()).to.equal(loginData.bearer);
+            agent.dispose();
+            done();
+        });
+    });
+
     it('should emit an error if userId is undefined', done => {
         requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {}, accountData:'NO'});
