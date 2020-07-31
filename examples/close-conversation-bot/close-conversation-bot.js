@@ -3,7 +3,7 @@
 /*
  * This demo try to use most of the API calls of the messaging agent api. It:
  *
- * 1) Connects to all OPEN conversations (Bot should be AGENT MANAGER of MAIN GROUP
+ * 1) Connects to all OPEN conversations (Bot should be AGENT MANAGER of MAIN GROUP)
  * 2) Closes each conversation
  *
  */
