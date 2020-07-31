@@ -45,8 +45,8 @@ echoAgent.on(echoAgent.CONTENT_NOTIFICATION,(contentEvent)=>{
         echoAgent.publishEvent({
             dialogId: contentEvent.dialogId,
             event: {
-                type: 'ContentEvent', 
-                contentType: 'text/plain', 
+                type: 'ContentEvent',
+                contentType: 'text/plain',
                 message: `echo : ${contentEvent.message}`
             }
         });

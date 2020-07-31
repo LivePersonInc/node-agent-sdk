@@ -31,6 +31,7 @@ describe('Agent SDK Tests', () => {
         class Transport extends Events {
             constructor(conf) {
                 super();
+                this.configuration = { token: null };
                 this.send = tranportSendStub;
 
                 setImmediate(() => {
@@ -38,12 +39,22 @@ describe('Agent SDK Tests', () => {
                 });
             }
 
+            reconnect() {
+
+            }
+
             close() {
 
             }
         }
 
-        externalServices = {getDomains: sinon.stub(), login: sinon.stub(), getAgentId: sinon.stub(), compileError: external.compileError };
+        externalServices = {
+            getDomains: sinon.stub(),
+            login: sinon.stub(),
+            getAgentId: sinon.stub(),
+            refreshSession: sinon.stub(),
+            compileError: external.compileError
+        };
         requestCSDSStub = sinon.stub();
         mockery.registerMock('./Transport', Transport);
         mockery.registerMock('./ExternalServices', externalServices);
@@ -68,6 +79,23 @@ describe('Agent SDK Tests', () => {
             expect(agent.getClock).to.be.a.function;
             // expect(agent.agentId).to.equal('account.imauser');
             expect(agent.connected).to.be.true;
+            done();
+        });
+    });
+
+    it('getBearerToken: should be able to get a token after agent is connected', done => {
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        const loginData = {bearer: 'im encrypted', csrf: 'someCsrf', config: {userId: 'imauser'}};
+        externalServices.login.yieldsAsync(null, loginData);
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+        agent.on('connected', () => {
+            expect(agent.getBearerToken()).to.equal(loginData.bearer);
+            agent.dispose();
             done();
         });
     });
@@ -244,6 +272,279 @@ describe('Agent SDK Tests', () => {
             expect(body.x).to.equal('x');
             done();
         });
+    });
+
+    it('reconnect: should only connect to WS when flag is true', (done) => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.refreshSession.yieldsAsync(null, {});
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        agent.on('connected', () => {
+            // If:
+            const reconnectSpy = sinon.spy(agent.transport, 'reconnect');
+            agent.reconnect(true);
+
+            // Then:
+            expect(reconnectSpy.calledOnce).to.be.ok;
+            done();
+        });
+    });
+
+    it('reconnect: should re-login and re-connect WS when flag is false', (done) => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.refreshSession.yieldsAsync(null, {});
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        // If:
+        agent.on('connected', () => {
+            agent.reconnect(false);
+            done();
+        });
+
+        // Then:
+        agent.on('success', (context) => {
+            if (context && context.location) {
+                expect(context.location).to.be.oneOf(['Connect#CSDS', 'Connect#Login', 'Reconnect#CSDS', 'Reconnect#Relogin#WS']);
+            }
+        });
+    });
+
+    it('reconnect: should skip re-login and re-connect WS when there is a CSDS failure', (done) => {
+        // Let:
+        requestCSDSStub.yieldsAsync(new Error('cannot fetch CSDS domains'));
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.refreshSession.yieldsAsync(null, {});
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        // If:
+        agent.reconnect(false);
+
+        // Then:
+        agent.on('error', (err, context) => {
+            if (context && context.location) {
+                expect(context.location).to.be.oneOf(['Connect#CSDS', 'Reconnect#CSDS']);
+            }
+        });
+        done();
+    });
+
+
+
+    it('refreshSession: failed to connect to CSDS. Should fail with callback error', done => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', csrf: 'someCSRF', config: {userId: 'imauser'}}, 'cookies');
+        externalServices.refreshSession.yieldsAsync(null, {});
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        // If:
+        agent.on('connected', () => {
+            requestCSDSStub.yieldsAsync(new Error('cannot connect to csds'));
+            // clear CSDS cache
+            agent.csdsClient.cache.flushAll();
+            agent.refreshSession((err) => {
+                // Then:
+                // Propagate CSDS error
+                expect(err).to.be.instanceof(Error);
+                expect(err.message).to.equal('Error on CSDS request: cannot connect to csds');
+                agent.dispose();
+                done();
+            });
+        });
+
+        agent.on('error', (error, context) => {
+            // Then:
+            if (context && context.location) {
+                expect(context.location).to.be.equal('RefreshSession#CSDS');
+            }
+        })
+    });
+
+
+    it('refreshSession: failed to refresh session. Should fail with callback error', done => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', csrf: 'someCSRF', config: {userId: 'imauser'}}, 'cookies');
+        externalServices.refreshSession.yieldsAsync(new Error('Failed to connect to agentVEP'));
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        // If:
+        agent.on('connected', () => {
+            agent.refreshSession((err) => {
+                // Then:
+                // Propagate refreshSession error
+                expect(err).to.be.instanceof(Error);
+                expect(err.message).to.equal('Failed to connect to agentVEP');
+                agent.dispose();
+                done();
+            });
+        });
+
+        agent.on('error', (error, context) => {
+            // Then:
+            if (context && context.location) {
+                expect(context.location).to.equal('RefreshSession#REST');
+                expect(context.location).to.not.equal('RefreshSession#CSDS');
+                expect(context.location).to.not.equal('RefreshSession#Relogin#WS');
+            }
+        })
+    });
+
+    it('refreshSession: failed to refresh session with 401. Should succeed during re-login', done => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', csrf: 'someCSRF', config: {userId: 'imauser'}}, 'cookies');
+        const error = new Error('Unauthorized agentVEP refresh');
+        error.code = 401;
+        externalServices.refreshSession.yieldsAsync(error);
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        // If:
+        agent.on('connected', () => {
+            agent.refreshSession((err) => {
+                // Then:
+                // Should be successful with re-login
+                expect(err).to.equal(null);
+                agent.dispose();
+                done();
+            });
+        });
+
+        agent.on('error', (error, context) => {
+            if (context && context.location) {
+                // Then:
+                expect(context.location).to.equal('RefreshSession#REST');
+                expect(context.location).to.not.equal('RefreshSession#CSDS');
+                expect(context.location).to.not.equal('RefreshSession#Relogin#WS');
+            }
+        })
+    });
+
+    it('refreshSession: failed to refresh session with 401, failed to re-login. Should fail with callback error', done => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', csrf: 'someCSRF', config: {userId: 'imauser'}}, 'cookies');
+        const error = new Error('Unauthorized agentVEP refresh');
+        error.code = 401;
+        externalServices.refreshSession.yieldsAsync(error);
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+
+        // Then:
+        agent.on('connected', () => {
+            externalServices.login.yieldsAsync(new Error('Failed to login'));
+            agent.refreshSession((err) => {
+                // Should be successful with re-login
+                expect(err).to.be.instanceof(Error);
+                expect(err.message).to.equal('Failed to login');
+                agent.dispose();
+                done();
+            });
+        });
+
+        agent.on('error', (error, context) => {
+            if (context && context.location) {
+                expect(context.location).to.be.oneOf(['Connect#Login', 'RefreshSession#Relogin#WS', 'RefreshSession#REST'])
+                expect(context.location).to.not.equal('RefreshSession#CSDS');
+            }
+        })
+    });
+
+    it('refreshSession: should call refreshSessionFlow successfully', done => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', csrf: 'someCSRF', config: {userId: 'imauser'}}, 'cookies');
+        externalServices.refreshSession.yieldsAsync(null, {});
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        // If:
+        agent.on('connected', () => {
+            agent.refreshSession((err) => {
+                // Then:
+                // Successful handleRefreshSessionFlow
+                expect(err).to.equal(null);
+                agent.dispose();
+                done();
+            });
+        });
+
+        agent.on('success', (context) => {
+            if (context && context.location) {
+                expect(context.location).to.be.oneOf(['Connect#CSDS', 'Connect#Login', 'RefreshSession#Precheck', 'RefreshSession#Relogin#WS', 'RefreshSession#REST', 'RefreshSession#CSDS']);
+            }
+        })
+    });
+
+    it('refreshSession: should fail through pre-checks when csrf and jar are not defined', done => {
+        // Let:
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.refreshSession.yieldsAsync(null, {});
+
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        // If:
+        agent.on('connected', () => {
+            agent.refreshSession((err) => {
+                // Then:
+                // Successful handleRefreshSessionFlow
+                expect(err).to.be.instanceOf(Error);
+                expect(err.message).to.equal('CSRF and JAR are not defined for this agent. Please reconnect with bearer token.');
+                agent.dispose();
+                done();
+            });
+        });
+
+        agent.on('error', (error, context) => {
+            if (context && context.location) {
+                expect(context.location).to.equal('RefreshSession#Precheck');
+            }
+        })
     });
 
     it('should call the request callback on response', done => {
