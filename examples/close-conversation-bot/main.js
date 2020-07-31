@@ -8,7 +8,7 @@
  *
  */
 
-const CloseConversationBot = require('./CloseConversationBot');
+const CloseConversationBot = require('./close-conversation-bot');
 
 const conf = {
     accountId: process.env.LP_ACCOUNT,
