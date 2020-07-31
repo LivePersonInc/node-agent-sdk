@@ -21,16 +21,10 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
   - [Agent class](#agent-class)
   - [Methods](#methods)
   - [Events](#events)
+  - [Best Practices](#best-practices)
 - [Deprecation Notices](#deprecation-notices)
 - [Further documentation](#further-documentation)
 - [Contributing](#contributing)
-
-## Disclaimer
-Currently the API behind this SDK starts sending *MessagingEventNotification*s immediately upon connection, but this subscription will exclude some notifications.
-
-A new version of the API will be released soon in which there is no automatic subscription, and you must explicitly subscribe to these events for each conversation in order to receive them.
-
-In order to guarantee compatibility with future versions of the API, and to ensure that no notifications are missed even with the current API version, it is highly recommended that your bot explicitly subscribe to *MessagingEventNotification*s for all relevant conversations, as demonstrated in the [Agent-Bot](/examples/agent-bot) example's [MyCoolAgent.js](/examples/agent-bot/MyCoolAgent.js).
 
 ## Getting Started
 
@@ -107,35 +101,43 @@ node index.js
 ## API Overview
 
 ### Agent class
-
+When instantiating the Agent class, authentication is required, this can be passed in one of four ways:
 ```javascript
+// username/password authentication
 new Agent({
-    accountId: String,  // required
-    username: String,  // required for username/password authentication and OAuth1 authentication
-    password: String,  // required for username/password authentication
-    appKey: String, // required for OAuth1 authentication
-    secret: String, // required for OAuth1 authentication
-    accessToken: String, // required for OAuth1 authentication
-    accessTokenSecret: String, // required for OAuth1 authentication
-    token: String, // required for token authentication
-    userId: String, // required for token authentication
-    assertion: String, // required for SAML authentication
-    csdsDomain: String, // override the CSDS domain if needed
-    requestTimeout: Number, // default to 10000 milliseconds
-    errorCheckInterval: Number, // defaults to 1000 milliseconds
-    apiVersion: Number // Messaging API version - defaults to 2 (version 1 is not supported anymore)
+    accountId: String,
+    username: String,
+    password: String
+});
+
+// OAuth1 authentication
+new Agent({
+    accountId: String,
+    username: String,
+    appKey: String,
+    secret: String,
+    accessToken: String,
+    accessTokenSecret: String
+});
+
+// Bearer token authentication
+new Agent({
+    accountId: String,
+    userId: String,
+    token: String
+});
+
+// SAML assertion authentication
+new Agent({
+    accountId: String,
+    assertion: String
 });
 ```
-#### Authentication
-The Agent Messaging SDK support the following authentication methods:
-- Username and password as `username` and `password`
-- Bearer token as `token` with user id as `userId`
-- SAML assertion as `assertion`
-- OAuth1 with `username`, `appkey`, `secret`, `accessToken`, and `accessTokenSecret`
+A websocket connection will be opened automatically as part of the constructor for this object.
 
 #### agentId
 
-You can get your agentId from the SDK using `agent.agentId`.
+Each agent has an agentId that must be passed to subsequent requests. This is made available on the agent object as `agent.agentId`.
 
 ### Methods
 
@@ -155,7 +157,7 @@ You can get your agentId from the SDK using `agent.agentId`.
 - [dispose](#dispose)
 
 #### General request signature
-All requests has the same method signature:
+All requests have the same method signature:
 ```javascript
 agent.someRequest(body, headers, metadata, encodedMetadata, callback);
 ```
@@ -176,7 +178,7 @@ agent.subscribeExConversations({
 
 Success response:
 
-`{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
+`{"subscriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
 
 #### subscribeAgentsState
 This method is used to create a subscription for Agent State updates. An event will be received whenever the bot user's state is updated.
@@ -190,7 +192,7 @@ agent.subscribeAgentsState({}, (e, resp) => {
 
 Success response:
 
-`{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
+`{"subscriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
 
 #### subscribeRoutingTasks
 This method is used to create a subscription for Routing Tasks. An event will be received whenever new conversation(s) are routed to the agent. In response your bot can 'accept' the new conversation, as described below in the updateRingState method.
@@ -204,10 +206,17 @@ agent.subscribeRoutingTasks({}, (e, resp) => {
 
 Success response:
 
-`{"subScriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
+`{"subscriptionId":"aaaabbbb-cccc-1234-56d7-a1b2c3d4e5f6"}`
 
 #### subscribeMessagingEvents
-This method is used to create a subscription for all of the Messaging Events in a particular conversation. This includes messages sent by any participant in the conversation, as well as "agent is typing" or "visitor is typing" notifications and notifications when a message has been read by a participant.
+
+At the moment, this method actually does not create a messaging subscription.
+In fact, the UMS v2 agent api does not use message subscriptions at all,
+joining the conversation as a participant is all that is required to begin receiving message notifications (done by accepting a ring or calling updateConversationField).
+
+Rather, this method makes a "queryMessages" call, which triggers UMS to return all existing publishEvents.
+This includes messages sent by any participant in the conversation, as well as "agent is typing" or "visitor is typing" notifications and notifications when a message has been read by a participant.
+These will be emitted from the agent object as "ms.MessagingEventNotification" events, the same as all other publishEvents.
 
 ```javascript
 agent.subscribeMessagingEvents({dialogId: 'some conversation id'}, (e) => {if (e) console.error(e)});
@@ -323,17 +332,61 @@ Success response:
 `"OK Agent added successfully"`
 
 ##### Example: Close a conversation
+This will immediately close the conversation and any associated dialogs.
+>Note: If the account is configured for post-conversation survey (PCS), the survey dialog will not be triggered. To allow PCS without closing the conversation, the conversation's main dialog should be closed instead (see the "Close Dialog" example).
+
 ```javascript
 agent.updateConversationField({
-        conversationId: conversationId/dialogId,
-        conversationField: [{
-            field: 'ConversationStateField',
-            conversationState: 'CLOSE'
-        }]
-    });
- ```
+    conversationId: conversationId/dialogId,
+    conversationField: [{
+        field: 'ConversationStateField',
+        conversationState: 'CLOSE'
+    }]
+});
+```
+
+##### Example: Close dialog
+Closes the specified dialog. Depending on the account's dialog flow configuration, the next dialog will be triggered (e.g. post-conversation survey dialog).
+>Note: The main dialog carries the same ID as the conversation. Other dialogs will have unique dialog IDs. When the last dialog of the defined flow is closed, the conversation will automatically be closed as well.
+
+```javascript
+agent.updateConversationField({
+    conversationId: conversationId/dialogId,
+    conversationField: [{
+        field: 'DialogChange',
+        type: 'UPDATE',
+        dialog: {
+            dialogId: conversationId/dialogId,
+            state: 'CLOSE'
+        }
+    }]
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
 
 ##### Example: Transfer conversation to a new skill
+This request will attempt to transfer the conversation to a new skill.
+>Note: In order to transfer the conversation, the caller must be a participant of the conversation.
+```javascript
+agent.updateConversationField({
+'conversationId': 'conversationId/dialogId',
+    'conversationField': [
+        {
+            'field': 'Skill',
+            'type': 'UPDATE',
+            'skill': targetSkillId
+        }
+    ]
+}, (e, resp) => {
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+If the conversation has an assigned agent which needs to be removed, this can be done as a part of the same request.
+>Note: Attempting to remove the assigned agent when there is none will cause the request to fail.
 ```javascript
 agent.updateConversationField({
 'conversationId': 'conversationId/dialogId',
@@ -367,7 +420,7 @@ agent.updateConversationField({
         },{
             'field': 'ParticipantsChange',
             'type': 'SUGGEST',
-            'userId': '<suggested agent id>'
+            'userId': '<suggested agent id>',
             'role': 'ASSIGNED_AGENT'
         },{
             'field': 'Skill',
@@ -410,12 +463,7 @@ agent.generateURLForUploadFile({
 
 #### publishEvent
 This method is used to publish an event to a conversation.
-```javascript
-agent.publishEvent({
-    dialogId: 'conversationId/dialogId',
-    event: {}
-});
-```
+For different types of events see the following examples:
 
 ##### Example: Sending Text
 ```javascript
@@ -426,6 +474,19 @@ agent.publishEvent({
 		contentType: 'text/plain',
 		message: 'hello world!'
 	}
+});
+```
+
+##### Example: Sending Private Messages
+```javascript
+agent.publishEvent({
+	dialogId: 'MY_DIALOG_ID',
+	event: {
+		type: 'ContentEvent',
+		contentType: 'text/plain',
+		message: 'hello private message!'
+	},
+    messageAudience: 'AGENTS_AND_MANAGERS'
 });
 ```
 
@@ -442,6 +503,7 @@ agent.publishEvent({
     }
 })
 ```
+> Note: this event will always return {"sequence":0}
 
 ##### Example: Clear Agent Typing Notification
 ```javascript
@@ -453,6 +515,7 @@ agent.publishEvent({
     }
 })
 ```
+> Note: this event will always return {"sequence":0}
 
 ##### Example: Share An Uploaded File
 ```javascript
@@ -835,14 +898,14 @@ Example payload:
 ```
 
 #### cqm.ExConversationChangeNotification
-This event occurs when a conversation that your subscription qualifies for* is updated in any way. If you passed no agentIds array when calling [subscribExConversations()](#subscribeexconversations), and you have the necessary permissions to see all agents' conversations, you will receive these events for all conversations. If you passed in your own agentId with `subscribeExConversations` you will only receive updates for conversations that you are a participant in (such as conversations that you have just accepted via a [routing.routingTaskNotification](#routingroutingtasknotification), 
+This event occurs when a conversation that your subscription qualifies for* is updated in any way. If you passed no agentIds array when calling [subscribExConversations()](#subscribeexconversations), and you have the necessary permissions to see all agents' conversations, you will receive these events for all conversations. If you passed in your own agentId with `subscribeExConversations` you will only receive updates for conversations that you are a participant in (such as conversations that you have just accepted via a [routing.routingTaskNotification](#routingroutingtasknotification),
 this won't include converastions that you are not the assigned agent).
 
 **Important** Due to a race condition in the service that serves these notifications they may not always contain the lastContentEventNotification attribute. For this reason you cannot rely on them to consume all of the messages in the conversation, and you should use this event to call [subscribeMessagingEvents()](#subscribemessagingevents) for conversations you want to follow.  You should keep a list of conversations you are handling in order to prevent attempting to subscribe to the same conversation repeatedly.
 
 ##### Subscribing to Change Notifications with Transfer to Agent
 
-After the transfer-to-agent API call,  the UMS will check the validity of the request and after doing internals it will notify agents with connection version 2.1  of the change. This change will be communicated via the `ExConversationChangeNotification` whose format has been changed to accomodate this new feature. 
+After the transfer-to-agent API call,  the UMS will check the validity of the request and after doing internals it will notify agents with connection version 2.1  of the change. This change will be communicated via the `ExConversationChangeNotification` whose format has been changed to accomodate this new feature.
 
 The change in the format is in the participants of the dialog, which is where we added the suggested agent, as follows:
 
@@ -856,7 +919,7 @@ The change in the format is in the participants of the dialog, which is where we
 
 In this case, you will need to add some function into your code which checks both the ‘role’ and ‘state’ properties.
 
-For other role types, the state field will always be populated with ‘ACTIVE’. 
+For other role types, the state field will always be populated with ‘ACTIVE’.
 
 The API should be used on the new version published (2.1). In case the transfer-to-agent call is triggered from version 2.0 with the described format, the transfer will occur but the one who triggered won't get the notification,  since notification is available only from the new version!
 
@@ -1254,7 +1317,7 @@ const reconnectRatio    = 1.25;     // ratio in the geometric series used to det
 
 // on connected cancel any retry interval remaining from reconnect attempt
 agent.on('connected', () => {
-    clearTimeout(agent._retryConnection);   
+    clearTimeout(agent._retryConnection);
     // etc etc
 });
 
@@ -1265,7 +1328,7 @@ agent.on('closed', () => {
 agent._reconnect = (delay = reconnectInterval, attempt = 1) => {
     agent._retryConnection = setTimeout(()=>{
         agent.reconnect();
-        if (++attempt <= reconnectAttempts) { agent._reconnect(reconnectInterval * reconnectRatio, attempt) }
+        if (++attempt <= reconnectAttempts) { agent._reconnect(delay * reconnectRatio, attempt) }
     }, delay * 1000)
  }
 ```
@@ -1276,7 +1339,7 @@ Example payload:
 ```
 
 #### error
-This event fires when the SDK receives an error from the messaging service. If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section. 
+This event fires when the SDK receives an error from the messaging service. If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section.
 
 Sample code:
 ```javascript
@@ -1326,7 +1389,7 @@ Old way:
 ```javascript
 agent.on('cqm.ExConversationChangeNotification', body => {
     body.changes.forEach(change => {
-        change.result.conversationDetails.getMyRole();  
+        change.result.conversationDetails.getMyRole();
     });
 });
 ```
@@ -1341,8 +1404,17 @@ agent.on('cqm.ExConversationChangeNotification', body => {
 });
 ```
 
-##### ExConversationChangeNotification firstConversation - *deprecated*
-In the `cqm.ExConversationChangeNotification` the field `firstConversation` is deprecated
+### Best Practices
+
+#### Typing Events:
+
+For typing events is important to understand this are UI related only, this won't contain a `serverTimestamp` and will always return `{"sequence":0}`, so it should be updated after each `publishEvent` using the following sequence:
+
+- COMPOSING
+- PUBLISH_EVENT
+- ACTIVE
+
+<img src="https://user-images.githubusercontent.com/11651229/67116458-487bba00-f195-11e9-960f-6ba0654f1099.png" alt="TypingEventDiagram" width="400"/>
 
 ### Further documentation
 

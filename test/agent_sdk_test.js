@@ -2,7 +2,9 @@
 const expect = require('chai').expect;
 const mockery = require('mockery');
 const sinon = require('sinon');
+const external = require('../lib/ExternalServices');
 const Events = require('events');
+const fs = require('fs');
 
 describe('Agent SDK Tests', () => {
 
@@ -41,7 +43,7 @@ describe('Agent SDK Tests', () => {
             }
         }
 
-        externalServices = {getDomains: sinon.stub(), login: sinon.stub(), getAgentId: sinon.stub()};
+        externalServices = {getDomains: sinon.stub(), login: sinon.stub(), getAgentId: sinon.stub(), compileError: external.compileError };
         requestCSDSStub = sinon.stub();
         mockery.registerMock('./Transport', Transport);
         mockery.registerMock('./ExternalServices', externalServices);
@@ -70,6 +72,26 @@ describe('Agent SDK Tests', () => {
         });
     });
 
+    it('should emit an error if userId is undefined', done => {
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {}, accountData:'NO'});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+        agent.on('connected', msg => {
+            throw new Error('connected event received invalidly');
+        });
+
+        agent.on('error', (err) => {
+            // err.message = invalid login state, userId is undefined
+            expect(err.message).to.equal('invalid login state, userId is undefined');
+            done();
+        });
+    });
+
     it('should fail to create an instance when csds is not available', done => {
         requestCSDSStub.yieldsAsync(new Error('cannot connect to csds'));
 
@@ -80,7 +102,7 @@ describe('Agent SDK Tests', () => {
         });
         agent.on('error', err => {
             expect(err).to.be.instanceof(Error);
-            expect(err.message).to.contain('csds');
+            expect(err.message).to.equal('Error on CSDS request: cannot connect to csds');
             done();
         });
     });
@@ -112,7 +134,7 @@ describe('Agent SDK Tests', () => {
         });
         agent.on('error', err => {
             expect(err).to.be.instanceof(Error);
-            expect(err.message).to.contain('login');
+            expect(err.message).to.contain('cannot login');
             done();
         });
     });
@@ -331,5 +353,120 @@ describe('Agent SDK Tests', () => {
         });
 
     });
+
+    it('Should emit a warn (and no error) when a notification with partial participantsPId data is received', done => {
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+        const change =  {'type':'UPSERT','result':{'convId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','effectiveTTR':-1,'conversationDetails':{'convId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','skillId':'1251428632','participants':{'CONSUMER':['102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11'],'MANAGER':['2344566.1282051932','2344566.901083232'],'CONTROLLER':['2344566.1257599432'],'READER':[]},'participantsPId':{'CONSUMER':['102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11'],'MANAGER':['f675416a-7d5a-5d06-a7bd-bdf5fcc426a1','8ffebb81-0614-568c-a011-3b17eafc5b9d'],'READER':[]},'dialogs':[{'dialogId':'5Yn6I7hpR6C3JWg4YT-Meg','participantsDetails':[{'id':'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11','role':'CONSUMER','state':'ACTIVE'}],'dialogType':'POST_SURVEY','channelType':'MESSAGING','metaData':{'appInstallId':'896ef5ea-b954-42c9-91b7-a9134a47faa7'},'state':'OPEN','creationTs':1564734095888,'metaDataLastUpdateTs':1564734095887},{'dialogId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','participantsDetails':[{'id':'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11','role':'CONSUMER','state':'ACTIVE'},{'id':'2344566.1282051932','role':'MANAGER','state':'ACTIVE'},{'id':'2344566.1257599432','role':'CONTROLLER','state':'ACTIVE'},{'id':'2344566.901083232','role':'MANAGER','state':'ACTIVE'}],'dialogType':'MAIN','channelType':'MESSAGING','state':'CLOSE','creationTs':1564685380489,'endTs':1564734095888,'metaDataLastUpdateTs':1564734095888,'closedBy':'AGENT'}],'brandId':'2344566','state':'CLOSE','stage':'OPEN','closeReason':'AGENT','startTs':1564685380489,'metaDataLastUpdateTs':1564734095888,'firstConversation':false,'csatRate':0,'ttr':{'ttrType':'NORMAL','value':1200},'note':'','context':{'type':'CustomContext','clientProperties':{'type':'.ClientProperties','appId':'whatsapp','ipAddress':'10.42.138.108','features':['PHOTO_SHARING','QUICK_REPLIES','AUTO_MESSAGES','MULTI_DIALOG','FILE_SHARING','RICH_CONTENT']},'name':'WhatsApp Business'},'conversationHandlerDetails':{'accountId':'2344566','skillId':'1251428632'}},'numberOfunreadMessages':{'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11':1,'2344566.901083232':0,'2344566.1282051932':10},'lastUpdateTime':1564734095888}};
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        let warned = false;
+        let errReceived = false;
+
+        agent.on('connected', msg => {
+            agent.transport.emit('message', {kind: 'notification', type: '.ams.aam.ExConversationChangeNotification', body: { changes:[change]}});
+        });
+
+        agent.on('warn', msg => {
+            expect(msg).to.be.defined;
+            expect(msg.message).to.contain('invalid participant on conversation');
+            warned = true;
+        });
+
+        agent.on('error', err => {
+            errReceived = true;
+        });
+
+        agent.on('notification', msg => {
+            expect(msg).to.be.defined;
+            expect(msg.body.changes[0].result.conversationDetails.participants.length).to.equal(3);
+            expect(warned).to.equal(true);
+            expect(errReceived).to.equal(false);
+            done();
+        });
+
+    });
+
+    it('Should handle suggested participant (no PId entry) without error or warn', done => {
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+        const change = JSON.parse(fs.readFileSync(__dirname + '/TransformError1.json').toString());
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        let warned = false;
+        let errReceived = false;
+
+        agent.on('connected', msg => {
+            agent.transport.emit('message', {kind: 'notification', type: '.ams.aam.ExConversationChangeNotification', body: { changes:[change]}});
+        });
+
+        agent.on('warn', msg => {
+            expect(msg).to.be.defined;
+            expect(msg.message).to.contain('Invalid participant on conversation');
+            warned = true;
+        });
+
+        agent.on('error', err => {
+            errReceived = true;
+        });
+
+        agent.on('notification', msg => {
+            expect(msg).to.be.defined;
+            expect(msg.body.changes[0].result.conversationDetails.participants.length).to.equal(5);
+            expect(warned).to.equal(false);
+            expect(errReceived).to.equal(false);
+            done();
+        });
+
+    });
+
+    it('Should emit a TransformError when a notification with no participantsPId is received', done => {
+        requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+        const change =  {'type':'UPSERT','result':{'convId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','effectiveTTR':-1,'conversationDetails':{'convId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','skillId':'1251428632','participants':{'CONSUMER':['102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11'],'MANAGER':['2344566.1282051932','2344566.901083232'],'CONTROLLER':['2344566.1257599432'],'READER':[]},'dialogs':[{'dialogId':'5Yn6I7hpR6C3JWg4YT-Meg','participantsDetails':[{'id':'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11','role':'CONSUMER','state':'ACTIVE'}],'dialogType':'POST_SURVEY','channelType':'MESSAGING','metaData':{'appInstallId':'896ef5ea-b954-42c9-91b7-a9134a47faa7'},'state':'OPEN','creationTs':1564734095888,'metaDataLastUpdateTs':1564734095887},{'dialogId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','participantsDetails':[{'id':'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11','role':'CONSUMER','state':'ACTIVE'},{'id':'2344566.1282051932','role':'MANAGER','state':'ACTIVE'},{'id':'2344566.1257599432','role':'CONTROLLER','state':'ACTIVE'},{'id':'2344566.901083232','role':'MANAGER','state':'ACTIVE'}],'dialogType':'MAIN','channelType':'MESSAGING','state':'CLOSE','creationTs':1564685380489,'endTs':1564734095888,'metaDataLastUpdateTs':1564734095888,'closedBy':'AGENT'}],'brandId':'2344566','state':'CLOSE','stage':'OPEN','closeReason':'AGENT','startTs':1564685380489,'metaDataLastUpdateTs':1564734095888,'firstConversation':false,'csatRate':0,'ttr':{'ttrType':'NORMAL','value':1200},'note':'','context':{'type':'CustomContext','clientProperties':{'type':'.ClientProperties','appId':'whatsapp','ipAddress':'10.42.138.108','features':['PHOTO_SHARING','QUICK_REPLIES','AUTO_MESSAGES','MULTI_DIALOG','FILE_SHARING','RICH_CONTENT']},'name':'WhatsApp Business'},'conversationHandlerDetails':{'accountId':'2344566','skillId':'1251428632'}},'numberOfunreadMessages':{'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11':1,'2344566.901083232':0,'2344566.1282051932':10},'lastUpdateTime':1564734095888}};
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        let warned = false;
+        let notificationReceived = false;
+
+        agent.on('connected', msg => {
+            agent.transport.emit('message', {kind: 'notification', type: '.ams.aam.ExConversationChangeNotification', body: { changes:[change]}});
+        });
+
+        agent.on('warn', msg => {
+            warned = true;
+        });
+
+        agent.on('notification', msg => {
+            notificationReceived = true;
+        });
+
+        agent.on('error', err => {
+            setTimeout(() => {
+                expect(err).to.be.defined;
+                expect(warned).to.equal(false);
+                expect(notificationReceived).to.equal(false);
+                done();
+            }, 100);
+        });
+
+    });
+
+
 
 });

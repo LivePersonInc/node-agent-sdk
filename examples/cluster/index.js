@@ -27,7 +27,7 @@ taskSharding.on('taskRemoved', (oldTaskInfo) => {
 
 function createNewAgent(newAgentConf) {
     const newAgent = new MyCoolAgent(newAgentConf);
-    newAgent.on('MyCoolAgent.ContentEvnet', function(contentEvent) {
+    newAgent.on(newAgent.CONTENT_NOTIFICATION, function(contentEvent) {
         if (contentEvent.message.startsWith('#close')) {
             newAgent.updateConversationField({
                 conversationId: contentEvent.dialogId,

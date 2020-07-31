@@ -21,7 +21,7 @@ if (process.env.LP_CSDS) {
 
 const echoAgent = new MyCoolAgent(conf);
 
-echoAgent.on('MyCoolAgent.ContentEvnet',(contentEvent)=>{
+echoAgent.on(echoAgent.CONTENT_NOTIFICATION,(contentEvent)=>{
     if (contentEvent.message.startsWith('#close')) {
         echoAgent.updateConversationField({
             conversationId: contentEvent.dialogId,
@@ -30,7 +30,18 @@ echoAgent.on('MyCoolAgent.ContentEvnet',(contentEvent)=>{
                     conversationState: "CLOSE"
                 }]
         });
-    } else {
+    }
+
+    else if (contentEvent.message.startsWith('#test')) {
+        console.log('closing WS in 5s');
+
+        setTimeout(() => {
+            console.log('closing WS');
+            echoAgent.transport.ws.close();
+        }, 5000);
+    }
+
+    else {
         echoAgent.publishEvent({
             dialogId: contentEvent.dialogId,
             event: {
