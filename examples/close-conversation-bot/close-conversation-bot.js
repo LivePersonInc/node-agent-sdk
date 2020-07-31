@@ -3,7 +3,7 @@
 /*
  * This demo try to use most of the API calls of the messaging agent api. It:
  *
- * 1) Connects to all OPEN conversations
+ * 1) Connects to all OPEN conversations (Bot should be AGENT MANAGER of MAIN GROUP
  * 2) Closes each conversation
  *
  */
@@ -66,10 +66,14 @@ class CloseConversationBot extends Agent {
     }
 
     onConversationNotification(notificationBody) {
+        // console.log(JSON.stringify(notificationBody));
+
         notificationBody.changes.forEach(change => {
 
             // TODO: Check for skillIds which we are interested in...
             if (change.type === 'UPSERT') {
+                console.log(`found convId: ${change.result.convId}`);
+
 
                 // a new conversation
                 if (!this.openConvs[change.result.convId]) {
@@ -106,14 +110,23 @@ class CloseConversationBot extends Agent {
     }
 
     onCloseConversation(change) {
-        setTimeout(() => {
+        console.log(`closing: ${change.result.convId}`);
 
-            if (this.openConvs.hasOwnProperty(change.result.convId)) {
-                // conversation was closed or transferred
-                delete this.openConvs[change.result.convId];
+        this.updateConversationField({
+            conversationId: change.result.convId,
+            conversationField: [{
+                field: 'ConversationStateField',
+                conversationState: 'CLOSE'
+            }]
+        }, (e, resp) => {
+            if (e) { console.error(e) } else {
+                if (this.openConvs.hasOwnProperty(change.result.convId)) {
+                    // conversation was closed or transferred
+                    delete this.openConvs[change.result.convId];
+                }
             }
-
-        }, 1000);
+            console.log(resp);
+        });
     }
 }
 
