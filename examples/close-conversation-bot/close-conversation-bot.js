@@ -3,12 +3,8 @@
 /*
  * This demo try to use most of the API calls of the messaging agent api. It:
  *
- * 1) Registers the agent as online
- * 2) Accepts any routing task (== ring)
- * 3) Publishes to the conversation the consumer info when it gets new conversation
- * 4) Gets the content of the conversation
- * 5) Emit 'CloseConversationBot.ContentEvent' to let the developer handle contentEvent responses
- * 6) Mark as 'read' the handled messages
+ * 1) Connects to all OPEN conversations
+ * 2) Closes each conversation
  *
  */
 
@@ -73,6 +69,7 @@ class CloseConversationBot extends Agent {
     onConversationNotification(notificationBody) {
         notificationBody.changes.forEach(change => {
 
+            // TODO: Check for skillIds which we are interested in...
             if (change.type === 'UPSERT') {
 
                 // a new conversation
@@ -94,11 +91,6 @@ class CloseConversationBot extends Agent {
                 }
                 this.onCloseConversation(change);
             }
-
-            else if (change.type === 'DELETE') {
-                this.onCloseConversation(change);
-            }
-
         });
     }
 
