@@ -10,7 +10,6 @@
 
 const Agent = require('./../../lib/AgentSDK');
 
-
 class CloseConversationBot extends Agent {
 
     constructor(conf) {
