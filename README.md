@@ -153,7 +153,9 @@ Each agent has an agentId that must be passed to subsequent requests. This is ma
 - [generateURLForDownloadFile](#generateurlfordownloadfile)
 - [generateURLForUploadFile](#generateurlforuploadfile)
 - [publishEvent](#publishevent)
-- [reconnect](#reconnect)
+- [reconnect](#reconnectskiptokengeneration)
+- [getBearerToken](#getbearertoken)
+- [refreshSession](#refreshsession)
 - [dispose](#dispose)
 
 #### General request signature
@@ -772,6 +774,22 @@ agent.publishEvent({
 Success response:
 `{"sequence":32}`
 
+#### connect(callback)
+This function should be called in the first stage of an agent lifecycle, or when an agent is disposed. 
+
+If you happen to call [dispose](#dispose), but you want to re-connect the agent again, use this function.
+
+This method requires you to provide a callback function to check if an error is encountered.
+
+An example would be:
+```javascript
+agent.connect((err) => {
+    if (err) {
+        console.error('An error occurred while connecting agent.', err);
+    }
+});
+```
+
 #### reconnect(skipTokenGeneration)
 **Make sure that you implement reconnect logic according to [liveperson's retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html)**
 
@@ -782,6 +800,23 @@ Use `skipTokenGeneration = true` if you want to skip the generation of a new tok
 Call `reconnect` on `error` with code `401`.
 
 **Note**: When the `reconnect` method fails to re-establish a connection with LiveEngage, a `closed` and `error` events will fire. Unless these events are handled, multiple instances of a reconnection mechanism will be triggered. See our (retry policy)[https://developers.liveperson.com/retry-and-keepalive-best-practices-overview.html] for more information on how we recommend you handle a retry mechanism.
+
+#### getBearerToken()
+After you connect an agent successfully, you may use this method to get the bearer token of an agent to call other APIs within LivePerson services.
+
+#### refreshSession(callback)
+Use this function to prolong the session of the agent. In another note, this method prolongs the lifetime of the bearer token.
+
+This method requires you to provide a callback function to check if an error is encountered.
+
+An example would be:
+```javascript
+agent.refreshSession((err) => {
+    if (err) {
+        console.error('An error occurred while refreshing agent session.', err);
+    }
+});
+```
 
 #### dispose()
 Will dispose of the connection and unregister internal events.
