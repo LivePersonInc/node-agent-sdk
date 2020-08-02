@@ -156,6 +156,7 @@ Each agent has an agentId that must be passed to subsequent requests. This is ma
 - [reconnect](#reconnectskiptokengeneration)
 - [getBearerToken](#getbearertoken)
 - [refreshSession](#refreshsession)
+- [startPeriodicRefreshSession](#startperiodicrefreshsession)
 - [dispose](#dispose)
 
 #### General request signature
@@ -805,7 +806,7 @@ Call `reconnect` on `error` with code `401`.
 After you connect an agent successfully, you may use this method to get the bearer token of an agent to call other APIs within LivePerson services.
 
 #### refreshSession(callback)
-Use this function to prolong the session of the agent. In another note, this method prolongs the lifetime of the bearer token.
+Use this method to prolong the session of the agent. In another note, this method prolongs the lifetime of the bearer token.
 
 This method requires you to provide a callback function to check if an error is encountered.
 
@@ -817,6 +818,11 @@ agent.refreshSession((err) => {
     }
 });
 ```
+
+### startPeriodicRefreshSession()
+Use this method to restart the refreshSession periodic calls to make sure that the bearer token is valid forever. 
+
+This method will also be called when you reconnect with token generation.
 
 #### dispose()
 Will dispose of the connection and unregister internal events.
