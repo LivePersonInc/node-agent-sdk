@@ -1344,7 +1344,9 @@ agent.on('notification', body => {});
 ```
 
 #### closed
-This event fires when the socket is closed.  If the reason is code 4401 or 4407 this indicates an authentication issue, so when you call [reconnect()](#reconnect(skiptokengeneration)) you should make sure not to pass the `skipTokenGeneration` argument.
+This event fires when the socket is closed.  If the reason is code 4401, 4407, or 1011 this indicates an authentication issue, so when you call [reconnect()](#reconnect(skiptokengeneration)) you should make sure not to pass the `skipTokenGeneration` argument.
+
+In any other case, please make sure to [reconnect()](#reconnect(skiptokengeneration)) with passing the skipTokenGeneration flag set to true to avoid token re-generation.
 
 This event will only occur once, so if you want to attempt to reconnect repeatedly you should initiate a periodic reconnect attempt here. **LivePerson recommends that you make periodic reconnect attempts at increasing intervals up to a finite number of attempts in order to prevent flooding our service and being blocked as a potentially abusive client**. See [LivePerson's retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) for more information.
 
@@ -1362,13 +1364,24 @@ agent.on('connected', () => {
     // etc etc
 });
 
-agent.on('closed', () => {
-    agent._reconnect();             // call our reconnect looper
+agent.on('closed', (data) => {
+    switch (data) {
+        // Authentication issue
+        case 4401:
+        case 4407:
+        case 1011:
+            agent._reconnect();     // call our reconnect looper
+            return;
+        // Non-authentication issue
+        default:
+            agent._reconnect(true); // call our reconnect looper without token generation
+            return;
+    }
 });
 
-agent._reconnect = (delay = reconnectInterval, attempt = 1) => {
+agent._reconnect = (skipTokenGeneration, delay = reconnectInterval, attempt = 1) => {
     agent._retryConnection = setTimeout(()=>{
-        agent.reconnect();
+        agent.reconnect(skipTokenGeneration);
         if (++attempt <= reconnectAttempts) { agent._reconnect(delay * reconnectRatio, attempt) }
     }, delay * 1000)
  }
@@ -1384,9 +1397,10 @@ This event fires when the SDK receives an error from the messaging service. If y
 
 Sample code:
 ```javascript
-agent.on('error', err => {
+agent.on('error', (err, context) => {
     if (err && err.code === 401) {
-        agent._reconnect();  // agent._reconnect() defined in the on('closed',() => {}) example above.
+        agent._reconnect();  // The reconnect function defined in the closed section above.
+                             // This will re-connect the WS connection and re-generate the bearer token
     }
 });
 ```
