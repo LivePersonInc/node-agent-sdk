@@ -1371,11 +1371,11 @@ agent.on('closed', (data) => {
         case 4407:
         case 1011:
             agent._reconnect();     // call our reconnect looper
-            return;
+            break;
         // Non-authentication issue
         default:
             agent._reconnect(true); // call our reconnect looper without token generation
-            return;
+            break;
     }
 });
 
