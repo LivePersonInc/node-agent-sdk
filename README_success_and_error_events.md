@@ -163,14 +163,14 @@ const reconnectInterval = 5;        // in seconds
 const reconnectAttempts = 35;
 const reconnectRatio    = 1.25;     // ratio in the geometric series used to determine reconnect exponential back-off
 
-agent._refreshSession = (delay = reconnectInterval, attempt = 1) => {
+agent._retryRefreshSession = (delay = reconnectInterval, attempt = 1) => {
     // Clear the timeouts from before
     clearTimeout(agent._refreshRetryConnection);
     
     agent._refreshRetryConnection = setTimeout(() => {
         agent.refreshSession(() => {});
         if (++attempt <= reconnectAttempts) { 
-            agent._refreshSession(delay * reconnectRatio, attempt);
+            agent._retryRefreshSession(delay * reconnectRatio, attempt);
         }
     }, delay * 1000);
 }
@@ -191,7 +191,7 @@ agent.on('success', (err, context) => {
 // 429 and 5xx cases
 agent.on('error', (err, context) => {
    if (err && (err.code === 429 || err.code >= 500) && context.location.startsWith('RefreshSession')) {
-       agent._refreshSession();
+       agent._retryRefreshSession(); // The _retryRefreshSession function from above on the #Reconnect with Retry header
    }
 });
 ```
