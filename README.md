@@ -153,7 +153,11 @@ Each agent has an agentId that must be passed to subsequent requests. This is ma
 - [generateURLForDownloadFile](#generateurlfordownloadfile)
 - [generateURLForUploadFile](#generateurlforuploadfile)
 - [publishEvent](#publishevent)
-- [reconnect](#reconnect)
+- [connect](#connectcallback)
+- [reconnect](#reconnectskiptokengeneration)
+- [getBearerToken](#getbearertoken)
+- [refreshSession](#refreshsession)
+- [startPeriodicRefreshSession](#startperiodicrefreshsession)
 - [dispose](#dispose)
 
 #### General request signature
@@ -772,6 +776,22 @@ agent.publishEvent({
 Success response:
 `{"sequence":32}`
 
+#### connect(callback)
+This function should be called in the first stage of an agent lifecycle, or when an agent is disposed. 
+
+If you happen to call [dispose](#dispose), but you want to re-connect the agent again, use this function.
+
+This method requires you to provide a callback function to check if an error is encountered.
+
+An example would be:
+```javascript
+agent.connect((err) => {
+    if (err) {
+        console.error('An error occurred while connecting agent.', err);
+    }
+});
+```
+
 #### reconnect(skipTokenGeneration)
 **Make sure that you implement reconnect logic according to [liveperson's retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html)**
 
@@ -782,6 +802,28 @@ Use `skipTokenGeneration = true` if you want to skip the generation of a new tok
 Call `reconnect` on `error` with code `401`.
 
 **Note**: When the `reconnect` method fails to re-establish a connection with LiveEngage, a `closed` and `error` events will fire. Unless these events are handled, multiple instances of a reconnection mechanism will be triggered. See our (retry policy)[https://developers.liveperson.com/retry-and-keepalive-best-practices-overview.html] for more information on how we recommend you handle a retry mechanism.
+
+#### getBearerToken()
+After you connect an agent successfully, you may use this method to get the bearer token of an agent to call other APIs within LivePerson services.
+
+#### refreshSession(callback)
+Use this method to prolong the session of the agent. In another note, this method prolongs the lifetime of the bearer token.
+
+This method requires you to provide a callback function to check if an error is encountered.
+
+An example would be:
+```javascript
+agent.refreshSession((err) => {
+    if (err) {
+        console.error('An error occurred while refreshing agent session.', err);
+    }
+});
+```
+
+### startPeriodicRefreshSession()
+Use this method to restart the refreshSession periodic calls to make sure that the bearer token is valid forever. 
+
+This method will also be called when you reconnect with token generation.
 
 #### dispose()
 Will dispose of the connection and unregister internal events.
@@ -1303,34 +1345,52 @@ agent.on('notification', body => {});
 ```
 
 #### closed
-This event fires when the socket is closed.  If the reason is code 4401 or 4407 this indicates an authentication issue, so when you call [reconnect()](#reconnect(skiptokengeneration)) you should make sure not to pass the `skipTokenGeneration` argument.
+This event fires when the socket is closed.  If the reason is code 4401, 4407, or 1011 this indicates an authentication issue, so when you call [reconnect()](#reconnect(skiptokengeneration)) you should make sure not to pass the `skipTokenGeneration` argument.
+
+In any other case, please make sure to [reconnect()](#reconnect(skiptokengeneration)) with passing the skipTokenGeneration flag set to true to avoid token re-generation.
 
 This event will only occur once, so if you want to attempt to reconnect repeatedly you should initiate a periodic reconnect attempt here. **LivePerson recommends that you make periodic reconnect attempts at increasing intervals up to a finite number of attempts in order to prevent flooding our service and being blocked as a potentially abusive client**. See [LivePerson's retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) for more information.
 
 In the sample below we attempt to reconnect 35 times, waiting 5 seconds the first time and increasing the interval by a factor of 1.25 between each attempt.
 
-Sample code:
+#### Reconnect with Retry
+
 ```javascript
 const reconnectInterval = 5;        // in seconds
 const reconnectAttempts = 35;
 const reconnectRatio    = 1.25;     // ratio in the geometric series used to determine reconnect exponential back-off
 
+agent._reconnect = (skipTokenGeneration, delay = reconnectInterval, attempt = 1) => {
+    agent._retryConnection = setTimeout(() => {
+        agent.reconnect(skipTokenGeneration);
+        if (++attempt <= reconnectAttempts) { agent._reconnect(delay * reconnectRatio, attempt) }
+    }, delay * 1000)
+ }
+```
+
+#### Sample Retry Logic
+
+```javascript
 // on connected cancel any retry interval remaining from reconnect attempt
 agent.on('connected', () => {
     clearTimeout(agent._retryConnection);
     // etc etc
 });
 
-agent.on('closed', () => {
-    agent._reconnect();             // call our reconnect looper
+agent.on('closed', (data) => {
+    switch (data) {
+        // Authentication issue
+        case 4401:
+        case 4407:
+        case 1011:
+            agent._reconnect();     // call our reconnect looper
+            break;
+        // Non-authentication issue
+        default:
+            agent._reconnect(true); // call our reconnect looper without token generation
+            break;
+    }
 });
-
-agent._reconnect = (delay = reconnectInterval, attempt = 1) => {
-    agent._retryConnection = setTimeout(()=>{
-        agent.reconnect();
-        if (++attempt <= reconnectAttempts) { agent._reconnect(delay * reconnectRatio, attempt) }
-    }, delay * 1000)
- }
 ```
 
 Example payload:
@@ -1339,13 +1399,36 @@ Example payload:
 ```
 
 #### error
-This event fires when the SDK receives an error from the messaging service. If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section.
+This event fires when the SDK receives an error from the messaging service. There are two parameters that are passed in to the event.
+
+* error:
+
+```javascript
+// The SDKError object
+{
+   message: 'the message of the error',
+   code: 401, // Error code if the error actually comes from a network call (such as a REST API invocation)
+   error: Error // The original error object if it comes from another error that is not caused by a network call
+}
+```
+
+* context:
+```javascript
+{
+    location: 'Event#Source' // The source location of the event, for example 'Reconnect#Login', which happens during the login section of the reconnect function
+}
+```
+
+For more information of the Context object and what to do in times of failures, please visit [Success and Error Events](./README_success_and_error_events.md).
+
+If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section.
 
 Sample code:
 ```javascript
-agent.on('error', err => {
+agent.on('error', (err, context) => {
     if (err && err.code === 401) {
-        agent._reconnect();  // agent._reconnect() defined in the on('closed',() => {}) example above.
+        agent._reconnect();  // The reconnect function defined in the closed section above.
+                             // This will re-connect the WS connection and re-generate the bearer token
     }
 });
 ```
@@ -1354,6 +1437,7 @@ Example payload:
 ```json
 {"code":"ENOTFOUND","errno":"ENOTFOUND","syscall":"getaddrinfo","hostname":"va.agentvep.liveperson.net","host":"va.agentvep.liveperson.net","port":443}
 ```
+
 
 ### Deprecation notices
 
