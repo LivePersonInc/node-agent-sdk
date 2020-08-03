@@ -153,6 +153,7 @@ Each agent has an agentId that must be passed to subsequent requests. This is ma
 - [generateURLForDownloadFile](#generateurlfordownloadfile)
 - [generateURLForUploadFile](#generateurlforuploadfile)
 - [publishEvent](#publishevent)
+- [connect](#connectcallback)
 - [reconnect](#reconnectskiptokengeneration)
 - [getBearerToken](#getbearertoken)
 - [refreshSession](#refreshsession)
@@ -1352,12 +1353,24 @@ This event will only occur once, so if you want to attempt to reconnect repeated
 
 In the sample below we attempt to reconnect 35 times, waiting 5 seconds the first time and increasing the interval by a factor of 1.25 between each attempt.
 
-Sample code:
+#### Reconnect with Retry
+
 ```javascript
 const reconnectInterval = 5;        // in seconds
 const reconnectAttempts = 35;
 const reconnectRatio    = 1.25;     // ratio in the geometric series used to determine reconnect exponential back-off
 
+agent._reconnect = (skipTokenGeneration, delay = reconnectInterval, attempt = 1) => {
+    agent._retryConnection = setTimeout(() => {
+        agent.reconnect(skipTokenGeneration);
+        if (++attempt <= reconnectAttempts) { agent._reconnect(delay * reconnectRatio, attempt) }
+    }, delay * 1000)
+ }
+```
+
+#### Sample Retry Logic
+
+```javascript
 // on connected cancel any retry interval remaining from reconnect attempt
 agent.on('connected', () => {
     clearTimeout(agent._retryConnection);
@@ -1378,13 +1391,6 @@ agent.on('closed', (data) => {
             break;
     }
 });
-
-agent._reconnect = (skipTokenGeneration, delay = reconnectInterval, attempt = 1) => {
-    agent._retryConnection = setTimeout(()=>{
-        agent.reconnect(skipTokenGeneration);
-        if (++attempt <= reconnectAttempts) { agent._reconnect(delay * reconnectRatio, attempt) }
-    }, delay * 1000)
- }
 ```
 
 Example payload:
@@ -1393,7 +1399,29 @@ Example payload:
 ```
 
 #### error
-This event fires when the SDK receives an error from the messaging service. If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section.
+This event fires when the SDK receives an error from the messaging service. There are two parameters that are passed in to the event.
+
+* error:
+
+```javascript
+// The SDKError object
+{
+   message: 'the message of the error',
+   code: 401, // Error code if the error actually comes from a network call (such as a REST API invocation)
+   error: Error // The original error object if it comes from another error that is not caused by a network call
+}
+```
+
+* context:
+```javascript
+{
+    location: 'Event#Source' // The source location of the event, for example 'Reconnect#Login', which happens during the login section of the reconnect function
+}
+```
+
+For more information of the Context object and what to do in times of failures, please visit [Success and Error Events](./README_success_and_error_events.md).
+
+If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section.
 
 Sample code:
 ```javascript
@@ -1409,6 +1437,7 @@ Example payload:
 ```json
 {"code":"ENOTFOUND","errno":"ENOTFOUND","syscall":"getaddrinfo","hostname":"va.agentvep.liveperson.net","host":"va.agentvep.liveperson.net","port":443}
 ```
+
 
 ### Deprecation notices
 
