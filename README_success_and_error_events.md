@@ -1,7 +1,7 @@
 # Success and Error Events
 
 
-Node Agent SDK emits events when a flow succeeds or fails. These events will be useful in determining action items to take, as well as giving visibility about a particular flow in the SDK. 
+Node Agent SDK emits events when a flow succeeds or fails. These events will be useful in determining action items to take, as well as giving visibility about a particular flow in the SDK.
 
 For example, you might want to have some metrics that keep track of how many times 'RefreshSession#Login' flow fails vs succeeding.
 
@@ -12,7 +12,7 @@ Success events provide you with a parameter called context:
 
 ```javascript
 {
-    location: 'Event#Source'    // The source location of the event, for example 'Reconnect#Login', 
+    location: 'Event#Source'    // The source location of the event, for example 'Reconnect#Login',
                                 // which happens during the login section of the reconnect function
 }
 ```
@@ -132,7 +132,7 @@ Please refer to [General Failure Cases](#reconnect-general-failure-cases).
 
 #### Description
 
-This happens when the bot is trying to login and re-establish a WS connection to LivePerson after the bot was disconnected. 
+This happens when the bot is trying to login and re-establish a WS connection to LivePerson after the bot was disconnected.
 
 It happens inside the [reconnect(skipTokenGeneration)](README.md#reconnectskiptokengeneration) function.
 
@@ -151,7 +151,7 @@ It happens inside the [refreshSession(callback)](README.md#refreshsessioncallbac
 ##### Error codes 429 or 5xx for Refresh Sessions
 
 This indicates that you might be rate-limited or the service is down. Please implement a retry logic with exponential backoff on the [refreshSession(callback)](README.md#refreshsessioncallback) function.
- 
+
 If you want to attempt to reconnect repeatedly you should initiate a periodic reconnect attempt here. **LivePerson recommends that you make periodic reconnect attempts at increasing intervals up to a finite number of attempts in order to prevent flooding our service and being blocked as a potentially abusive client**. See [LivePerson's retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) for more information.
 
 In the sample below we attempt to reconnect 35 times, waiting 5 seconds the first time and increasing the interval by a factor of 1.25 between each attempt.
@@ -162,14 +162,21 @@ In the sample below we attempt to reconnect 35 times, waiting 5 seconds the firs
 const reconnectInterval = 5;        // in seconds
 const reconnectAttempts = 35;
 const reconnectRatio    = 1.25;     // ratio in the geometric series used to determine reconnect exponential back-off
+const RS_EXPONENTIAL_RETRY_SUCCESS_EVENT = 'RefreshSessionExponentialRetry#Success'; // success event for the exponential retry below
 
 agent._retryRefreshSession = (delay = reconnectInterval, attempt = 1) => {
     // Clear the timeouts from before
     clearTimeout(agent._refreshRetryConnection);
-    
+
     agent._refreshRetryConnection = setTimeout(() => {
-        agent.refreshSession(() => {});
-        if (++attempt <= reconnectAttempts) { 
+        agent.refreshSession((err) => {
+            if (!err) {
+                // Emit a manual retry event on success
+                agent._emitStatusEvents(null, RS_EXPONENTIAL_RETRY_SUCCESS_EVENT);
+            }
+        });
+
+        if (++attempt <= reconnectAttempts) {
             agent._retryRefreshSession(delay * reconnectRatio, attempt);
         }
     }, delay * 1000);
@@ -178,20 +185,22 @@ agent._retryRefreshSession = (delay = reconnectInterval, attempt = 1) => {
 ###### Retry Logic Example
 
 ```javascript
-// on success of the RefreshSession Events, we should cancel the retry timeout _refreshRetryConnection above
-// and restart the refreshSession loop to avoid it being stopped
-agent.on('success', (err, context) => {
-   if (context.startsWith('RefreshSession')) {
-       clearTimeout(agent._refreshRetryConnection);
-       // Restart the refreshSession loop
-       this.startPeriodicRefreshSession();
+// 429 and 5xx cases
+agent.on('error', (err, context) => {
+   // Exponential retry on 429 or 5xx
+   if (err && (err.code === 429 || err.code >= 500)
+       && (context && context.location && context.location.startsWith('RefreshSession'))) {
+       agent._retryRefreshSession(); // The _retryRefreshSession function from above on the #Reconnect with Retry header
    }
 });
 
-// 429 and 5xx cases
-agent.on('error', (err, context) => {
-   if (err && (err.code === 429 || err.code >= 500) && context.location.startsWith('RefreshSession')) {
-       agent._retryRefreshSession(); // The _retryRefreshSession function from above on the #Reconnect with Retry header
+// on the manual retry success event above, we should cancel the retry timeout _refreshRetryConnection above
+// and restart the refreshSession loop to avoid it being stopped
+agent.on('success', (err, context) => {
+   if (context && context.location === RS_EXPONENTIAL_RETRY_SUCCESS_EVENT) {
+       clearTimeout(agent._refreshRetryConnection);
+       // Restart the refreshSession loop
+       this.startPeriodicRefreshSession();
    }
 });
 ```
