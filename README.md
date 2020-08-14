@@ -777,7 +777,7 @@ Success response:
 `{"sequence":32}`
 
 #### connect(callback)
-This function should be called in the first stage of an agent lifecycle, or when an agent is disposed. 
+This function should be called in the first stage of an agent lifecycle, or when an agent is disposed.
 
 If you happen to call [dispose](#dispose), but you want to re-connect the agent again, use this function.
 
@@ -821,7 +821,7 @@ agent.refreshSession((err) => {
 ```
 
 ### startPeriodicRefreshSession()
-Use this method to restart the refreshSession periodic calls to make sure that the bearer token is valid forever. 
+Use this method to restart the refreshSession periodic calls to make sure that the bearer token is valid forever.
 
 This method will also be called when you reconnect with token generation.
 
@@ -1415,11 +1415,10 @@ This event fires when the SDK receives an error from the messaging service. Ther
 * context:
 ```javascript
 {
-    location: 'Event#Source' // The source location of the event, for example 'Reconnect#Login', which happens during the login section of the reconnect function
+    location: 'Event#Source' // The source location of the event, for example 'Reconnect#Login',
+                             // which happens during the login section of the reconnect function
 }
 ```
-
-For more information of the Context object and what to do in times of failures, please visit [Success and Error Events](./README_success_and_error_events.md).
 
 If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section.
 
