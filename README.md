@@ -389,7 +389,7 @@ agent.updateConversationField({
 });
 ```
 
-If the conversation has an assigned agent which needs to be removed, this can be done as a part of the same request.
+If the conversation has an assigned agent which needs to be removed, this **must** be done as a part of the same request.
 >Note: Attempting to remove the assigned agent when there is none will cause the request to fail.
 ```javascript
 agent.updateConversationField({
