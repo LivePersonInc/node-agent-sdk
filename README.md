@@ -991,6 +991,7 @@ Example payload:
         "convId": "220d3639-ae23-4c90-83e8-455e3bb2cf13",
         "conversationDetails": {
           "skillId": "-1",
+          "brandId": "2344566",
           "participants": [
             {
               "id": "d51ce914-97ad-4544-a686-8335b61dcdf3",
