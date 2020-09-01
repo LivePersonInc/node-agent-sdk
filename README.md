@@ -15,6 +15,7 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 - [Getting Started](#getting-started)
   - [Pre-Requisites](#pre-requisites)
   - [Install](#install)
+  - [Update](#update)
   - [Quick Start Example](#quick-start-example)
   - [Running the Sample Apps][3]
 - [API Overview](#api-overview)
@@ -49,6 +50,13 @@ To have the Messaging feature added to your account speak with your LivePerson A
     ```
     Run the [greeting bot](/examples/greeting-bot/greeting-bot.js) example (see how in [Running The Sample Apps][3]).
 
+### Update
+
+To update your project to the latest version of nodeAgentSdk
+
+   ```sh
+   npm update node-agent-sdk
+   ```
 
 ### Quick Start Example
 
