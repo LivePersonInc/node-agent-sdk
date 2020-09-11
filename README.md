@@ -15,6 +15,7 @@ The SDK provides a simple node JS wrapper for the [LivePerson messaging API][1].
 - [Getting Started](#getting-started)
   - [Pre-Requisites](#pre-requisites)
   - [Install](#install)
+  - [Update](#update)
   - [Quick Start Example](#quick-start-example)
   - [Running the Sample Apps][3]
 - [API Overview](#api-overview)
@@ -49,6 +50,13 @@ To have the Messaging feature added to your account speak with your LivePerson A
     ```
     Run the [greeting bot](/examples/greeting-bot/greeting-bot.js) example (see how in [Running The Sample Apps][3]).
 
+### Update
+
+To update your project to the latest version of nodeAgentSdk
+
+   ```sh
+   npm update node-agent-sdk
+   ```
 
 ### Quick Start Example
 
@@ -389,7 +397,7 @@ agent.updateConversationField({
 });
 ```
 
-If the conversation has an assigned agent which needs to be removed, this can be done as a part of the same request.
+If the conversation has an assigned agent which needs to be removed, this **must** be done as a part of the same request.
 >Note: Attempting to remove the assigned agent when there is none will cause the request to fail.
 ```javascript
 agent.updateConversationField({
@@ -777,7 +785,7 @@ Success response:
 `{"sequence":32}`
 
 #### connect(callback)
-This function should be called in the first stage of an agent lifecycle, or when an agent is disposed. 
+This function should be called in the first stage of an agent lifecycle, or when an agent is disposed.
 
 If you happen to call [dispose](#dispose), but you want to re-connect the agent again, use this function.
 
@@ -821,7 +829,7 @@ agent.refreshSession((err) => {
 ```
 
 ### startPeriodicRefreshSession()
-Use this method to restart the refreshSession periodic calls to make sure that the bearer token is valid forever. 
+Use this method to restart the refreshSession periodic calls to make sure that the bearer token is valid forever.
 
 This method will also be called when you reconnect with token generation.
 
@@ -991,6 +999,7 @@ Example payload:
         "convId": "220d3639-ae23-4c90-83e8-455e3bb2cf13",
         "conversationDetails": {
           "skillId": "-1",
+          "brandId": "2344566",
           "participants": [
             {
               "id": "d51ce914-97ad-4544-a686-8335b61dcdf3",
@@ -1415,11 +1424,10 @@ This event fires when the SDK receives an error from the messaging service. Ther
 * context:
 ```javascript
 {
-    location: 'Event#Source' // The source location of the event, for example 'Reconnect#Login', which happens during the login section of the reconnect function
+    location: 'Event#Source' // The source location of the event, for example 'Reconnect#Login',
+                             // which happens during the login section of the reconnect function
 }
 ```
-
-For more information of the Context object and what to do in times of failures, please visit [Success and Error Events](./README_success_and_error_events.md).
 
 If you receive a `401` error you should [reconnect()](#reconnect) according to the [retry policy guidelines](https://developers.liveperson.com/guides-retry-policy.html) mentioned above, in the [closed](#closed) section.
 
