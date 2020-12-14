@@ -1,11 +1,11 @@
 'use strict';
 
 /*
- * This demo extends MyCoolAgent with the specific reply logic: 
- * 
+ * This demo extends MyCoolAgent with the specific reply logic:
+ *
  * 1) Echo any new message from the consumer
- * 2) Close the conversation if the consumer message starts with '#close' 
- * 
+ * 2) Close the conversation if the consumer message starts with '#close'
+ *
  */
 
 const MyCoolAgent = require('./MyCoolAgent');
