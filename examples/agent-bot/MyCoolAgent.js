@@ -39,7 +39,9 @@ class MyCoolAgent extends Agent {
         // handle incoming messages (also message meta events like accept/read/typing/active)
         this.on('ms.MessagingEventNotification', this.onMessagingNotification.bind(this));
 
-        this.on('error', err => console.log('got an error', err));
+        this.on('error', (err) => {
+            console.log('got an error', err);
+        });
 
         this.on('closed', data => {
             // For production environments ensure that you implement reconnect logic according to
