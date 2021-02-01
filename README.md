@@ -158,6 +158,7 @@ Each agent has an agentId that must be passed to subsequent requests. This is ma
 - [getUserProfile](#getuserprofile)
 - [updateRingState](#updateringstate)
 - [updateConversationField](#updateconversationfield)
+- [agentRequestConversation](#agentrequestconversation)
 - [generateURLForDownloadFile](#generateurlfordownloadfile)
 - [generateURLForUploadFile](#generateurlforuploadfile)
 - [publishEvent](#publishevent)
@@ -449,6 +450,28 @@ agent.updateConversationField({
 Success response:
 
 `"OK Agent removed successfully"`
+
+#### agentRequestConversation
+This method is used to create a new conversation with a specific consumer.
+Note: The "consumerID" field is the LP internal consumer id.
+
+```javascript
+agent.agentRequestConversation({
+    "channelType":"MESSAGING",
+    "consumerId":"2dbd909d5b67f986bdf8ec70c883d649baaa532d10207e1e626b47596e88e99a",
+    "conversationContext":{
+      "type":"ProactiveContext",
+      "originConversationId":"2e449edb-0da6-4d06-a971-6af27434eb45"
+    }
+}, async (e, resp)=>{
+    if (e) { console.error(e) }
+    console.log(resp)
+});
+```
+
+Success response:
+
+`{"conversationId":"b78da273-be62-401f-a5f2-8dd09ca4ab3c"}`
 
 #### generateURLForDownloadFile
 In order the generate url for download the file was published by one of the participants, use the following:
