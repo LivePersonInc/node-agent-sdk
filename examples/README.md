@@ -26,16 +26,16 @@ To run the [greeting bot example][1]:
 - Run:
     - Unix Shell
        ```sh
-       LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASS=b0tpa55word node examples/greeting-bot/greeting-bot.js
+       LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASS=b0tpa55word node examples/greeting-bot/main.js
        ```
     - Windows Shell
        ```sh
-       set LP_ACCOUNT=1234567 
-       set LP_USER=BotUserName 
-       set LP_PASS=b0tpa55word 
-       node examples/greeting-bot/greeting-bot.js
+       set LP_ACCOUNT=1234567
+       set LP_USER=BotUserName
+       set LP_PASS=b0tpa55word
+       node examples/greeting-bot/main.js
        ```
-   
+
 
 ## Agent Bot
 The agent bot is an example SDK implementation in which the bot accepts incoming conversations as the assigned agent. It listens for messages from the consumer and upon receipt marks them as read and echos them back to the consumer.  This example extends the Agent class, which you can read more about below.
@@ -60,19 +60,19 @@ To run the [agent bot example][2]
         ```
     - Windows Shell
        ```sh
-       set LP_ACCOUNT=1234567 
-       set LP_USER=BotUserName 
-       set LP_PASS=b0tpa55word 
+       set LP_ACCOUNT=1234567
+       set LP_USER=BotUserName
+       set LP_PASS=b0tpa55word
        node examples/agent-bot/main.js
        ```
-      
-      
+
+
 ## Agent Survey Bot
- Agent survey bot is an example SDK implementation in which the bot accepts conversation. After the conversation was accepted, 
- bot sends GET agent survey request. 
- During the conversation, bot builds a submit body and stores it in the file. If during 
+ Agent survey bot is an example SDK implementation in which the bot accepts conversation. After the conversation was accepted,
+ bot sends GET agent survey request.
+ During the conversation, bot builds a submit body and stores it in the file. If during
  the conversation, bot receives a dismiss trigger (in the current example: 'dismiss') - then it gets the current agent survey state and if it wasn't
- submitted, bot sends a dismiss request. In case of a submit trigger (in the current example: 'submit'), bot sends a submit request.  
+ submitted, bot sends a dismiss request. In case of a submit trigger (in the current example: 'submit'), bot sends a submit request.
  On "close the conversation", bot sends a request to get the current agent survey's state and if it wasn't submitted yet - it sends a submit request.
 
 
@@ -96,13 +96,13 @@ To run the [agent survey bot example][2]
         ```
     - Windows Shell
        ```sh
-       set LP_ACCOUNT=1234567 
-       set LP_USER=BotUserName 
-       set LP_PASS=b0tpa55word 
-       set LP_CSDS=csdsDomain 
+       set LP_ACCOUNT=1234567
+       set LP_USER=BotUserName
+       set LP_PASS=b0tpa55word
+       set LP_CSDS=csdsDomain
        node examples/agent-bot/survey/main.js
        ```
-      
+
 
 ## Survey Bot
 The survey bot is an example SDK implementation in which the bot waits on a survey dialog, validates the application id with its own and joins the dialog.
@@ -130,10 +130,10 @@ To run the [survey bot example][3]
         ```
     - Windows Shell
         ```sh
-       set APP_INST=1234-3454-34657 
-       set LP_ACCOUNT=1234567 
-       set LP_USER=BotUserName 
-       set LP_PASSWORD=b0tpa55word 
+       set APP_INST=1234-3454-34657
+       set LP_ACCOUNT=1234567
+       set LP_USER=BotUserName
+       set LP_PASSWORD=b0tpa55word
        node examples/survey-bot/main.js
         ```
 
@@ -155,9 +155,9 @@ This example extends the Agent class, which you can read more about below.
 - A LivePerson Account with Messaging enabled.
   + Account should be enable ac-feature: `Messaging.Agent_File_Sharing`
   + Account site settings should enable: `messaging.agent.file.sharing.enable`
-- A user with Agent permissions. These permissions also need to be edited. To edit the agent permission: 
+- A user with Agent permissions. These permissions also need to be edited. To edit the agent permission:
     * Login to your account using administrator/agent manager permissions.
-    * Navigate to the users tab. 
+    * Navigate to the users tab.
     * Click the __Profiles__ option and then click the __Agent__ profile or create a new profile based on the __Agent__ role and there enable the following:
         + `Send files to consumers from local file browser` and/or
         + `Send files to consumers from custom widgets`
@@ -175,9 +175,9 @@ To run the [file sharing bot example][4]
        LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASSWORD=b0tpa55word node examples/filesharing-bot/filesharing-bot.js
     - Windows Shell
        ```sh
-       set LP_ACCOUNT=1234567 
-       set LP_USER=BotUserName 
-       set LP_PASS=b0tpa55word 
+       set LP_ACCOUNT=1234567
+       set LP_USER=BotUserName
+       set LP_PASS=b0tpa55word
        node examples/filesharing-bot/filesharing-bot.js
        ```
 
@@ -200,9 +200,9 @@ Pre-requisites:
 
 - A LivePerson Account with Messaging enabled.
   + Account should have the ac-feature `Messaging.Transfer_To_Agent` enabled.
-- A user with Agent permissions. These permissions also need to be edited. To edit the agent permission: 
+- A user with Agent permissions. These permissions also need to be edited. To edit the agent permission:
     * Login to your account using administrator/agent manager permissions.
-    * Navigate to the users tab. 
+    * Navigate to the users tab.
     * Click the __Profiles__ option and then click the __Agent__ profile or create a new profile based on the __Agent__ role and there enable the following:
         + `Transfer messaging conversations to a specific agent in 'online' or 'back soon' state`
 
@@ -220,9 +220,9 @@ To run the [return to same agent bot example](https://github.com/LivePersonInc/n
        LP_ACCOUNT=1234567 LP_USER=BotUserName LP_PASSWORD=b0tpa55word node examples/transfer2same-agent-bot/main.js
     - Windows Shell
        ```sh
-       set LP_ACCOUNT=1234567 
-       set LP_USER=BotUserName 
-       set LP_PASS=b0tpa55word 
+       set LP_ACCOUNT=1234567
+       set LP_USER=BotUserName
+       set LP_PASS=b0tpa55word
        node examples/transfer2same-agent-bot/main.js
        ```
 

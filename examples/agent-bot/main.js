@@ -1,11 +1,11 @@
 'use strict';
 
 /*
- * This demo extends MyCoolAgent with the specific reply logic: 
- * 
+ * This demo extends MyCoolAgent with the specific reply logic:
+ *
  * 1) Echo any new message from the consumer
- * 2) Close the conversation if the consumer message starts with '#close' 
- * 
+ * 2) Close the conversation if the consumer message starts with '#close'
+ *
  */
 
 const MyCoolAgent = require('./MyCoolAgent');
@@ -45,8 +45,8 @@ echoAgent.on(echoAgent.CONTENT_NOTIFICATION,(contentEvent)=>{
         echoAgent.publishEvent({
             dialogId: contentEvent.dialogId,
             event: {
-                type: 'ContentEvent', 
-                contentType: 'text/plain', 
+                type: 'ContentEvent',
+                contentType: 'text/plain',
                 message: `echo : ${contentEvent.message}`
             }
         });
