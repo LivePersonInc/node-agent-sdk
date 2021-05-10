@@ -76,7 +76,7 @@ describe('Agent SDK Tests', () => {
             password: 'password'
         });
         agent.on('connected', msg => {
-            expect(agent.getClock).to.be.a.function;
+            expect(agent.getClock).to.be.a('function');
             // expect(agent.agentId).to.equal('account.imauser');
             expect(agent.connected).to.be.true;
             done();
@@ -182,7 +182,7 @@ describe('Agent SDK Tests', () => {
         });
 
         agent.on('notification', msg => {
-            expect(msg).to.be.defined;
+            expect(msg).to.not.be.undefined;
             expect(msg.body.x).to.equal('x');
             done();
         });
@@ -202,7 +202,7 @@ describe('Agent SDK Tests', () => {
         });
 
         agent.on('notification', msg => {
-            expect(msg).to.be.defined;
+            expect(msg).to.not.be.undefined;
             expect(msg.body.x).to.equal('x');
             done();
         });
@@ -226,7 +226,7 @@ describe('Agent SDK Tests', () => {
         });
 
         agent.on('notification', msg => {
-            expect(msg).to.be.defined;
+            expect(msg).to.not.be.undefined;
             expect(msg.body.x).to.equal('x');
             done();
         });
@@ -247,7 +247,7 @@ describe('Agent SDK Tests', () => {
         });
 
         agent.on('notification', msg => {
-            expect(msg).to.be.defined;
+            expect(msg).to.not.be.undefined;
             expect(msg.body.x).to.equal('x');
             done();
         });
@@ -268,7 +268,7 @@ describe('Agent SDK Tests', () => {
         });
 
         agent.on('myType', body => {
-            expect(body).to.be.defined;
+            expect(body).to.not.be.undefined;
             expect(body.x).to.equal('x');
             done();
         });
@@ -561,7 +561,7 @@ describe('Agent SDK Tests', () => {
         agent.on('connected', msg => {
             agent.getClock({some: 'data'}, (err, response) => {
                 expect(err).to.be.null;
-                expect(response).to.be.defined;
+                expect(response).to.not.be.undefined;
                 expect(response.x).to.equal('x');
                 done();
             });
@@ -604,7 +604,7 @@ describe('Agent SDK Tests', () => {
         });
 
         agent.on('myRespType', body => {
-            expect(body).to.be.defined;
+            expect(body).to.not.be.undefined;
             expect(body.x).to.equal('x');
             done();
         });
@@ -625,7 +625,7 @@ describe('Agent SDK Tests', () => {
 
         agent.on('connected', msg => {
             agent.getClock({some: 'data'}, (err, response) => {
-                expect(err).to.be.defined;
+                expect(err).to.not.be.undefined;
                 expect(err).to.be.instanceof(Error);
                 expect(err.message).to.contain('timed');
                 done();
@@ -660,6 +660,7 @@ describe('Agent SDK Tests', () => {
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
         externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
         const change =  {'type':'UPSERT','result':{'convId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','effectiveTTR':-1,'conversationDetails':{'convId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','skillId':'1251428632','participants':{'CONSUMER':['102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11'],'MANAGER':['2344566.1282051932','2344566.901083232'],'CONTROLLER':['2344566.1257599432'],'READER':[]},'participantsPId':{'CONSUMER':['102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11'],'MANAGER':['f675416a-7d5a-5d06-a7bd-bdf5fcc426a1','8ffebb81-0614-568c-a011-3b17eafc5b9d'],'READER':[]},'dialogs':[{'dialogId':'5Yn6I7hpR6C3JWg4YT-Meg','participantsDetails':[{'id':'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11','role':'CONSUMER','state':'ACTIVE'}],'dialogType':'POST_SURVEY','channelType':'MESSAGING','metaData':{'appInstallId':'896ef5ea-b954-42c9-91b7-a9134a47faa7'},'state':'OPEN','creationTs':1564734095888,'metaDataLastUpdateTs':1564734095887},{'dialogId':'38c1ff4b-24e5-2342-8d05-15a62de2daad','participantsDetails':[{'id':'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11','role':'CONSUMER','state':'ACTIVE'},{'id':'2344566.1282051932','role':'MANAGER','state':'ACTIVE'},{'id':'2344566.1257599432','role':'CONTROLLER','state':'ACTIVE'},{'id':'2344566.901083232','role':'MANAGER','state':'ACTIVE'}],'dialogType':'MAIN','channelType':'MESSAGING','state':'CLOSE','creationTs':1564685380489,'endTs':1564734095888,'metaDataLastUpdateTs':1564734095888,'closedBy':'AGENT'}],'brandId':'2344566','state':'CLOSE','stage':'OPEN','closeReason':'AGENT','startTs':1564685380489,'metaDataLastUpdateTs':1564734095888,'firstConversation':false,'csatRate':0,'ttr':{'ttrType':'NORMAL','value':1200},'note':'','context':{'type':'CustomContext','clientProperties':{'type':'.ClientProperties','appId':'whatsapp','ipAddress':'10.42.138.108','features':['PHOTO_SHARING','QUICK_REPLIES','AUTO_MESSAGES','MULTI_DIALOG','FILE_SHARING','RICH_CONTENT']},'name':'WhatsApp Business'},'conversationHandlerDetails':{'accountId':'2344566','skillId':'1251428632'}},'numberOfunreadMessages':{'102f83624a545696f5dd87ecdd6edf394430f3445666ba68b533c847abb11':1,'2344566.901083232':0,'2344566.1282051932':10},'lastUpdateTime':1564734095888}};
+
         const agent = new Agent({
             accountId: 'account',
             username: 'me',
@@ -674,7 +675,7 @@ describe('Agent SDK Tests', () => {
         });
 
         agent.on('warn', msg => {
-            expect(msg).to.be.defined;
+            expect(msg).to.not.be.undefined;
             expect(msg.message).to.contain('invalid participant on conversation');
             warned = true;
         });
@@ -684,7 +685,7 @@ describe('Agent SDK Tests', () => {
         });
 
         agent.on('notification', msg => {
-            expect(msg).to.be.defined;
+            expect(msg).to.not.be.undefined;
             expect(msg.body.changes[0].result.conversationDetails.participants.length).to.equal(3);
             expect(warned).to.equal(true);
             expect(errReceived).to.equal(false);
@@ -722,7 +723,7 @@ describe('Agent SDK Tests', () => {
         });
 
         agent.on('notification', msg => {
-            expect(msg).to.be.defined;
+            expect(msg).to.not.be.undefined;
             expect(msg.body.changes[0].result.conversationDetails.participants.length).to.equal(5);
             expect(warned).to.equal(false);
             expect(errReceived).to.equal(false);
@@ -759,7 +760,7 @@ describe('Agent SDK Tests', () => {
 
         agent.on('error', err => {
             setTimeout(() => {
-                expect(err).to.be.defined;
+                expect(err).to.not.be.undefined;
                 expect(warned).to.equal(false);
                 expect(notificationReceived).to.equal(false);
                 done();
@@ -785,7 +786,7 @@ describe('Agent SDK Tests', () => {
 
 
         agent.on('notification', msg => {
-            expect(msg).to.be.defined;
+            expect(msg).to.not.be.undefined;
             expect(msg.body.changes[0].result.conversationDetails.brandId).to.equal('2344566');
             done();
         });
