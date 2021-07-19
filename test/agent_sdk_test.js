@@ -66,6 +66,24 @@ describe('Agent SDK Tests', () => {
         mockery.disable();
     });
 
+    // this is causing an error in qa
+    it('undefined domain reponse', done => {
+        requestCSDSStub.yieldsAsync(null, {}, undefined);
+        externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
+        externalServices.getAgentId.yieldsAsync(null, {pid: 'someId'});
+        const agent = new Agent({
+            accountId: 'account',
+            username: 'me',
+            password: 'password'
+        });
+
+        agent.on('error', err => {
+            expect(err.message).to.equal('could not fetch domains');
+            agent.dispose();
+            done();
+        });
+    });
+
     it('should create an instance and publish connected event', done => {
         requestCSDSStub.yieldsAsync(null, {}, csdsResponse);
         externalServices.login.yieldsAsync(null, {bearer: 'im encrypted', config: {userId: 'imauser'}});
