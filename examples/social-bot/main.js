@@ -24,7 +24,6 @@ if (process.env.LP_CSDS) {
 const echoAgent = new MyCoolAgent(conf);
 
 echoAgent.on(echoAgent.CONTENT_NOTIFICATION,(contentEvent) => {
-    // console.log(JSON.stringify(contentEvent));
     const socialEventMetadata = contentEvent.metadata.find(m => m.type === 'SocialMessagingEventData');
     const socialConversationData = contentEvent.metadata.find(m => m.type === 'SocialMessagingConversationData'); // NOTE: This only fires once per conversation.
 
@@ -108,10 +107,8 @@ echoAgent.on(echoAgent.CONTENT_NOTIFICATION,(contentEvent) => {
         {}, myMetadata, null,
         function (resp, err) {
             if (err) {
-                console.log('my rich content log -->');
                 console.log(err);
             } else {
-                console.log('my rich content log -->');
                 console.log(resp);
             }
         });
