@@ -260,6 +260,7 @@ The social bot is an example SDK implementation in which the bot accepts incomin
 
 Pre-requisites:
 - A LivePerson Account with Messaging & Social Messaging
+- A LivePerson Account with Feature "Sent_Consumer_Message_Metadata" enabled
 - A user with Agent permissions
 
 To run the [social bot example](https://github.com/LivePersonInc/node-agent-sdk/tree/master/examples/social-bot)

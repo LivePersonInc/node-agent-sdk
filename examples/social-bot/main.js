@@ -60,41 +60,60 @@ echoAgent.on(echoAgent.CONTENT_NOTIFICATION,(contentEvent) => {
         const myMessage = `Bot response from: ${source}, ${channel}`;
 
         const myMetadata = [];
+        let theMetadata = {};
         if(channel === 'Public') {
-            myMetadata.push({
-                'type': 'SocialMessagingEventData',
-                'replyToId': socialEventMetadata.conversationState.replyToId,
-                'channel': channel,
-                'conversationState': {
-                    'currentChannel': channel,
-                    'dmChatId': socialEventMetadata.conversationState.dmChatId,
-                },
-                'event': {
-                    'source': source,
-                    'type': 'CP',
-                    'parent': {
-                        'attachmentUrl': '',
-                        'pageName': 'Test Page',
-                        'postText': myMessage,
-                        'timestamp': Date.now(),
+            if(source === 'Twitter') {
+                theMetadata = {
+                    'type': 'SocialMessagingEventData',
+                    'channel': channel,
+                    'replyToId': socialEventMetadata.replyToId,
+                    'event': {
+                        'parent': {
+                            'attachmentUrl': '',
+                            'timestamp': Date.now(),
+                            'accountName': 'LP Social Messaging',
+                            'tweetText': myMessage,
+                            'tweetId': socialEventMetadata.replyToId,
+                        },
+                        'source': source,
+                        'type': 'Reply', // {DirectMessage | Tweet | Reply | Retweet}, // for Quote use Retweet
+                    },
+                    'conversationState': {
+                        'currentChannel': channel,
+                        'dmChatId': socialEventMetadata.conversationState.dmChatId,
                     }
-                }
-            });
+                };
+            } else if (source === 'Facebook') {
+                theMetadata = {
+                    'type': 'SocialMessagingEventData',
+                    'channel': channel,
+                    'replyToId': socialEventMetadata.replyToId,
+                    'event': {
+                        'source': source,
+                        'type': socialEventMetadata.event.type || 'Post', // {DirectMessage | Post | CC | CP }, // Post - User post into page community wall | CC - Comment to Comment | CP - Comment to Post
+                    },
+                    'conversationState': {
+                        'currentChannel': channel
+                    },
+                };
+            }
+            myMetadata.push(theMetadata);
         } else {
             myMetadata.push({
                 'type': 'SocialMessagingEventData',
                 'channel': channel,
-                'replyToId': socialEventMetadata.conversationState.replyToId,
+                'replyToId': socialEventMetadata.replyToId,
                 'event': {
                     'source': source,
                     'type': 'DirectMessage'
                 },
-                    'conversationState': {
-                        'currentChannel': channel,
-                        'dmChatId': socialEventMetadata.conversationState.dmChatId,
+                'conversationState': {
+                    'currentChannel': channel,
+                    'dmChatId': socialEventMetadata.conversationState.dmChatId,
                 }
             });
         }
+        console.log(myMetadata);
 
         echoAgent.publishEvent({
             dialogId: contentEvent.dialogId,
