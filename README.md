@@ -1531,6 +1531,11 @@ For typing events is important to understand this are UI related only, this won'
 
 <img src="https://user-images.githubusercontent.com/11651229/67116458-487bba00-f195-11e9-960f-6ba0654f1099.png" alt="TypingEventDiagram" width="400"/>
 
+#### Subscribing to Messaging Events:
+As mentioned earlier, the [subscribeMessagingEvents](#subscribemessagingevents) does not create a subscription
+that will send future message event notifications.  There is a possibility that a notification will be missed
+
+
 ### Further documentation
 
 - [LivePerson messaging API][1]
