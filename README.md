@@ -1558,6 +1558,9 @@ agent.on('cqm.ExConversationChangeNotification', body => {
 If a true subscription is required instead of a one time query, it is better to subscribe to the conversation
 using [updateConversationField](#updateconversationfield).
 
+Note that if both methods are used (subscribing and message query), there is a possibility that the same
+message could be delivered more than once. Your code should account for this possibility.
+
 
 
 
