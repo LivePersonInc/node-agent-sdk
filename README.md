@@ -1549,8 +1549,6 @@ agent.on('cqm.ExConversationChangeNotification', body => {
             queryMessages(conversationId);
         }
     }
-
-
 });
 
 ```
