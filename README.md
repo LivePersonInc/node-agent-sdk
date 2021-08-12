@@ -1533,7 +1533,31 @@ For typing events is important to understand this are UI related only, this won'
 
 #### Subscribing to Messaging Events:
 As mentioned earlier, the [subscribeMessagingEvents](#subscribemessagingevents) does not create a subscription
-that will send future message event notifications.  There is a possibility that a notification will be missed
+that will send future message event notifications; it is a one time query for all messages currently so far
+in the conversation.  A common use case for subscribeMessagingEvents is to query conversations when
+a [cqm.ExConversationChangeNotification](#cqmexconversationchangenotification) event is received.
+It is best practice to check to see if there are any messages available before calling subscribeMessagingEvents.
+For example:
+
+```javascript
+agent.on('cqm.ExConversationChangeNotification', body => {
+    for (let i =0; i < body.changes.length; i++) {
+        const change = body.changes[i];
+        const hasMessage = Boolean(change.result.lastContentEventNotification);
+        const conversationId = change.result.convId;
+    }
+
+    if (hasMessage) {
+        queryMessages(conversationId);
+    }
+});
+
+```
+
+If a true subscription is required instead of a one time query, it is better to subscribe to the conversation
+using [updateConversationField](#updateconversationfield).
+
+
 
 
 ### Further documentation
