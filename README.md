@@ -1545,11 +1545,12 @@ agent.on('cqm.ExConversationChangeNotification', body => {
         const change = body.changes[i];
         const hasMessage = Boolean(change.result.lastContentEventNotification);
         const conversationId = change.result.convId;
+        if (hasMessage) {
+            queryMessages(conversationId);
+        }
     }
 
-    if (hasMessage) {
-        queryMessages(conversationId);
-    }
+
 });
 
 ```
