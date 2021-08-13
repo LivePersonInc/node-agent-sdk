@@ -25,11 +25,6 @@ const echoAgent = new MyCoolAgent(conf);
 
 echoAgent.on(echoAgent.CONTENT_NOTIFICATION,(contentEvent) => {
     const socialEventMetadata = contentEvent.metadata.find(m => m.type === 'SocialMessagingEventData');
-    const socialConversationData = contentEvent.metadata.find(m => m.type === 'SocialMessagingConversationData'); // NOTE: This only fires once per conversation.
-
-    if(socialConversationData !== undefined) {
-        console.log(socialConversationData);
-    }
 
     if (socialEventMetadata !== undefined) {
         console.log(socialEventMetadata);
