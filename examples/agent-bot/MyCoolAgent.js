@@ -282,7 +282,8 @@ class MyCoolAgent extends Agent {
             let contentEvent = {
                 dialogId: c.dialogId,
                 sequence: c.sequence,
-                message: c.event.message
+                message: c.event.message,
+                metadata: c.metadata || [],
             };
 
             this.emit(this.CONTENT_NOTIFICATION, contentEvent);
