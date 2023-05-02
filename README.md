@@ -4,6 +4,7 @@
 
 # DEPRECATION NOTICE
 This SDK is now deprecated in favor of the [Messaging Platform SDK](https://l1905.gitlab.io/conversational-cloud-engineering/conversation-exchange-services/lp-messaging-sdk/)
+#
 
 [![build](https://travis-ci.org/LivePersonInc/node-agent-sdk.svg?branch=master)](https://travis-ci.org/LivePersonInc/node-agent-sdk)
 [![npm version](https://img.shields.io/npm/v/node-agent-sdk.svg)](https://img.shields.io/npm/v/node-agent-sdk)
